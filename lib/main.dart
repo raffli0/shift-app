@@ -9,15 +9,25 @@ import 'features/admin/bloc/admin_bloc.dart';
 import 'features/admin/bloc/admin_event.dart';
 import 'core/services/office_location.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await OfficeConfig.load();
   Bloc.observer = AppBlocObserver();
-  runApp(const MyApp());
+
+  // Check onboarding status
+  final prefs = await SharedPreferences.getInstance();
+  final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
+  final initialRoute = seenOnboarding ? AppRouter.login : AppRouter.onboarding;
+
+  runApp(MyApp(initialRoute: initialRoute));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialRoute;
+
+  const MyApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +46,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorSchemeSeed: const Color(0xff5a64d6),
         ),
-        initialRoute: AppRouter.splash,
+        initialRoute: initialRoute,
         routes: AppRouter.routes,
       ),
     );

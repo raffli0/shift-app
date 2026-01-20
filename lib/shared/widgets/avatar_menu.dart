@@ -65,6 +65,16 @@ void showAvatarMenu(BuildContext context) {
                 },
               ),
 
+              if (context.read<AuthBloc>().state.user?.role != 'admin')
+                _menuItem(
+                  icon: FIcons.fileText,
+                  text: "My Reports",
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, "/user-reports");
+                  },
+                ),
+
               _menuItem(
                 icon: FIcons.settings,
                 text: "Settings",

@@ -15,6 +15,7 @@ import '../../features/notifications/ui/notifications_page.dart';
 import '../../features/admin/ui/admin_root_page.dart';
 import '../../features/admin/ui/admin_settings_page.dart';
 import '../../features/admin/ui/admin_office_location_page.dart';
+import '../../features/report/ui/report_page.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -30,6 +31,7 @@ class AppRouter {
   static const String settings = '/settings';
   static const String adminSettings = '/admin-settings';
   static const String adminOfficeLocation = '/admin-office-location';
+  static const String userReports = '/user-reports';
 
   static Map<String, WidgetBuilder> get routes => {
     splash: (context) => const SplashScreen(),
@@ -45,6 +47,7 @@ class AppRouter {
     adminOfficeLocation: (context) => const AdminOfficeLocationPage(),
     checkIn: (context) => const CheckInActionPage(),
     history: (context) => const AttendanceHistoryPage(),
+    userReports: (context) => const ReportPage(),
   };
 
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
