@@ -1,0 +1,73 @@
+Analyzing flutter_forui...                                      
+
+   info • The imported package 'http' isn't a dependency of the importing package • lib/features/attendance/services/attendance_api.dart:2:8 • depend_on_referenced_packages
+warning • Unused import: 'dart:ui' • lib/features/attendance/ui/scan_page.dart:2:8 • unused_import
+   info • Don't use 'BuildContext's across async gaps • lib/features/attendance/ui/scan_page.dart:147:32 • use_build_context_synchronously
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:192:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:193:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:194:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:195:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:196:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:211:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:212:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:213:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:214:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:221:23 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:227:25 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:233:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/attendance/ui/scan_page.dart:239:9 • avoid_print
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/attendance/ui/scan_page.dart:323:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/attendance/ui/scan_page.dart:328:52 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/attendance/ui/scan_page.dart:348:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/attendance/ui/scan_page.dart:350:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/attendance/ui/scan_page.dart:374:39 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/attendance/ui/scan_page.dart:418:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/attendance/ui/scan_page.dart:481:39 • deprecated_member_use
+   info • The imported package 'intl' isn't a dependency of the importing package • lib/features/home/ui/attendance_home_page.dart:2:8 • depend_on_referenced_packages
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/ui/attendance_home_page.dart:129:56 • deprecated_member_use
+warning • The declaration '_buildRecentActivityInner' isn't referenced • lib/features/home/ui/attendance_home_page.dart:322:10 • unused_element
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/ui/attendance_home_page.dart:338:37 • deprecated_member_use
+warning • The declaration '_buildRecentActivity' isn't referenced • lib/features/home/ui/attendance_home_page.dart:380:10 • unused_element
+warning • A value for optional parameter 'svgIcon' isn't ever given • lib/features/home/ui/attendance_home_page.dart:444:10 • unused_element_parameter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/ui/attendance_home_page.dart:463:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/ui/attendance_home_page.dart:532:39 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/ui/attendance_home_page.dart:614:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/ui/profile_page.dart:167:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/report/ui/report_page.dart:94:34 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/request/ui/request_page.dart:155:34 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/request/ui/request_page.dart:167:37 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/request/ui/request_page.dart:305:38 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/request/ui/request_page.dart:339:38 • deprecated_member_use
+  error • Target of URI doesn't exist: '../home/attendance_home_page.dart' • lib/features/root/ui/main_root_page.dart:3:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../attendance/attendance_page.dart' • lib/features/root/ui/main_root_page.dart:4:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../report/report_page.dart' • lib/features/root/ui/main_root_page.dart:5:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../home/profile_page.dart' • lib/features/root/ui/main_root_page.dart:6:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../request/request_page.dart' • lib/features/root/ui/main_root_page.dart:7:8 • uri_does_not_exist
+  error • The method 'AttendanceHomePage' isn't defined for the type '_MainRootPageState' • lib/features/root/ui/main_root_page.dart:21:5 • undefined_method
+  error • The values in a const list literal must be constants • lib/features/root/ui/main_root_page.dart:21:5 • non_constant_list_element
+  error • The method 'AttendancePage' isn't defined for the type '_MainRootPageState' • lib/features/root/ui/main_root_page.dart:22:5 • undefined_method
+  error • The values in a const list literal must be constants • lib/features/root/ui/main_root_page.dart:22:5 • non_constant_list_element
+  error • The method 'RequestsPage' isn't defined for the type '_MainRootPageState' • lib/features/root/ui/main_root_page.dart:23:5 • undefined_method
+  error • The values in a const list literal must be constants • lib/features/root/ui/main_root_page.dart:23:5 • non_constant_list_element
+  error • The method 'ReportPage' isn't defined for the type '_MainRootPageState' • lib/features/root/ui/main_root_page.dart:24:5 • undefined_method
+  error • The values in a const list literal must be constants • lib/features/root/ui/main_root_page.dart:24:5 • non_constant_list_element
+  error • The method 'ProfilePage' isn't defined for the type '_MainRootPageState' • lib/features/root/ui/main_root_page.dart:25:5 • undefined_method
+  error • The values in a const list literal must be constants • lib/features/root/ui/main_root_page.dart:25:5 • non_constant_list_element
+   info • Don't use 'BuildContext's across async gaps • lib/features/splash/ui/splash_screen.dart:34:38 • use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/splash/ui/splash_screen.dart:90:39 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/shared/widgets/avatar_menu.dart:11:32 • deprecated_member_use
+warning • The value of the local variable 'today' isn't used • lib/shared/widgets/line_calendar.dart:12:20 • unused_local_variable
+warning • The value of the local variable 'startDate' isn't used • lib/shared/widgets/line_calendar.dart:13:20 • unused_local_variable
+warning • The value of the local variable 'endDate' isn't used • lib/shared/widgets/line_calendar.dart:14:20 • unused_local_variable
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/shared/widgets/line_calendar.dart:19:29 • deprecated_member_use
+warning • Unused import: 'package:forui/assets.dart' • lib/shared/widgets/month_dropdown.dart:3:8 • unused_import
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/shared/widgets/month_dropdown.dart:123:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/shared/widgets/month_dropdown.dart:126:47 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/shared/widgets/month_dropdown.dart:154:54 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/shared/widgets/month_dropdown.dart:156:54 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/shared/widgets/month_dropdown.dart:166:56 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/shared/widgets/month_dropdown.dart:198:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/shared/widgets/month_dropdown.dart:199:52 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/shared/widgets/month_dropdown.dart:218:37 • deprecated_member_use
+
+69 issues found. (ran in 3.7s)
