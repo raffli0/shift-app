@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'package:shift/core/services/office_location.dart';
 import 'package:shift/utils/reverse_geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
 
 class LocationService {
   StreamSubscription<Position>? _positionStream;
@@ -38,15 +36,6 @@ class LocationService {
         distanceFilter: 5,
       ),
     );
-  }
-
-  bool isInsideOffice(LatLng userLoc) {
-    final distance = const Distance().as(
-      LengthUnit.Meter,
-      userLoc,
-      OfficeConfig.officeLocation,
-    );
-    return distance <= OfficeConfig.officeRadius;
   }
 
   Future<String> getAddress(double lat, double lng) async {

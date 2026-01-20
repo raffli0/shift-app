@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shift/core/services/location_service.dart';
+import 'package:shift/core/services/config_service.dart';
 import '../services/attendance_api.dart';
 import 'package:latlong2/latlong.dart';
 import 'attendance_event.dart';
@@ -8,6 +9,7 @@ import 'attendance_state.dart';
 
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   final LocationService _locationService;
+  final ConfigService _configService;
   StreamSubscription? _locationSubscription;
   Timer? _clockTimer;
 
@@ -16,9 +18,13 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   static const Duration _geoCacheDuration = Duration(seconds: 30);
   static const double _geoCacheDistanceMeter = 30;
 
-  AttendanceBloc({required LocationService locationService})
-    : _locationService = locationService,
-      super(AttendanceState(now: DateTime.now())) {
+  AttendanceBloc({
+    required LocationService locationService,
+    ConfigService? configService,
+  }) : _locationService = locationService,
+       _configService = configService ?? ConfigService(),
+       super(AttendanceState(now: DateTime.now())) {
+    // Fixed const constructor
     on<AttendanceStarted>(_onStarted);
     on<AttendanceLocationUpdated>(_onLocationUpdated);
     on<AttendanceAddressUpdated>(_onAddressUpdated);
@@ -35,6 +41,17 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     Emitter<AttendanceState> emit,
   ) async {
     try {
+      // 1. Fetch Office Config from Firestore
+      final config = await _configService.getOfficeConfig();
+      final officeLatLng = LatLng(
+        (config['latitude'] as num).toDouble(),
+        (config['longitude'] as num).toDouble(),
+      );
+      final radius = (config['radius'] as num).toDouble();
+
+      emit(state.copyWith(officeLocation: officeLatLng, officeRadius: radius));
+
+      // 2. Start Location Tracking
       final pos = await _locationService.getCurrentPosition();
       final latLng = LatLng(pos.latitude, pos.longitude);
       add(AttendanceLocationUpdated(latLng));
@@ -62,7 +79,19 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     AttendanceLocationUpdated event,
     Emitter<AttendanceState> emit,
   ) async {
-    final isInside = _locationService.isInsideOffice(event.location);
+    final officeLoc = state.officeLocation; // May be null initially
+    final radius = state.officeRadius;
+
+    bool isInside = false;
+    if (officeLoc != null) {
+      final distance = const Distance().as(
+        LengthUnit.Meter,
+        event.location,
+        officeLoc,
+      );
+      isInside = distance <= radius;
+    }
+
     emit(state.copyWith(userLatLng: event.location, isInsideOffice: isInside));
 
     final now = DateTime.now();

@@ -17,6 +17,9 @@ class AttendanceState extends Equatable {
   final int tabIndex;
   final DateTime now;
   final String? errorMessage;
+  // Office settings synced from Firestore
+  final LatLng? officeLocation;
+  final double officeRadius;
 
   const AttendanceState({
     this.status = AttendanceStatus.initial,
@@ -28,6 +31,8 @@ class AttendanceState extends Equatable {
     this.tabIndex = 0,
     required this.now,
     this.errorMessage,
+    this.officeLocation,
+    this.officeRadius = 100.0, // Default safe radius before sync
   });
 
   AttendanceState copyWith({
@@ -40,6 +45,8 @@ class AttendanceState extends Equatable {
     int? tabIndex,
     DateTime? now,
     String? errorMessage,
+    LatLng? officeLocation,
+    double? officeRadius,
   }) {
     return AttendanceState(
       status: status ?? this.status,
@@ -51,6 +58,8 @@ class AttendanceState extends Equatable {
       tabIndex: tabIndex ?? this.tabIndex,
       now: now ?? this.now,
       errorMessage: errorMessage ?? this.errorMessage,
+      officeLocation: officeLocation ?? this.officeLocation,
+      officeRadius: officeRadius ?? this.officeRadius,
     );
   }
 
@@ -65,5 +74,7 @@ class AttendanceState extends Equatable {
     tabIndex,
     now,
     errorMessage,
+    officeLocation,
+    officeRadius,
   ];
 }

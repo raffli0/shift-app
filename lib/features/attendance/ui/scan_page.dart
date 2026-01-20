@@ -236,9 +236,18 @@ class _FaceScanPageState extends State<FaceScanPage>
     countdownTimer?.cancel();
     countdown = 3;
 
-    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       setState(() => countdown--);
-      if (countdown == 0) timer.cancel();
+      if (countdown == 0) {
+        timer.cancel();
+        if (faceFound && faceInsideOval && !blinkDone) {
+          debugPrint("EVENT: AUTO CAPTURE TRIGGERED");
+          blinkDone = true;
+          cameraController!.stopImageStream();
+          final file = await cameraController!.takePicture();
+          if (mounted) Navigator.pop(context, file.path);
+        }
+      }
     });
   }
 

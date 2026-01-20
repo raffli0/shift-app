@@ -169,7 +169,7 @@ class _UserListItem extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "${user.role} • ${user.department}",
+                  "${user.role} • ${user.email}",
                   style: const TextStyle(fontSize: 12, color: Colors.black54),
                 ),
               ],
@@ -224,6 +224,7 @@ class _UserForm extends StatefulWidget {
 
 class _UserFormState extends State<_UserForm> {
   late TextEditingController _nameController;
+  late TextEditingController _emailController;
   late TextEditingController _roleController;
   late TextEditingController _deptController;
   String _status = "Active";
@@ -232,6 +233,7 @@ class _UserFormState extends State<_UserForm> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.user?.name ?? "");
+    _emailController = TextEditingController(text: widget.user?.email ?? "");
     _roleController = TextEditingController(text: widget.user?.role ?? "");
     _deptController = TextEditingController(
       text: widget.user?.department ?? "",
@@ -258,6 +260,16 @@ class _UserFormState extends State<_UserForm> {
           ),
           const SizedBox(height: 16),
           FTextFormField(
+            label: const Text("Email"),
+            controller: _emailController,
+            enabled:
+                widget.user ==
+                null, // Only editable for new users for linked Logic?
+            // Actually, admin should be able to edit. But key is email for linking.
+            // Let's allow edit.
+          ),
+          const SizedBox(height: 16),
+          FTextFormField(
             label: const Text("Role"),
             controller: _roleController,
           ),
@@ -281,7 +293,11 @@ class _UserFormState extends State<_UserForm> {
           FButton(
             onPress: () {
               final newUser = AdminUser(
+                id:
+                    widget.user?.id ??
+                    "", // Preserve ID if editing, empty if new
                 name: _nameController.text,
+                email: _emailController.text,
                 role: _roleController.text,
                 department: _deptController.text,
                 status: _status,

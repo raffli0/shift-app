@@ -7,13 +7,15 @@ import 'features/auth/bloc/auth_event.dart';
 import 'features/auth/services/auth_service.dart';
 import 'features/admin/bloc/admin_bloc.dart';
 import 'features/admin/bloc/admin_event.dart';
-import 'core/services/office_location.dart';
 
+import 'features/attendance/services/attendance_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await OfficeConfig.load();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   Bloc.observer = AppBlocObserver();
 
   // Check onboarding status
@@ -37,7 +39,12 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               AuthBloc(authService: AuthService())..add(AuthCheckRequested()),
         ),
-        BlocProvider(create: (context) => AdminBloc()..add(AdminStarted())),
+        BlocProvider(
+          create: (context) => AdminBloc(
+            attendanceService: AttendanceService(),
+            authService: AuthService(),
+          )..add(AdminStarted()),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

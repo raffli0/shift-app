@@ -1,40 +1,46 @@
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shift/features/auth/models/user_model.dart';
 
 class AuthService {
-  static const String _userKey = 'user_session';
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<UserModel> login({
     required String email,
     required String password,
   }) async {
-    await Future.delayed(const Duration(seconds: 2));
+    final UserCredential credential = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
 
-    UserModel? user;
-    if (email == "admin@example.com" && password == "password123") {
-      user = UserModel(
-        id: "1",
-        fullName: "Admin User",
-        email: email,
-        role: "admin",
-      );
-    } else if (email == "user@example.com" && password == "password123") {
-      user = UserModel(
-        id: "2",
-        fullName: "Regular User",
+    if (credential.user == null) {
+      throw Exception("Login failed");
+    }
+
+    // Fetch extra data from Firestore
+    final doc = await _firestore
+        .collection('users')
+        .doc(credential.user!.uid)
+        .get();
+
+    if (!doc.exists) {
+      // Create a default user if somehow missing in Firestore
+      final newUser = UserModel(
+        id: credential.user!.uid,
+        fullName: credential.user!.displayName ?? "User",
         email: email,
         role: "user",
       );
-    } else {
-      throw Exception("Invalid email or password");
+      await _firestore
+          .collection('users')
+          .doc(credential.user!.uid)
+          .set(newUser.toJson());
+      return newUser;
     }
 
-    // Persist user session
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userKey, jsonEncode(user.toJson()));
-
-    return user;
+    return UserModel.fromJson(doc.data()!);
   }
 
   Future<UserModel> register({
@@ -42,59 +48,132 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    await Future.delayed(const Duration(seconds: 2));
+    // Check if user already exists in Firestore (Employee Placeholder)
+    final existingUserQuery = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .get();
 
-    // For mock purposes, just return a new user
+    final UserCredential credential = await _auth
+        .createUserWithEmailAndPassword(email: email, password: password);
+
+    if (credential.user == null) {
+      throw Exception("Registration failed");
+    }
+
+    // Update display name
+    await credential.user!.updateDisplayName(fullName);
+
+    String role = "admin"; // Default for new sign-ups is Admin (Company)
+
+    // Profile Linking Logic
+    if (existingUserQuery.docs.isNotEmpty) {
+      // Employee account pre-created by Admin found!
+      final existingDoc = existingUserQuery.docs.first;
+      final existingData = existingDoc.data();
+
+      role = existingData['role'] ?? "employee"; // Preserve employee role
+
+      // Delete the placeholder doc (since it has no valid UID yet)
+      // or we can update it? Key issue: Doc ID needs to match Auth UID.
+      // Strategy: Delete old placeholder, create NEW doc with correct UID.
+      await _firestore.collection('users').doc(existingDoc.id).delete();
+    }
+
     final user = UserModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: credential.user!.uid,
       fullName: fullName,
       email: email,
+      role: role,
     );
-    // Persist user session
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userKey, jsonEncode(user.toJson()));
+
+    // Save to Firestore with correct UID
+    await _firestore
+        .collection('users')
+        .doc(credential.user!.uid)
+        .set(user.toJson());
 
     return user;
   }
 
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_userKey);
+    await _auth.signOut();
   }
 
   Future<UserModel> updateProfile({
     required String fullName,
     required String email,
   }) async {
-    await Future.delayed(const Duration(seconds: 1));
+    final user = _auth.currentUser;
+    if (user == null) throw Exception("User not authenticated");
 
-    final prefs = await SharedPreferences.getInstance();
-    final userJson = prefs.getString(_userKey);
-
-    if (userJson != null) {
-      final currentUser = UserModel.fromJson(jsonDecode(userJson));
-      final updatedUser = currentUser.copyWith(
-        fullName: fullName,
-        email: email,
-      );
-
-      await prefs.setString(_userKey, jsonEncode(updatedUser.toJson()));
-      return updatedUser;
-    } else {
-      throw Exception("User not found");
+    // Note: Updating email in Firebase Auth requires re-auth usually,
+    // keeping it simple for now.
+    if (user.email != email) {
+      // await user.verifyBeforeUpdateEmail(email);
+      // We'll skip complex email update flows for this step to focus on data.
     }
+    await user.updateDisplayName(fullName);
+
+    // Update Firestore
+    await _firestore.collection('users').doc(user.uid).update({
+      'full_name': fullName,
+      'email': email,
+    });
+
+    // Fetch updated user
+    final doc = await _firestore.collection('users').doc(user.uid).get();
+    return UserModel.fromJson(doc.data()!);
+  }
+
+  // --- Admin Features ---
+
+  Future<void> createEmployeeProfile(UserModel user) async {
+    // Create a placeholder document.
+    // Since we don't have a UID yet (user hasn't registered),
+    // we use a random ID or email as key?
+    // Better: Auto-generate ID. Logic in register() handles matching by email.
+
+    await _firestore.collection('users').add({
+      'full_name': user.fullName,
+      'email': user.email,
+      'role': 'employee',
+      'id': '', // Placeholder ID
+    });
+  }
+
+  Future<void> updateUser(UserModel user) async {
+    // This is for Admin editing OTHER users.
+    // If the user has a proper UID, update that doc.
+    // If it's a placeholder (no auth yet), we need its doc ID.
+    // For simplicity in this plan, we assume we have the Firestore Doc ID if possible,
+    // but UserModel 'id' field maps to UID.
+
+    // If the user was fetched from Firestore, u.id should be the doc ID (either UID or random).
+    await _firestore.collection('users').doc(user.id).update(user.toJson());
+  }
+
+  Future<void> deleteUser(String uid) async {
+    // Deletes the user document.
+    // Note: We cannot delete the Auth account easily without Admin SDK backend.
+    // We only clean up the Firestore record.
+    await _firestore.collection('users').doc(uid).delete();
   }
 
   Future<UserModel?> checkAuthStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userJson = prefs.getString(_userKey);
-    if (userJson != null) {
-      try {
-        return UserModel.fromJson(jsonDecode(userJson));
-      } catch (e) {
-        return null;
+    final user = _auth.currentUser;
+    if (user != null) {
+      final doc = await _firestore.collection('users').doc(user.uid).get();
+      if (doc.exists) {
+        return UserModel.fromJson(doc.data()!);
       }
     }
     return null;
+  }
+
+  Future<List<UserModel>> getAllUsers() async {
+    final snapshot = await _firestore.collection('users').get();
+    return snapshot.docs.map((doc) => UserModel.fromJson(doc.data())).toList();
   }
 }

@@ -3,12 +3,20 @@ class UserModel {
   final String fullName;
   final String email;
   final String role;
+  final String? phone;
+  final String? department;
+  final String? employeeId;
+  final String? manager;
 
   UserModel({
     required this.id,
     required this.fullName,
     required this.email,
     this.role = 'user',
+    this.phone,
+    this.department,
+    this.employeeId,
+    this.manager,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -17,11 +25,24 @@ class UserModel {
       fullName: json['full_name'],
       email: json['email'],
       role: json['role'] ?? 'user',
+      phone: json['phone'],
+      department: json['department'],
+      employeeId: json['employee_id'],
+      manager: json['manager'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'full_name': fullName, 'email': email, 'role': role};
+    return {
+      'id': id,
+      'full_name': fullName,
+      'email': email,
+      'role': role,
+      'phone': phone,
+      'department': department,
+      'employee_id': employeeId,
+      'manager': manager,
+    };
   }
 
   UserModel copyWith({
@@ -29,12 +50,20 @@ class UserModel {
     String? fullName,
     String? email,
     String? role,
+    String? phone,
+    String? department,
+    String? employeeId,
+    String? manager,
   }) {
     return UserModel(
       id: id ?? this.id,
       fullName: fullName ?? this.fullName,
       email: email ?? this.email,
       role: role ?? this.role,
+      phone: phone ?? this.phone,
+      department: department ?? this.department,
+      employeeId: employeeId ?? this.employeeId,
+      manager: manager ?? this.manager,
     );
   }
 }

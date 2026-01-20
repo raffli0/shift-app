@@ -1,62 +1,88 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:shift/shared/widgets/app_header.dart';
-import '../../home/ui/home_page.dart';
+import '../../auth/bloc/auth_bloc.dart';
+import '../../attendance/services/attendance_service.dart';
+import '../../attendance/models/attendance_model.dart';
 
-class AttendanceHistoryPage extends StatelessWidget {
+class _ActivityItemModel {
+  final String time;
+  final String description;
+  final String location;
+  final String imageUrl;
+  final bool isLate;
+
+  _ActivityItemModel({
+    required this.time,
+    required this.description,
+    required this.location,
+    required this.imageUrl,
+    this.isLate = false,
+  });
+}
+
+class AttendanceHistoryPage extends StatefulWidget {
   const AttendanceHistoryPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Mock Data Grouped
-    final historyData = [
-      {
-        "date": DateTime.now(),
-        "activities": [
-          RecentActivity(
-            time: "09:00 AM",
-            location: "Office Entrance",
-            imageUrl: "https://picsum.photos/200?1",
-            description: "Check In",
-          ),
-          RecentActivity(
-            time: "05:00 PM",
-            location: "Office Exit",
-            imageUrl: "https://picsum.photos/200?2",
-            description: "Check Out",
-          ),
-        ],
-      },
-      {
-        "date": DateTime.now().subtract(const Duration(days: 1)),
-        "activities": [
-          RecentActivity(
-            time: "08:55 AM",
-            location: "Office Entrance",
-            imageUrl: "https://picsum.photos/200?3",
-            description: "Check In",
-          ),
-          RecentActivity(
-            time: "05:10 PM",
-            location: "Office Exit",
-            imageUrl: "https://picsum.photos/200?4",
-            description: "Check Out",
-          ),
-        ],
-      },
-      {
-        "date": DateTime.now().subtract(const Duration(days: 2)),
-        "activities": [
-          RecentActivity(
-            time: "09:12 AM",
-            location: "Office Entrance",
-            imageUrl: "https://picsum.photos/200?5",
-            description: "Check In (Late)",
-          ),
-        ],
-      },
-    ];
+  State<AttendanceHistoryPage> createState() => _AttendanceHistoryPageState();
+}
 
+class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
+  late Future<List<AttendanceModel>> _historyFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    final userId = context.read<AuthBloc>().state.user?.id ?? '';
+    _historyFuture = AttendanceService().getUserAttendance(userId);
+  }
+
+  Map<DateTime, List<_ActivityItemModel>> _groupActivities(
+    List<AttendanceModel> list,
+  ) {
+    final Map<DateTime, List<_ActivityItemModel>> grouped = {};
+
+    for (var attendance in list) {
+      final dateKey = DateTime(
+        attendance.checkInTime.year,
+        attendance.checkInTime.month,
+        attendance.checkInTime.day,
+      );
+
+      if (!grouped.containsKey(dateKey)) {
+        grouped[dateKey] = [];
+      }
+
+      // Add Check In
+      grouped[dateKey]!.add(
+        _ActivityItemModel(
+          time: DateFormat("hh:mm a").format(attendance.checkInTime),
+          description: "Check In",
+          location: attendance.checkInLocation,
+          imageUrl: attendance.checkInImageUrl,
+          isLate: attendance.status == "Late",
+        ),
+      );
+
+      // Add Check Out if exists
+      if (attendance.checkOutTime != null) {
+        grouped[dateKey]!.add(
+          _ActivityItemModel(
+            time: DateFormat("hh:mm a").format(attendance.checkOutTime!),
+            description: "Check Out",
+            location: attendance.checkOutLocation ?? "Unknown",
+            imageUrl: attendance.checkOutImageUrl ?? "",
+          ),
+        );
+      }
+    }
+    return grouped;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0c202e),
       body: SafeArea(
@@ -64,43 +90,74 @@ class AttendanceHistoryPage extends StatelessWidget {
           children: [
             const AppHeader(title: "History", showAvatar: false),
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                itemCount: historyData.length,
-                itemBuilder: (context, index) {
-                  final group = historyData[index];
-                  final date = group['date'] as DateTime;
-                  final activities =
-                      group['activities'] as List<RecentActivity>;
+              child: FutureBuilder<List<AttendanceModel>>(
+                future: _historyFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        "Error loading history",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "No attendance history",
+                        style: TextStyle(color: Colors.white54),
+                      ),
+                    );
+                  }
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // DATE HEADER
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Text(
-                          DateFormat("EEEE, dd MMMM yyyy").format(date),
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.6),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
+                  final groupedData = _groupActivities(snapshot.data!);
+                  final dates = groupedData.keys.toList()
+                    ..sort((a, b) => b.compareTo(a));
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    itemCount: dates.length,
+                    itemBuilder: (context, index) {
+                      final date = dates[index];
+                      final activities = groupedData[date]!;
+
+                      // Sort activities by time descending within the day if desired,
+                      // but typically Check In is first then Check Out.
+                      // Loop added them in order (Check In then Check Out).
+                      // If we want reverse chronological (latest first), reverse the list.
+                      // Let's keep chronological for the day flow (Check In -> Check Out).
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // DATE HEADER
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Text(
+                              DateFormat("EEEE, dd MMMM yyyy").format(date),
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.6),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      // LIST ITEMS
-                      ...activities.map(
-                        (activity) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _HistoryItem(activity: activity),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
+                          // LIST ITEMS
+                          ...activities.map(
+                            (activity) => Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _HistoryItem(activity: activity),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      );
+                    },
                   );
                 },
               ),
@@ -113,7 +170,7 @@ class AttendanceHistoryPage extends StatelessWidget {
 }
 
 class _HistoryItem extends StatelessWidget {
-  final RecentActivity activity;
+  final _ActivityItemModel activity;
 
   const _HistoryItem({required this.activity});
 
@@ -150,7 +207,9 @@ class _HistoryItem extends StatelessWidget {
                 width: 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: const Color(0xff5a64d6),
+                  color: activity.isLate
+                      ? Colors.orange
+                      : const Color(0xff5a64d6),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -172,11 +231,13 @@ class _HistoryItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  activity.description,
-                  style: const TextStyle(
+                  activity.description + (activity.isLate ? " (Late)" : ""),
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
-                    color: Colors.black87,
+                    color: activity.isLate
+                        ? Colors.orange[800]
+                        : Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 4),

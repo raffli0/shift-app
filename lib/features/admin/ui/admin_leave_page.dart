@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forui/forui.dart';
 import '../bloc/admin_bloc.dart';
 import '../bloc/admin_state.dart';
+import '../bloc/admin_event.dart';
 import '../../../shared/widgets/app_header.dart';
 
 class AdminLeavePage extends StatelessWidget {
@@ -35,6 +36,7 @@ class AdminLeavePage extends StatelessWidget {
                         children: [
                           ...state.leaveRequests.map(
                             (leave) => _LeaveRequestCard(
+                              id: leave.id,
                               name: leave.name,
                               type: leave.type,
                               dates: leave.dates,
@@ -68,6 +70,7 @@ class AdminLeavePage extends StatelessWidget {
 }
 
 class _LeaveRequestCard extends StatelessWidget {
+  final String id;
   final String name;
   final String type;
   final String dates;
@@ -77,6 +80,7 @@ class _LeaveRequestCard extends StatelessWidget {
   final String imageUrl;
 
   const _LeaveRequestCard({
+    required this.id,
     required this.name,
     required this.type,
     required this.dates,
@@ -159,7 +163,14 @@ class _LeaveRequestCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: FButton(
-                    onPress: () {},
+                    onPress: () {
+                      context.read<AdminBloc>().add(
+                        AdminLeaveStatusUpdated(
+                          leaveId: id,
+                          status: 'rejected',
+                        ),
+                      );
+                    },
                     child: const Text(
                       'Reject',
                       style: TextStyle(color: Colors.red),
@@ -168,7 +179,17 @@ class _LeaveRequestCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: FButton(onPress: () {}, child: const Text('Approve')),
+                  child: FButton(
+                    onPress: () {
+                      context.read<AdminBloc>().add(
+                        AdminLeaveStatusUpdated(
+                          leaveId: id,
+                          status: 'approved',
+                        ),
+                      );
+                    },
+                    child: const Text('Approve'),
+                  ),
                 ),
               ],
             )

@@ -46,3 +46,13 @@ class AdminUserDeleted extends AdminEvent {
   @override
   List<Object?> get props => [user];
 }
+
+class AdminLeaveStatusUpdated extends AdminEvent {
+  final String leaveId;
+  final String status; // 'approved' or 'rejected'
+
+  const AdminLeaveStatusUpdated({required this.leaveId, required this.status});
+
+  @override
+  List<Object?> get props => [leaveId, status];
+}

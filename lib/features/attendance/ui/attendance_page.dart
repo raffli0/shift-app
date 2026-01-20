@@ -9,7 +9,6 @@ import '../../face_liveness/ui/face_liveness_screen.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:forui/forui.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:shift/core/services/office_location.dart';
 
 class AttendancePage extends StatelessWidget {
   const AttendancePage({super.key});
@@ -139,7 +138,12 @@ class _AttendanceViewState extends State<AttendanceView> {
   }
 
   Widget _buildClockCard(BuildContext context, AttendanceState state) {
-    final LatLng center = state.userLatLng ?? OfficeConfig.officeLocation;
+    // Default fallback if state hasn't loaded config yet
+    final LatLng defaultOffice = const LatLng(-6.93586, 107.63932);
+    final LatLng officeLoc = state.officeLocation ?? defaultOffice;
+    final double radius = state.officeRadius; // Defaults to 100.0 in state
+
+    final LatLng center = state.userLatLng ?? officeLoc;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -180,12 +184,12 @@ class _AttendanceViewState extends State<AttendanceView> {
                       CircleLayer(
                         circles: [
                           CircleMarker(
-                            point: OfficeConfig.officeLocation,
+                            point: officeLoc,
                             color: Colors.blue.withValues(alpha: 0.25),
                             borderStrokeWidth: 2,
                             borderColor: Colors.blue,
                             useRadiusInMeter: true,
-                            radius: OfficeConfig.officeRadius,
+                            radius: radius,
                           ),
                         ],
                       ),

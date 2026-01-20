@@ -73,13 +73,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     _InfoTile(
                       icon: Icons.email,
                       title: 'Email',
-                      value: user?.email ?? 'john.nathan@humana.com',
+                      value: user?.email ?? 'Unknown',
                     ),
                     const _Divider(),
-                    const _InfoTile(
+                    _InfoTile(
                       icon: Icons.phone,
                       title: 'Phone',
-                      value: '+62 819-3456-6666',
+                      value: user?.phone ?? 'Not set',
                     ),
                   ],
                 ),
@@ -89,12 +89,21 @@ class _ProfilePageState extends State<ProfilePage> {
                 _section(
                   title: 'EMPLOYMENT DETAILS',
                   child: Column(
-                    children: const [
-                      _RowTile(label: 'Department', value: 'Engineering'),
-                      _Divider(),
-                      _RowTile(label: 'Employee ID', value: 'ENG-009'),
-                      _Divider(),
-                      _RowTile(label: 'Manager', value: 'Pristia Chandra'),
+                    children: [
+                      _RowTile(
+                        label: 'Department',
+                        value: user?.department ?? 'Not set',
+                      ),
+                      const _Divider(),
+                      _RowTile(
+                        label: 'Employee ID',
+                        value: user?.employeeId ?? 'Not set',
+                      ),
+                      const _Divider(),
+                      _RowTile(
+                        label: 'Manager',
+                        value: user?.manager ?? 'Not set',
+                      ),
                     ],
                   ),
                 ),

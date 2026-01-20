@@ -51,6 +51,7 @@ class AdminAttendance {
 }
 
 class AdminLeave {
+  final String id;
   final String name;
   final String type;
   final String dates;
@@ -60,6 +61,7 @@ class AdminLeave {
   final String imageUrl;
 
   const AdminLeave({
+    required this.id,
     required this.name,
     required this.type,
     required this.dates,
@@ -71,7 +73,9 @@ class AdminLeave {
 }
 
 class AdminUser {
+  final String id;
   final String name;
+  final String email;
   final String role;
   final String department;
   final String status;
@@ -79,7 +83,9 @@ class AdminUser {
   final String imageUrl;
 
   const AdminUser({
+    required this.id,
     required this.name,
+    required this.email,
     required this.role,
     required this.department,
     required this.status,
