@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import '../../home/ui/home_page.dart';
 import '../../attendance/ui/attendance_page.dart';
-import '../../report/ui/report_page.dart';
+import '../../attendance/ui/attendance_history_page.dart';
 import '../../home/ui/profile_page.dart';
 import '../../request/ui/request_page.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +21,7 @@ class _MainRootPageState extends State<MainRootPage> {
     HomePage(),
     AttendancePage(),
     RequestsPage(),
-    ReportPage(),
+    AttendanceHistoryPage(),
     ProfilePage(),
   ];
 
@@ -92,8 +92,8 @@ class _MainRootPageState extends State<MainRootPage> {
               label: Text("Request"),
             ),
             FBottomNavigationBarItem(
-              icon: Icon(FIcons.notepadText),
-              label: Text("Reports"),
+              icon: Icon(FIcons.history),
+              label: Text("History"),
             ),
             // FBottomNavigationBarItem(
             //   icon: Icon(FIcons.user),
