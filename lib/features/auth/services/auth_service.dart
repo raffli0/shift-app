@@ -1,4 +1,4 @@
-import 'package:humana/features/auth/models/user_model.dart';
+import 'package:shift/features/auth/models/user_model.dart';
 
 class AuthService {
   Future<UserModel> login({

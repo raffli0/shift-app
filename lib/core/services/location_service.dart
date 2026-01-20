@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:humana/core/services/office_location.dart';
-import 'package:humana/utils/reverse_geocoding.dart';
+import 'package:shift/core/services/office_location.dart';
+import 'package:shift/utils/reverse_geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 

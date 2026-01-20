@@ -1,4 +1,4 @@
-package com.example.humana
+package com.example.shift
 
 import io.flutter.embedding.android.FlutterActivity
 

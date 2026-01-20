@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:humana/core/services/location_service.dart';
+import 'package:shift/core/services/location_service.dart';
 import '../services/attendance_api.dart';
 import 'package:latlong2/latlong.dart';
 import 'attendance_event.dart';

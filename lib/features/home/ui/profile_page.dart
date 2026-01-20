@@ -70,7 +70,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   _InfoTile(
                     icon: Icons.email,
                     title: 'Email',
-                    value: 'john.nathan@humana.com',
+                    value: 'john.nathan@shift.com',
                   ),
                   _Divider(),
                   _InfoTile(

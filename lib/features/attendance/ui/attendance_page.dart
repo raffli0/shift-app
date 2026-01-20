@@ -4,12 +4,12 @@ import '../../../shared/widgets/app_header.dart';
 import '../bloc/attendance_bloc.dart';
 import '../bloc/attendance_event.dart';
 import '../bloc/attendance_state.dart';
-import 'package:humana/core/services/location_service.dart';
+import 'package:shift/core/services/location_service.dart';
 import '../../face_liveness/ui/face_liveness_screen.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:forui/forui.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:humana/core/services/office_location.dart';
+import 'package:shift/core/services/office_location.dart';
 
 class AttendancePage extends StatelessWidget {
   const AttendancePage({super.key});

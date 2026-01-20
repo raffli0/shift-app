@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Humana Attendance',
+        title: 'Shift',
         theme: ThemeData(
           useMaterial3: true,
           colorSchemeSeed: Colors.blueAccent,

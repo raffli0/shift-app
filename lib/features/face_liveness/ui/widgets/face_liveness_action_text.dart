@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:humana/utils/liveness_action_util.dart';
+import 'package:shift/utils/liveness_action_util.dart';
 
 class FaceLivenessActionText extends StatelessWidget {
   final LivenessAction? action;

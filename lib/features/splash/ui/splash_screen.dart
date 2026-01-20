@@ -72,7 +72,7 @@ class _SplashScreenState extends State<SplashScreen>
 
               // NAMA APP
               const Text(
-                "Humana",
+                "Shift",
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
