@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shift/shared/widgets/app_header.dart';
+import '../../leave/ui/leave_request_page.dart';
+import '../../leave/ui/leave_detail_page.dart';
 
 class RequestsPage extends StatefulWidget {
   const RequestsPage({super.key});
@@ -217,8 +219,11 @@ void _showCreateRequestSheet(BuildContext context) {
               icon: Icons.flight_takeoff,
               title: 'Leave',
               onTap: () {
-                Navigator.pop(context);
                 // Navigator.push(context, MaterialPageRoute(builder: (_) => LeavePage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LeaveRequestPage()),
+                );
               },
             ),
             _RequestActionTile(
@@ -358,11 +363,19 @@ class _RequestHistoryCard extends StatelessWidget {
                 submitted,
                 style: const TextStyle(color: Colors.black45, fontSize: 12),
               ),
-              const Text(
-                "View Details ›",
-                style: TextStyle(
-                  color: Colors.blue,
-                  fontWeight: FontWeight.w600,
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LeaveStatusPage()),
+                  );
+                },
+                child: const Text(
+                  "View Details ›",
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],

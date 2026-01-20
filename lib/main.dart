@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         title: 'Shift',
         theme: ThemeData(
           useMaterial3: true,
-          colorSchemeSeed: Colors.blueAccent,
+          colorSchemeSeed: const Color(0xff5a64d6),
         ),
         initialRoute: AppRouter.splash,
         routes: AppRouter.routes,

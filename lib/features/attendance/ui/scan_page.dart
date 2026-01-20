@@ -144,10 +144,10 @@ class _FaceScanPageState extends State<FaceScanPage>
 
     // Check if inside oval frame
     if (!mounted) return;
-    final ovalRect = _ovalRect(context);
+    final scanRect = _scanFrame(context);
 
     final faceCenter = faceRect!.center;
-    faceInsideOval = ovalRect.contains(faceCenter);
+    faceInsideOval = scanRect.contains(faceCenter);
 
     if (faceInsideOval && countdown == 3) {
       _startCountdown();
@@ -245,14 +245,15 @@ class _FaceScanPageState extends State<FaceScanPage>
   // ===============================================================
   // OVAL POSITION
   // ===============================================================
-  Rect _ovalRect(BuildContext context) {
+  Rect _scanFrame(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
     final h = MediaQuery.of(context).size.height;
 
+    // Rectangle with rounded corners aspect
     return Rect.fromCenter(
-      center: Offset(w / 2, h * 0.36),
-      width: 260,
-      height: 360,
+      center: Offset(w / 2, h * 0.4),
+      width: w * 0.8,
+      height: w * 0.8 * 1.2, // 4:5 aspect ratio
     );
   }
 
@@ -290,26 +291,27 @@ class _FaceScanPageState extends State<FaceScanPage>
                   ),
           ),
 
-          /// FACE OVAL + SCAN LINE
+          /// FACE FRAME + SCAN LINE
           Center(
             child: SizedBox(
-              width: 260,
-              height: 360,
+              // Should match _scanFrame size approximately or use LayoutBuilder
+              // For simplicity, we use the same proportional sizing if possible
+              // But here we use a fixed size container to match the rect logic roughly
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.width * 0.8 * 1.2,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   Container(
-                    width: 260,
-                    height: 360,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(200),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.8),
                         width: 4,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.blueAccent.withValues(alpha: 0.3),
+                          color: const Color(0xff5a64d6).withValues(alpha: 0.3),
                           blurRadius: 35,
                           spreadRadius: 4,
                         ),
@@ -329,9 +331,9 @@ class _FaceScanPageState extends State<FaceScanPage>
                             borderRadius: BorderRadius.circular(20),
                             gradient: LinearGradient(
                               colors: [
-                                Colors.blue.withValues(alpha: 0),
-                                Colors.blueAccent,
-                                Colors.blue.withValues(alpha: 0),
+                                const Color(0xff5a64d6).withValues(alpha: 0),
+                                const Color(0xff5a64d6),
+                                const Color(0xff5a64d6).withValues(alpha: 0),
                               ],
                             ),
                           ),
@@ -432,11 +434,8 @@ class _FaceScanPageState extends State<FaceScanPage>
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(50),
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.blueAccent.shade400,
-                      Colors.blueAccent.shade200,
-                    ],
+                  gradient: const LinearGradient(
+                    colors: [Color(0xff5a64d6), Color(0xff7c85e8)],
                   ),
                 ),
                 child: const Center(

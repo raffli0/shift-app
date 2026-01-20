@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -29,9 +30,22 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // TIMER → lanjut ke home
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) Navigator.pushReplacementNamed(context, "/login");
+    // CHECK ONBOARDING STATUS
+    Future.delayed(const Duration(seconds: 2), () async {
+      bool seen = false;
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        seen = prefs.getBool('seenOnboarding') ?? false;
+      } catch (e) {
+        debugPrint("Error reading SharedPreferences: $e");
+      }
+
+      if (!mounted) return;
+      if (seen) {
+        Navigator.pushReplacementNamed(context, "/login");
+      } else {
+        Navigator.pushReplacementNamed(context, "/onboarding");
+      }
     });
   }
 

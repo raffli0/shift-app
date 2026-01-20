@@ -29,6 +29,8 @@ class _RegisterViewState extends State<RegisterView> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
 
   @override
   void dispose() {
@@ -111,7 +113,7 @@ class _RegisterViewState extends State<RegisterView> {
                               const Icon(
                                 Icons.person_add_rounded,
                                 size: 64,
-                                color: Colors.blueAccent,
+                                color: Color(0xff5a64d6),
                               ),
                               const SizedBox(height: 24),
                               const Text(
@@ -160,36 +162,80 @@ class _RegisterViewState extends State<RegisterView> {
                                 },
                               ),
                               const SizedBox(height: 16),
-                              FTextFormField(
-                                label: const Text('Password'),
-                                hint: 'Enter your password',
-                                controller: _passwordController,
-                                obscureText: true,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Required';
-                                  }
-                                  if (value.length < 6) {
-                                    return 'Too short';
-                                  }
-                                  return null;
-                                },
+                              Stack(
+                                children: [
+                                  FTextFormField(
+                                    label: const Text('Password'),
+                                    hint: 'Enter your password',
+                                    controller: _passwordController,
+                                    obscureText: !_isPasswordVisible,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Required';
+                                      }
+                                      if (value.length < 6) {
+                                        return 'Too short';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  Positioned(
+                                    right: 0,
+                                    top: 17,
+                                    child: IconButton(
+                                      icon: Icon(
+                                        _isPasswordVisible
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                        color: Colors.grey,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _isPasswordVisible =
+                                              !_isPasswordVisible;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 16),
-                              FTextFormField(
-                                label: const Text('Confirm Password'),
-                                hint: 'Re-enter your password',
-                                controller: _confirmPasswordController,
-                                obscureText: true,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Required';
-                                  }
-                                  if (value != _passwordController.text) {
-                                    return 'Mismatch';
-                                  }
-                                  return null;
-                                },
+                              Stack(
+                                children: [
+                                  FTextFormField(
+                                    label: const Text('Confirm Password'),
+                                    hint: 'Re-enter your password',
+                                    controller: _confirmPasswordController,
+                                    obscureText: !_isConfirmPasswordVisible,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Required';
+                                      }
+                                      if (value != _passwordController.text) {
+                                        return 'Mismatch';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  Positioned(
+                                    right: 0,
+                                    top: 17,
+                                    child: IconButton(
+                                      icon: Icon(
+                                        _isConfirmPasswordVisible
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                        color: Colors.grey,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _isConfirmPasswordVisible =
+                                              !_isConfirmPasswordVisible;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 32),
                               BlocBuilder<AuthBloc, AuthState>(
@@ -224,7 +270,7 @@ class _RegisterViewState extends State<RegisterView> {
                                     child: const Text(
                                       "Sign In",
                                       style: TextStyle(
-                                        color: Colors.blueAccent,
+                                        color: Color(0xff5a64d6),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),

@@ -8,7 +8,19 @@ class AuthService {
     await Future.delayed(const Duration(seconds: 2));
 
     if (email == "admin@example.com" && password == "password123") {
-      return UserModel(id: "1", fullName: "John Doe", email: email);
+      return UserModel(
+        id: "1",
+        fullName: "Admin User",
+        email: email,
+        role: "admin",
+      );
+    } else if (email == "user@example.com" && password == "password123") {
+      return UserModel(
+        id: "2",
+        fullName: "Regular User",
+        email: email,
+        role: "user",
+      );
     } else {
       throw Exception("Invalid email or password");
     }

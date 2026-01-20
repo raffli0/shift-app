@@ -7,6 +7,7 @@ class AppHeader extends StatelessWidget {
   final bool showAvatar;
   final bool showBell;
   final VoidCallback? onBellTap;
+  final VoidCallback? onBack;
 
   const AppHeader({
     super.key,
@@ -14,6 +15,7 @@ class AppHeader extends StatelessWidget {
     this.showAvatar = true,
     this.showBell = true,
     this.onBellTap,
+    this.onBack,
   });
 
   @override
@@ -35,8 +37,16 @@ class AppHeader extends StatelessWidget {
               ),
             ),
 
-            // LEFT AVATAR ICON
-            if (showAvatar)
+            // LEFT ACTION (Avatar or Back)
+            if (onBack != null)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: onBack,
+                ),
+              )
+            else if (showAvatar)
               Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
