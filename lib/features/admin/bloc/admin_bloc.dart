@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:latlong2/latlong.dart';
+
 import '../models/admin_models.dart';
 import 'admin_event.dart';
 import 'admin_state.dart';
+import '../../../../core/services/office_location.dart';
 
 class AdminBloc extends Bloc<AdminEvent, AdminState> {
   AdminBloc() : super(const AdminState()) {
@@ -16,6 +17,10 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     emit(state.copyWith(status: AdminStatus.loading));
     await Future.delayed(const Duration(seconds: 1)); // Simulate API call
 
+    // Initialize with OfficeConfig data
+    final officeLocation = OfficeConfig.officeLocation;
+    final allowedRadius = OfficeConfig.officeRadius;
+
     try {
       emit(
         state.copyWith(
@@ -23,11 +28,10 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
           metrics: _mockMetrics,
           activities: _mockActivities,
           attendanceList: _mockAttendance,
-
           leaveRequests: _mockLeaves,
           users: _mockUsers,
-          officeLocation: const LatLng(37.7749, -122.4194), // Mock SF location
-          allowedRadius: 150.0,
+          officeLocation: officeLocation,
+          allowedRadius: allowedRadius,
         ),
       );
     } catch (e) {
@@ -49,6 +53,9 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     AdminUpdateOfficeSettings event,
     Emitter<AdminState> emit,
   ) {
+    // Save to OfficeConfig
+    OfficeConfig.save(event.location, event.radius);
+
     emit(
       state.copyWith(
         officeLocation: event.location,

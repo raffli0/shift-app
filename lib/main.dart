@@ -7,9 +7,11 @@ import 'features/auth/bloc/auth_event.dart';
 import 'features/auth/services/auth_service.dart';
 import 'features/admin/bloc/admin_bloc.dart';
 import 'features/admin/bloc/admin_event.dart';
+import 'core/services/office_location.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await OfficeConfig.load();
   Bloc.observer = AppBlocObserver();
   runApp(const MyApp());
 }

@@ -31,7 +31,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _section(
-                      title: 'NOTIFICATIONS',
+                      title: 'GENERAL',
                       child: Column(
                         children: [
                           SwitchListTile(
