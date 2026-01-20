@@ -58,9 +58,9 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                       title: 'APPLICATION',
                       child: Column(
                         children: const [
-                          _InfoTile(label: 'App Version', value: '2.4.1'),
+                          _InfoTile(label: 'App Version', value: '1.0.0'),
                           _Divider(),
-                          _InfoTile(label: 'Build Number', value: '204'),
+                          _InfoTile(label: 'Build Number', value: '1'),
                         ],
                       ),
                     ),

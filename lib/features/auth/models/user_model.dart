@@ -23,4 +23,18 @@ class UserModel {
   Map<String, dynamic> toJson() {
     return {'id': id, 'full_name': fullName, 'email': email, 'role': role};
   }
+
+  UserModel copyWith({
+    String? id,
+    String? fullName,
+    String? email,
+    String? role,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      fullName: fullName ?? this.fullName,
+      email: email ?? this.email,
+      role: role ?? this.role,
+    );
+  }
 }

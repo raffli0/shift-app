@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:forui/forui.dart' hide Icon;
+import 'package:forui/forui.dart';
 import 'avatar_menu.dart';
 
 class AppHeader extends StatelessWidget {

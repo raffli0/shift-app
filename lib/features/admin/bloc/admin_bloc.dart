@@ -11,6 +11,9 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     on<AdminStarted>(_onStarted);
     on<AdminRefreshRequested>(_onRefresh);
     on<AdminUpdateOfficeSettings>(_onUpdateOfficeSettings);
+    on<AdminUserAdded>(_onUserAdded);
+    on<AdminUserUpdated>(_onUserUpdated);
+    on<AdminUserDeleted>(_onUserDeleted);
   }
 
   Future<void> _onStarted(AdminStarted event, Emitter<AdminState> emit) async {
@@ -62,6 +65,49 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
         allowedRadius: event.radius,
       ),
     );
+  }
+
+  Future<void> _onUserAdded(
+    AdminUserAdded event,
+    Emitter<AdminState> emit,
+  ) async {
+    // Simulate API call
+    emit(state.copyWith(status: AdminStatus.loading));
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Update list
+    final updatedUsers = List<AdminUser>.from(state.users)..add(event.user);
+    emit(state.copyWith(status: AdminStatus.success, users: updatedUsers));
+  }
+
+  Future<void> _onUserUpdated(
+    AdminUserUpdated event,
+    Emitter<AdminState> emit,
+  ) async {
+    // Simulate API call
+    emit(state.copyWith(status: AdminStatus.loading));
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Update list
+    final updatedUsers = state.users.map((user) {
+      return user.name == event.user.name ? event.user : user;
+    }).toList();
+    emit(state.copyWith(status: AdminStatus.success, users: updatedUsers));
+  }
+
+  Future<void> _onUserDeleted(
+    AdminUserDeleted event,
+    Emitter<AdminState> emit,
+  ) async {
+    // Simulate API call
+    emit(state.copyWith(status: AdminStatus.loading));
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Update list
+    final updatedUsers = state.users
+        .where((u) => u.name != event.user.name)
+        .toList();
+    emit(state.copyWith(status: AdminStatus.success, users: updatedUsers));
   }
 
   // --- MOCK DATA ---

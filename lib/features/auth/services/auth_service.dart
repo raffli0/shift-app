@@ -62,6 +62,29 @@ class AuthService {
     await prefs.remove(_userKey);
   }
 
+  Future<UserModel> updateProfile({
+    required String fullName,
+    required String email,
+  }) async {
+    await Future.delayed(const Duration(seconds: 1));
+
+    final prefs = await SharedPreferences.getInstance();
+    final userJson = prefs.getString(_userKey);
+
+    if (userJson != null) {
+      final currentUser = UserModel.fromJson(jsonDecode(userJson));
+      final updatedUser = currentUser.copyWith(
+        fullName: fullName,
+        email: email,
+      );
+
+      await prefs.setString(_userKey, jsonEncode(updatedUser.toJson()));
+      return updatedUser;
+    } else {
+      throw Exception("User not found");
+    }
+  }
+
   Future<UserModel?> checkAuthStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final userJson = prefs.getString(_userKey);
