@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forui/forui.dart';
+import 'package:shift/features/auth/bloc/auth_state.dart';
+import '../../auth/bloc/auth_bloc.dart';
 import '../bloc/admin_bloc.dart';
 import '../bloc/admin_state.dart';
 import '../../../shared/widgets/app_header.dart';
@@ -41,14 +43,15 @@ class _AdminHomePageState extends State<AdminHomePage> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: _buildGreetingRow(),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: _buildGreeting(),
+                          child: BlocBuilder<AuthBloc, AuthState>(
+                            builder: (context, authState) {
+                              return _buildGreeting(authState.user?.fullName);
+                            },
+                          ),
                         ),
                         const SizedBox(height: 10),
                         _buildOverviewCard(state),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   );
@@ -115,26 +118,26 @@ class _AdminHomePageState extends State<AdminHomePage> {
   }
 
   // GREETING
-  Widget _buildGreeting() {
-    return const Text(
-      "Welcome Back, Admin!",
-      style: TextStyle(
-        color: Colors.white,
-        fontSize: 26,
-        fontWeight: FontWeight.w800,
-      ),
-    );
-  }
-
-  // DATE ROW
-  Widget _buildGreetingRow() {
-    return Row(
+  Widget _buildGreeting(String? name) {
+    final firstName = name?.split(' ').first ?? 'Admin';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          DateFormat('MMMM dd, yyyy').format(DateTime.now()),
+          DateFormat('EEEE, MMM dd').format(DateTime.now()),
           style: const TextStyle(
-            color: Colors.white70,
+            color: Colors.white60,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          "Welcome back, $firstName!",
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 28,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
           ),
         ),
       ],
@@ -172,7 +175,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
           const SizedBox(height: 12),
 
-          /// OVERVIEW BOXES (Adapted from Metrics)
+          /// OVERVIEW BOXES
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Column(
@@ -183,10 +186,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
                       Expanded(
                         child: _OverviewBox(
                           cupertinoIcon: CupertinoIcons.person_2,
-                          label: state.metrics[0].label,
+                          label: "Present",
                           time: state.metrics[0].value,
-                          badge: "Present",
-                          badgeColor: state.metrics[0].color,
+                          badge: state.metrics[0].label,
+                          badgeColor: Colors.green,
                           subtitle: "Staff present",
                         ),
                       ),
@@ -195,10 +198,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
                         Expanded(
                           child: _OverviewBox(
                             cupertinoIcon: CupertinoIcons.clock,
-                            label: state.metrics[1].label,
+                            label: "Late",
                             time: state.metrics[1].value,
-                            badge: "Late",
-                            badgeColor: state.metrics[1].color,
+                            badge: state.metrics[1].label,
+                            badgeColor: Colors.orange,
                             subtitle: "Staff late",
                           ),
                         ),
@@ -211,10 +214,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
                         Expanded(
                           child: _OverviewBox(
                             cupertinoIcon: CupertinoIcons.airplane,
-                            label: state.metrics[2].label,
+                            label: "Leave",
                             time: state.metrics[2].value,
-                            badge: "Leave",
-                            badgeColor: state.metrics[2].color,
+                            badge: state.metrics[2].label,
+                            badgeColor: Colors.purple,
                             subtitle: "On leave",
                           ),
                         ),
@@ -223,10 +226,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           Expanded(
                             child: _OverviewBox(
                               cupertinoIcon: CupertinoIcons.doc_text,
-                              label: state.metrics[3].label,
+                              label: "Requests",
                               time: state.metrics[3].value,
-                              badge: "Requests",
-                              badgeColor: state.metrics[3].color,
+                              badge: state.metrics[3].label,
+                              badgeColor: Colors.red,
                               subtitle: "Pending actions",
                             ),
                           ),
@@ -264,7 +267,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {}, // TODO: Navigate to full history if needed
+                      onTap: () {},
                       child: const Text(
                         "See All",
                         style: TextStyle(
@@ -325,6 +328,7 @@ class _OverviewBox extends StatelessWidget {
         color: const Color(0xfffbfbff),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
+          // soft iOS shadow
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
@@ -337,7 +341,6 @@ class _OverviewBox extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
@@ -351,64 +354,54 @@ class _OverviewBox extends StatelessWidget {
                   color: const Color(0xff5a64d6),
                 ),
               ),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  time,
+                  label,
                   style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 8),
             ],
           ),
+          const SizedBox(height: 12),
+          Text(
+            time,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
+          ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Flexible(
-                fit: FlexFit.loose,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: badgeColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    badge,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: badgeColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: badgeColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              badge,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                color: badgeColor,
+                fontWeight: FontWeight.bold,
               ),
-            ],
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: const TextStyle(fontSize: 12, color: Colors.black45),
+            style: const TextStyle(
+              fontSize: 11,
+              color: Colors.black45,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

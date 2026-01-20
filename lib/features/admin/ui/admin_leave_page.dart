@@ -21,37 +21,45 @@ class AdminLeavePage extends StatelessWidget {
               showBell: true,
             ),
             Expanded(
-              child: BlocBuilder<AdminBloc, AdminState>(
-                builder: (context, state) {
-                  return ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      ...state.leaveRequests.map(
-                        (leave) => _LeaveRequestCard(
-                          name: leave.name,
-                          type: leave.type,
-                          dates: leave.dates,
-                          reason: leave.reason,
-                          isPending: leave.isPending,
-                          isApproved: leave.isApproved,
-                          imageUrl: leave.imageUrl,
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-                      // Could dynamically show/hide based on content, keeping structure simple for now.
-                      if (state.leaveRequests.isEmpty)
-                        const Center(
-                          child: Text(
-                            "No leave requests found.",
-                            style: TextStyle(color: Colors.white54),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xfff1f1f6),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: BlocBuilder<AdminBloc, AdminState>(
+                    builder: (context, state) {
+                      return ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          ...state.leaveRequests.map(
+                            (leave) => _LeaveRequestCard(
+                              name: leave.name,
+                              type: leave.type,
+                              dates: leave.dates,
+                              reason: leave.reason,
+                              isPending: leave.isPending,
+                              isApproved: leave.isApproved,
+                              imageUrl: leave.imageUrl,
+                            ),
                           ),
-                        ),
-                    ],
-                  );
-                },
+                          const SizedBox(height: 24),
+                          if (state.leaveRequests.isEmpty)
+                            const Center(
+                              child: Text(
+                                "No leave requests found.",
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),

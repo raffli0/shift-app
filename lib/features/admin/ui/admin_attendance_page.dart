@@ -57,34 +57,65 @@ class AdminAttendancePage extends StatelessWidget {
                       ),
 
                       Expanded(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: state.attendanceList.length,
-                          itemBuilder: (context, index) {
-                            final item = state.attendanceList[index];
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        AdminAttendanceDetailPage(
-                                          attendance: item,
-                                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xfff1f1f6),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                                  child: Text(
+                                    "Attendance History",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      letterSpacing: -0.5,
+                                    ),
                                   ),
-                                );
-                              },
-                              child: _AttendanceItem(
-                                name: item.name,
-                                time: item.time,
-                                status: item.status,
-                                statusColor: item.statusColor,
-                                location: item.location,
-                                imageUrl: item.imageUrl,
-                              ),
-                            );
-                          },
+                                ),
+                                Expanded(
+                                  child: ListView.builder(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    itemCount: state.attendanceList.length,
+                                    itemBuilder: (context, index) {
+                                      final item = state.attendanceList[index];
+                                      return GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  AdminAttendanceDetailPage(
+                                                    attendance: item,
+                                                  ),
+                                            ),
+                                          );
+                                        },
+                                        child: _AttendanceItem(
+                                          name: item.name,
+                                          time: item.time,
+                                          status: item.status,
+                                          statusColor: item.statusColor,
+                                          location: item.location,
+                                          imageUrl: item.imageUrl,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
+                      const SizedBox(height: 20),
                     ],
                   );
                 },

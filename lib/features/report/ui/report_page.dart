@@ -185,45 +185,45 @@ class _ReportPageState extends State<ReportPage> {
                   ),
 
                   // HISTORY LIST
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final group = historyData[index];
-                        final date = group['date'] as DateTime;
-                        final activities =
-                            group['activities'] as List<RecentActivity>;
+                  // SliverPadding(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 16),
+                  //   sliver: SliverList(
+                  //     delegate: SliverChildBuilderDelegate((context, index) {
+                  //       final group = historyData[index];
+                  //       final date = group['date'] as DateTime;
+                  //       final activities =
+                  //           group['activities'] as List<RecentActivity>;
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // DATE HEADER
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: Text(
-                                DateFormat("EEEE, dd MMMM yyyy").format(date),
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.6),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                            // LIST ITEMS
-                            ...activities.map(
-                              (activity) => Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: _HistoryItem(activity: activity),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                          ],
-                        );
-                      }, childCount: historyData.length),
-                    ),
-                  ),
-                  const SliverPadding(padding: EdgeInsets.only(bottom: 20)),
+                  //       return Column(
+                  //         crossAxisAlignment: CrossAxisAlignment.start,
+                  //         children: [
+                  //           // DATE HEADER
+                  //           Padding(
+                  //             padding: const EdgeInsets.symmetric(vertical: 12),
+                  //             child: Text(
+                  //               DateFormat("EEEE, dd MMMM yyyy").format(date),
+                  //               style: TextStyle(
+                  //                 color: Colors.white.withValues(alpha: 0.6),
+                  //                 fontSize: 14,
+                  //                 fontWeight: FontWeight.w600,
+                  //                 letterSpacing: 0.5,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //           // LIST ITEMS
+                  //           ...activities.map(
+                  //             (activity) => Padding(
+                  //               padding: const EdgeInsets.only(bottom: 12),
+                  //               child: _HistoryItem(activity: activity),
+                  //             ),
+                  //           ),
+                  //           const SizedBox(height: 8),
+                  //         ],
+                  //       );
+                  //     }, childCount: historyData.length),
+                  //   ),
+                  // ),
+                  // const SliverPadding(padding: EdgeInsets.only(bottom: 20)),
                 ],
               ),
             ),

@@ -22,7 +22,7 @@ class AdminReportsPage extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: const Color(0xfff1f1f6),
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: Column(

@@ -27,28 +27,51 @@ class AdminUsersPage extends StatelessWidget {
               showAvatar: true,
               showBell: true,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: FTextField(hint: "Search users...", onChange: (value) {}),
-            ),
             Expanded(
-              child: BlocBuilder<AdminBloc, AdminState>(
-                builder: (context, state) {
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.users.length,
-                    itemBuilder: (context, index) {
-                      final user = state.users[index];
-                      return _UserListItem(
-                        user: user,
-                        onEdit: () => _showUserForm(context, user: user),
-                        onDelete: () => _confirmDelete(context, user),
-                      );
-                    },
-                  );
-                },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xfff1f1f6),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                        child: FTextField(
+                          hint: "Search users...",
+                          onChange: (value) {},
+                        ),
+                      ),
+                      Expanded(
+                        child: BlocBuilder<AdminBloc, AdminState>(
+                          builder: (context, state) {
+                            return ListView.builder(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              itemCount: state.users.length,
+                              itemBuilder: (context, index) {
+                                final user = state.users[index];
+                                return _UserListItem(
+                                  user: user,
+                                  onEdit: () =>
+                                      _showUserForm(context, user: user),
+                                  onDelete: () => _confirmDelete(context, user),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
