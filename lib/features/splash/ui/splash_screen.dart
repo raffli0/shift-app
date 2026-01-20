@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     // TIMER → lanjut ke home
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacementNamed(context, "/login");
+      if (mounted) Navigator.pushReplacementNamed(context, "/login");
     });
   }
 
@@ -87,7 +87,7 @@ class _SplashScreenState extends State<SplashScreen>
               Text(
                 "Smart Presence System",
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.65),
+                  color: Colors.white.withValues(alpha: 0.65),
                   fontSize: 14,
                 ),
               ),

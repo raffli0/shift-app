@@ -8,7 +8,7 @@ void showAvatarMenu(BuildContext context) {
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent, // IMPORTANT
-    barrierColor: Colors.black.withOpacity(0.35), // optional dim
+    barrierColor: Colors.black.withValues(alpha: 0.35), // optional dim
     builder: (_) {
       return BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), // BLUR LAYER BAWAH
