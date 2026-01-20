@@ -38,10 +38,11 @@ class NotificationPage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            const AppHeader(
+            AppHeader(
               title: "Notifications",
               showAvatar: false,
               showBell: false,
+              onBack: () => Navigator.pop(context),
             ),
             Expanded(
               child: ListView.separated(

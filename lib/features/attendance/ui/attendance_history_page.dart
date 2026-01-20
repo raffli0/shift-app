@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shift/shared/widgets/app_header.dart';
-import '../../home/ui/attendance_home_page.dart';
+import '../../home/ui/home_page.dart';
 
 class AttendanceHistoryPage extends StatelessWidget {
   const AttendanceHistoryPage({super.key});

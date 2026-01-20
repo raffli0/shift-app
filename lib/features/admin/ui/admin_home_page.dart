@@ -2,72 +2,21 @@ import 'dart:ui';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shift/shared/widgets/app_header.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forui/forui.dart';
+import '../bloc/admin_bloc.dart';
+import '../bloc/admin_state.dart';
+import '../../../shared/widgets/app_header.dart';
 
-class RecentActivity {
-  final String time;
-  final String location;
-  final String imageUrl;
-  final String description;
-
-  RecentActivity({
-    required this.time,
-    required this.location,
-    required this.imageUrl,
-    required this.description,
-  });
-}
-
-class AttendanceHomePage extends StatefulWidget {
-  const AttendanceHomePage({super.key});
+class AdminHomePage extends StatefulWidget {
+  const AdminHomePage({super.key});
 
   @override
-  State<AttendanceHomePage> createState() => _AttendanceHomePageState();
+  State<AdminHomePage> createState() => _AdminHomePageState();
 }
 
-class _AttendanceHomePageState extends State<AttendanceHomePage> {
+class _AdminHomePageState extends State<AdminHomePage> {
   DateTime selectedDate = DateTime.now();
-
-  final List<RecentActivity> activities = [
-    RecentActivity(
-      time: "09:10 AM",
-      location: "Main Office - Entrance Gate",
-      imageUrl: "https://picsum.photos/200?1",
-      description: "Checked in successfully",
-    ),
-    RecentActivity(
-      time: "12:00 PM",
-      location: "Cafeteria",
-      imageUrl: "https://picsum.photos/200?2",
-      description: "Lunch break started",
-    ),
-    RecentActivity(
-      time: "17:45 PM",
-      location: "Main Office - Exit Gate",
-      imageUrl: "https://picsum.photos/200?3",
-      description: "Checked out successfully",
-    ),
-    RecentActivity(
-      time: "17:45 PM",
-      location: "Main Office - Exit Gate",
-      imageUrl: "https://picsum.photos/200?3",
-      description: "Checked out successfully",
-    ),
-    RecentActivity(
-      time: "17:45 PM",
-      location: "Main Office - Exit Gate",
-      imageUrl: "https://picsum.photos/200?3",
-      description: "Checked out successfully",
-    ),
-    RecentActivity(
-      time: "17:45 PM",
-      location: "Main Office - Exit Gate",
-      imageUrl: "https://picsum.photos/200?3",
-      description: "Checked out successfully",
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -77,33 +26,37 @@ class _AttendanceHomePageState extends State<AttendanceHomePage> {
         child: Column(
           children: [
             // Sticky HEADER
-            AppHeader(title: "Humana", showAvatar: true, showBell: true),
-            SizedBox(height: 5),
-            // SCROLL AREA
+            const AppHeader(
+              title: "Admin Dashboard",
+              showAvatar: true,
+              showBell: true,
+            ),
+            const SizedBox(height: 5),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _buildGreetingRow(),
+              child: BlocBuilder<AdminBloc, AdminState>(
+                builder: (context, state) {
+                  if (state.status == AdminStatus.loading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildGreetingRow(),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildGreeting(),
+                        ),
+                        const SizedBox(height: 10),
+                        _buildOverviewCard(state),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: _buildGreeting(),
-                    ),
-                    // const SizedBox(height: 5),
-                    const SizedBox(height: 10),
-                    _buildOverviewCard(),
-                    // const SizedBox(height: 20),
-                    // _buildRecentActivity(),
-                    // const SizedBox(height: 30),
-                    // _buildRecentActivity(),
-                    // const SizedBox(height: 30),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ],
@@ -140,6 +93,7 @@ class _AttendanceHomePageState extends State<AttendanceHomePage> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(22),
+                    color: Colors.white,
                   ),
                   child: SafeArea(
                     top: false,
@@ -167,7 +121,7 @@ class _AttendanceHomePageState extends State<AttendanceHomePage> {
   // GREETING
   Widget _buildGreeting() {
     return const Text(
-      "What's Up, John!",
+      "Welcome Back, Admin!",
       style: TextStyle(
         color: Colors.white,
         fontSize: 26,
@@ -181,15 +135,18 @@ class _AttendanceHomePageState extends State<AttendanceHomePage> {
     return Row(
       children: [
         Text(
-          "Lorem ipsum dolor sit amet",
-          style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w600),
+          DateFormat('MMMM dd, yyyy').format(DateTime.now()),
+          style: const TextStyle(
+            color: Colors.white70,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );
   }
 
   // OVERVIEW CARD
-  Widget _buildOverviewCard() {
+  Widget _buildOverviewCard(AdminState state) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
@@ -219,63 +176,67 @@ class _AttendanceHomePageState extends State<AttendanceHomePage> {
 
           const SizedBox(height: 12),
 
-          /// OVERVIEW BOXES
+          /// OVERVIEW BOXES (Adapted from Metrics)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _OverviewBox(
-                        cupertinoIcon: CupertinoIcons.arrow_down_left_circle,
-                        label: "Check in",
-                        time: "09:10 AM",
-                        badge: "On time",
-                        badgeColor: Colors.green,
-                        subtitle: "Checked in success",
-                        onTap: () => Navigator.pushNamed(context, '/check-in'),
+                if (state.metrics.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _OverviewBox(
+                          cupertinoIcon: CupertinoIcons.person_2,
+                          label: state.metrics[0].label,
+                          time: state.metrics[0].value,
+                          badge: "Present",
+                          badgeColor: state.metrics[0].color,
+                          subtitle: "Staff present",
+                        ),
                       ),
+                      const SizedBox(width: 6),
+                      if (state.metrics.length > 1)
+                        Expanded(
+                          child: _OverviewBox(
+                            cupertinoIcon: CupertinoIcons.clock,
+                            label: state.metrics[1].label,
+                            time: state.metrics[1].value,
+                            badge: "Late",
+                            badgeColor: state.metrics[1].color,
+                            subtitle: "Staff late",
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  if (state.metrics.length > 2)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _OverviewBox(
+                            cupertinoIcon: CupertinoIcons.airplane,
+                            label: state.metrics[2].label,
+                            time: state.metrics[2].value,
+                            badge: "Leave",
+                            badgeColor: state.metrics[2].color,
+                            subtitle: "On leave",
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        if (state.metrics.length > 3)
+                          Expanded(
+                            child: _OverviewBox(
+                              cupertinoIcon: CupertinoIcons.doc_text,
+                              label: state.metrics[3].label,
+                              time: state.metrics[3].value,
+                              badge: "Requests",
+                              badgeColor: state.metrics[3].color,
+                              subtitle: "Pending actions",
+                            ),
+                          ),
+                      ],
                     ),
-                    SizedBox(width: 6),
-                    Expanded(
-                      child: _OverviewBox(
-                        cupertinoIcon: CupertinoIcons.arrow_right_circle,
-                        label: "Check out",
-                        time: "--:--",
-                        badge: "n/a",
-                        badgeColor: Colors.grey,
-                        subtitle: "It's not time yet",
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 6),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _OverviewBox(
-                        cupertinoIcon: CupertinoIcons.stopwatch,
-                        label: "Break",
-                        time: "09:10 AM",
-                        badge: "On going",
-                        badgeColor: Colors.red,
-                        subtitle: "Break On going",
-                      ),
-                    ),
-                    SizedBox(width: 6),
-                    Expanded(
-                      child: _OverviewBox(
-                        cupertinoIcon: CupertinoIcons.clock,
-                        label: "Overtime",
-                        time: "09:10 AM",
-                        badge: "Late entry",
-                        badgeColor: Colors.red,
-                        subtitle: "Update, Nov 25 2025",
-                      ),
-                    ),
-                  ],
-                ),
+                ],
               ],
             ),
           ),
@@ -290,8 +251,7 @@ class _AttendanceHomePageState extends State<AttendanceHomePage> {
 
           const SizedBox(height: 12),
 
-          /// RECENT ACTIVITY (INSIDE OVERVIEW)
-          /// RECENT ACTIVITY (MULTIPLE)
+          /// RECENT ACTIVITY
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
@@ -308,7 +268,7 @@ class _AttendanceHomePageState extends State<AttendanceHomePage> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, '/history'),
+                      onTap: () {}, // TODO: Navigate to full history if needed
                       child: const Text(
                         "See All",
                         style: TextStyle(
@@ -321,15 +281,20 @@ class _AttendanceHomePageState extends State<AttendanceHomePage> {
                   ],
                 ),
                 const SizedBox(height: 12),
-
                 Column(
-                  children: List.generate(
-                    activities.length,
-                    (index) => Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: _RecentActivityItem(activity: activities[index]),
-                    ),
-                  ),
+                  children: state.activities
+                      .map(
+                        (a) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: _AdminActivityItem(
+                            title: a.title,
+                            time: a.time,
+                            subtitle: a.subtitle,
+                            isWarning: a.isWarning,
+                          ),
+                        ),
+                      )
+                      .toList(),
                 ),
               ],
             ),
@@ -341,7 +306,7 @@ class _AttendanceHomePageState extends State<AttendanceHomePage> {
 }
 
 class _OverviewBox extends StatelessWidget {
-  final IconData? cupertinoIcon; // jika pakai Cupertino
+  final IconData? cupertinoIcon;
   final String label;
   final String time;
   final String badge;
@@ -369,7 +334,6 @@ class _OverviewBox extends StatelessWidget {
           color: const Color(0xfffbfbff),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
-            // soft iOS shadow
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 20,
@@ -386,8 +350,8 @@ class _OverviewBox extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xffeef1ff),
+                  decoration: const BoxDecoration(
+                    color: Color(0xffeef1ff),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -396,7 +360,6 @@ class _OverviewBox extends StatelessWidget {
                     color: const Color(0xff5a64d6),
                   ),
                 ),
-
                 Text(
                   label,
                   style: const TextStyle(
@@ -407,9 +370,7 @@ class _OverviewBox extends StatelessWidget {
                 const SizedBox(height: 8),
               ],
             ),
-
             const SizedBox(height: 8),
-
             Row(
               children: [
                 Expanded(
@@ -422,12 +383,10 @@ class _OverviewBox extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-
                 const SizedBox(width: 8),
               ],
             ),
             const SizedBox(height: 8),
-
             Row(
               children: [
                 Flexible(
@@ -481,7 +440,6 @@ class _DateBadge extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: Colors.white,
-
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -507,10 +465,18 @@ class _DateBadge extends StatelessWidget {
   }
 }
 
-class _RecentActivityItem extends StatelessWidget {
-  final RecentActivity activity;
+class _AdminActivityItem extends StatelessWidget {
+  final String title;
+  final String time;
+  final String subtitle;
+  final bool isWarning;
 
-  const _RecentActivityItem({required this.activity});
+  const _AdminActivityItem({
+    required this.title,
+    required this.time,
+    required this.subtitle,
+    this.isWarning = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -534,7 +500,7 @@ class _RecentActivityItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  activity.time,
+                  title,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -542,27 +508,17 @@ class _RecentActivityItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  activity.location,
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  activity.description,
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isWarning ? Colors.orange[800] : Colors.grey,
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              activity.imageUrl,
-              width: 64,
-              height: 52,
-              fit: BoxFit.cover,
-            ),
-          ),
+          Text(time, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),
     );

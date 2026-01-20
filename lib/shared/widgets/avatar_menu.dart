@@ -70,7 +70,12 @@ void showAvatarMenu(BuildContext context) {
                 text: "Settings",
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, "/settings");
+                  final user = context.read<AuthBloc>().state.user;
+                  if (user?.role == 'admin') {
+                    Navigator.pushNamed(context, "/admin-settings");
+                  } else {
+                    Navigator.pushNamed(context, "/settings");
+                  }
                 },
               ),
 

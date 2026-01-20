@@ -73,38 +73,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 32),
-
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(
-                          context,
-                        ).pushNamedAndRemoveUntil('/admin', (route) => false);
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color(
-                              0xff5a64d6,
-                            ).withValues(alpha: 0.5),
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          color: const Color(0xff5a64d6).withValues(alpha: 0.1),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            "Switch to Admin View",
-                            style: TextStyle(
-                              color: Color(0xff5a64d6),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
                     GestureDetector(
                       onTap: () {
                         Navigator.of(context).pushAndRemoveUntil(

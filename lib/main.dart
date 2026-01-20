@@ -4,6 +4,8 @@ import 'core/routing/app_router.dart';
 import 'core/utils/app_bloc_observer.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/services/auth_service.dart';
+import 'features/admin/bloc/admin_bloc.dart';
+import 'features/admin/bloc/admin_event.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +21,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => AuthBloc(authService: AuthService())),
+        BlocProvider(create: (context) => AdminBloc()..add(AdminStarted())),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

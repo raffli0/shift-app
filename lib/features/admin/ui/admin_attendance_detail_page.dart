@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../models/admin_models.dart';
-import '../../../shared/widgets/app_header.dart';
+import '../../../shared/widgets/app_header.dart'; // Adjust path if needed
 
 class AdminAttendanceDetailPage extends StatelessWidget {
   final AdminAttendance attendance;
@@ -10,6 +12,11 @@ class AdminAttendanceDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Only show map if valid coordinates are present
+    final hasValidCoordinates =
+        attendance.latitude != 0.0 && attendance.longitude != 0.0;
+    final center = LatLng(attendance.latitude, attendance.longitude);
+
     return Scaffold(
       backgroundColor: const Color(0xFF0c202e),
       body: SafeArea(
@@ -117,6 +124,50 @@ class AdminAttendanceDetailPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
+
+                    // Map Section
+                    if (hasValidCoordinates) ...[
+                      Container(
+                        width: double.infinity,
+                        height: 250,
+                        padding: const EdgeInsets.all(4), // small border effect
+                        decoration: BoxDecoration(
+                          color: const Color(0xfffbfbff),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: FlutterMap(
+                            options: MapOptions(
+                              initialCenter: center,
+                              initialZoom: 15.0,
+                            ),
+                            children: [
+                              TileLayer(
+                                urlTemplate:
+                                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                userAgentPackageName: 'com.shift.app',
+                              ),
+                              MarkerLayer(
+                                markers: [
+                                  Marker(
+                                    point: center,
+                                    width: 40,
+                                    height: 40,
+                                    child: const Icon(
+                                      Icons.location_pin,
+                                      color: Colors.red,
+                                      size: 40,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
 
                     // Face Verification Section
                     Container(

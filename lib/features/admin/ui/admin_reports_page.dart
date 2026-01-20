@@ -78,10 +78,7 @@ class AdminReportsPage extends StatelessWidget {
                             child: FButton(
                               onPress: () {},
                               // style: FButtonStyle.secondary, // Avoid validation error
-                              child: const Text(
-                                "Export as PDF",
-                                style: TextStyle(color: Colors.black87),
-                              ),
+                              child: const Text("Export as PDF"),
                             ),
                           ),
                         ],

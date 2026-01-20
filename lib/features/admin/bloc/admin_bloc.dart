@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:latlong2/latlong.dart';
 import '../models/admin_models.dart';
 import 'admin_event.dart';
 import 'admin_state.dart';
@@ -8,6 +9,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
   AdminBloc() : super(const AdminState()) {
     on<AdminStarted>(_onStarted);
     on<AdminRefreshRequested>(_onRefresh);
+    on<AdminUpdateOfficeSettings>(_onUpdateOfficeSettings);
   }
 
   Future<void> _onStarted(AdminStarted event, Emitter<AdminState> emit) async {
@@ -21,8 +23,11 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
           metrics: _mockMetrics,
           activities: _mockActivities,
           attendanceList: _mockAttendance,
+
           leaveRequests: _mockLeaves,
           users: _mockUsers,
+          officeLocation: const LatLng(37.7749, -122.4194), // Mock SF location
+          allowedRadius: 150.0,
         ),
       );
     } catch (e) {
@@ -38,6 +43,18 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
   ) async {
     // Re-fetch logic
     add(AdminStarted());
+  }
+
+  void _onUpdateOfficeSettings(
+    AdminUpdateOfficeSettings event,
+    Emitter<AdminState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        officeLocation: event.location,
+        allowedRadius: event.radius,
+      ),
+    );
   }
 
   // --- MOCK DATA ---
@@ -94,6 +111,8 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       status: "On Time",
       statusColor: Colors.greenAccent,
       location: "Headquarters",
+      latitude: 37.7749,
+      longitude: -122.4194,
       imageUrl: "https://i.pravatar.cc/150?img=1",
     ),
     const AdminAttendance(
@@ -102,6 +121,8 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       status: "Late",
       statusColor: Colors.orangeAccent,
       location: "Branch Office",
+      latitude: 40.7128,
+      longitude: -74.0060,
       imageUrl: "https://i.pravatar.cc/150?img=2",
     ),
     const AdminAttendance(
@@ -110,6 +131,8 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       status: "Absent",
       statusColor: Colors.redAccent,
       location: "-",
+      latitude: 0.0,
+      longitude: 0.0,
       imageUrl: "https://i.pravatar.cc/150?img=3",
     ),
     const AdminAttendance(
@@ -118,6 +141,8 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       status: "On Time",
       statusColor: Colors.greenAccent,
       location: "Remote",
+      latitude: 51.5074,
+      longitude: -0.1278,
       imageUrl: "https://i.pravatar.cc/150?img=4",
     ),
     const AdminAttendance(
@@ -126,6 +151,8 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       status: "Late",
       statusColor: Colors.orangeAccent,
       location: "Headquarters",
+      latitude: 37.7749,
+      longitude: -122.4194,
       imageUrl: "https://i.pravatar.cc/150?img=5",
     ),
   ];

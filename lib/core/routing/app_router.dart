@@ -13,6 +13,8 @@ import '../../features/attendance/ui/check_in_page.dart';
 import '../../features/attendance/ui/attendance_history_page.dart';
 import '../../features/notifications/ui/notifications_page.dart';
 import '../../features/admin/ui/admin_root_page.dart';
+import '../../features/admin/ui/admin_settings_page.dart';
+import '../../features/admin/ui/admin_office_location_page.dart';
 
 class AppRouter {
   static const String splash = '/';
@@ -26,6 +28,8 @@ class AppRouter {
   static const String admin = '/admin';
   static const String profile = '/profile';
   static const String settings = '/settings';
+  static const String adminSettings = '/admin-settings';
+  static const String adminOfficeLocation = '/admin-office-location';
 
   static Map<String, WidgetBuilder> get routes => {
     splash: (context) => const SplashScreen(),
@@ -37,6 +41,8 @@ class AppRouter {
     admin: (context) => const AdminRootPage(),
     profile: (context) => const ProfilePage(),
     settings: (context) => const SettingsPage(),
+    adminSettings: (context) => const AdminSettingsPage(),
+    adminOfficeLocation: (context) => const AdminOfficeLocationPage(),
     checkIn: (context) => const CheckInActionPage(),
     history: (context) => const AttendanceHistoryPage(),
   };

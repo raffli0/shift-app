@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'admin_dashboard_page.dart';
+import 'admin_home_page.dart';
 import 'admin_attendance_page.dart';
 import 'admin_leave_page.dart';
 import 'admin_users_page.dart';
@@ -9,19 +9,12 @@ import 'admin_reports_page.dart';
 // Placeholder pages for now
 // import '../../attendance/ui/attendance_history_page.dart';
 
-import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/admin_bloc.dart';
-import '../bloc/admin_event.dart';
-
 class AdminRootPage extends StatelessWidget {
   const AdminRootPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => AdminBloc()..add(AdminStarted()),
-      child: const _AdminRootView(),
-    );
+    return const _AdminRootView();
   }
 }
 
@@ -36,7 +29,7 @@ class _AdminRootViewState extends State<_AdminRootView> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    const AdminDashboardPage(),
+    const AdminHomePage(),
     const AdminAttendancePage(),
     const AdminLeavePage(),
     const AdminUsersPage(),
@@ -56,7 +49,7 @@ class _AdminRootViewState extends State<_AdminRootView> {
               onChange: (index) => setState(() => _currentIndex = index),
               children: [
                 FBottomNavigationBarItem(
-                  icon: const Icon(Icons.dashboard),
+                  icon: const Icon(Icons.home),
                   label: const Text('Home'),
                 ),
                 FBottomNavigationBarItem(

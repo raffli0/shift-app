@@ -34,6 +34,8 @@ class AdminAttendance {
   final String status;
   final Color statusColor;
   final String location;
+  final double latitude;
+  final double longitude;
   final String imageUrl;
 
   const AdminAttendance({
@@ -42,6 +44,8 @@ class AdminAttendance {
     required this.status,
     required this.statusColor,
     required this.location,
+    required this.latitude,
+    required this.longitude,
     required this.imageUrl,
   });
 }

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:latlong2/latlong.dart';
 import '../models/admin_models.dart';
 
 enum AdminStatus { initial, loading, success, failure }
@@ -19,8 +20,13 @@ class AdminState extends Equatable {
     this.attendanceList = const [],
     this.leaveRequests = const [],
     this.users = const [],
+    this.officeLocation,
+    this.allowedRadius = 100.0, // Default 100 meters
     this.errorMessage,
   });
+
+  final LatLng? officeLocation;
+  final double allowedRadius;
 
   AdminState copyWith({
     AdminStatus? status,
@@ -29,6 +35,8 @@ class AdminState extends Equatable {
     List<AdminAttendance>? attendanceList,
     List<AdminLeave>? leaveRequests,
     List<AdminUser>? users,
+    LatLng? officeLocation,
+    double? allowedRadius,
     String? errorMessage,
   }) {
     return AdminState(
@@ -38,6 +46,8 @@ class AdminState extends Equatable {
       attendanceList: attendanceList ?? this.attendanceList,
       leaveRequests: leaveRequests ?? this.leaveRequests,
       users: users ?? this.users,
+      officeLocation: officeLocation ?? this.officeLocation,
+      allowedRadius: allowedRadius ?? this.allowedRadius,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -50,6 +60,8 @@ class AdminState extends Equatable {
     attendanceList,
     leaveRequests,
     users,
+    officeLocation,
+    allowedRadius,
     errorMessage,
   ];
 }

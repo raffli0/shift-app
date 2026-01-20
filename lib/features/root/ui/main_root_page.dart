@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import '../../home/ui/attendance_home_page.dart';
+import '../../home/ui/home_page.dart';
 import '../../attendance/ui/attendance_page.dart';
 import '../../report/ui/report_page.dart';
 import '../../home/ui/profile_page.dart';
@@ -18,7 +18,7 @@ class _MainRootPageState extends State<MainRootPage> {
   int index = 0;
 
   final pages = const [
-    AttendanceHomePage(),
+    HomePage(),
     AttendancePage(),
     RequestsPage(),
     ReportPage(),
