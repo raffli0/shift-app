@@ -26,11 +26,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         child: Column(
           children: [
             // Sticky HEADER
-            const AppHeader(
-              title: "Admin Dashboard",
-              showAvatar: true,
-              showBell: true,
-            ),
+            const AppHeader(title: "", showAvatar: true, showBell: true),
             const SizedBox(height: 5),
             Expanded(
               child: BlocBuilder<AdminBloc, AdminState>(

@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             // Sticky HEADER
-            AppHeader(title: "Humana", showAvatar: true, showBell: true),
+            AppHeader(title: "", showAvatar: true, showBell: true),
             SizedBox(height: 5),
             // SCROLL AREA
             Expanded(
