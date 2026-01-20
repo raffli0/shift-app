@@ -11,6 +11,7 @@ class AttendanceModel {
   final String checkInImageUrl;
   final String? checkOutImageUrl;
   final String status; // On Time, Late, etc.
+  final List<Map<String, dynamic>>? breaks;
 
   AttendanceModel({
     required this.id,
@@ -23,6 +24,7 @@ class AttendanceModel {
     required this.checkInImageUrl,
     this.checkOutImageUrl,
     required this.status,
+    this.breaks,
   });
 
   factory AttendanceModel.fromJson(Map<String, dynamic> json, String docId) {
@@ -39,6 +41,9 @@ class AttendanceModel {
       checkInImageUrl: json['check_in_image_url'],
       checkOutImageUrl: json['check_out_image_url'],
       status: json['status'],
+      breaks: json['breaks'] != null
+          ? List<Map<String, dynamic>>.from(json['breaks'])
+          : null,
     );
   }
 
@@ -55,6 +60,7 @@ class AttendanceModel {
       'check_in_image_url': checkInImageUrl,
       'check_out_image_url': checkOutImageUrl,
       'status': status,
+      'breaks': breaks,
     };
   }
 }

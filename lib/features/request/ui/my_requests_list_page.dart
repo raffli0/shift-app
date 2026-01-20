@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shift/features/leave/ui/new_leave_form_page.dart';
 import 'package:shift/shared/widgets/app_header.dart';
+import '../../leave/ui/new_leave_form_page.dart';
 import '../../leave/ui/leave_detail_page.dart';
 import '../../leave/services/leave_service.dart';
 import '../../leave/models/leave_request_model.dart';
 import '../../auth/services/auth_service.dart';
 
-class RequestsPage extends StatefulWidget {
-  const RequestsPage({super.key});
+class MyRequestsListPage extends StatefulWidget {
+  const MyRequestsListPage({super.key});
 
   @override
-  State<RequestsPage> createState() => _RequestsPageState();
+  State<MyRequestsListPage> createState() => _MyRequestsListPageState();
 }
 
-class _RequestsPageState extends State<RequestsPage> {
+class _MyRequestsListPageState extends State<MyRequestsListPage> {
   int filterIndex = 0;
   final filters = ['All', 'Pending', 'Approved', 'Rejected'];
 
@@ -48,7 +48,7 @@ class _RequestsPageState extends State<RequestsPage> {
       debugPrint("Error loading requests: $e");
       if (mounted) {
         setState(() {
-          _errorMessage = "Failed to load requests";
+          _errorMessage = "Error: $e"; // Show actual error for debugging
           _isLoading = false;
         });
       }
@@ -95,15 +95,14 @@ class _RequestsPageState extends State<RequestsPage> {
     );
   }
 
+
   Widget _buildRequestList() {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
     if (_errorMessage != null) {
-      return Center(
-        child: Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
-      );
+      return _buildErrorWidget();
     }
 
     // Filter requests
@@ -141,6 +140,44 @@ class _RequestsPageState extends State<RequestsPage> {
           submitted: "Submitted ${_formatDate(request.createdAt)}",
         );
       },
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    // Friendly error display
+    final isNetworkError = _errorMessage!.contains("unavailable") || _errorMessage!.contains("network");
+    final message = isNetworkError 
+      ? "Connection failed. Please check your internet."
+      : "Unable to load requests. Please try again.";
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.cloud_off, size: 48, color: Colors.white54),
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+               setState(() {
+                 _isLoading = true;
+                 _errorMessage = null;
+               });
+               _loadRequests();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF0c202e),
+            ),
+            child: const Text("Retry"),
+          ),
+        ],
+      ),
     );
   }
 

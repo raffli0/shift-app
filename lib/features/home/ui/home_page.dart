@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import '../../auth/bloc/auth_bloc.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
+import 'package:shift/shared/widgets/app_dialog.dart';
 import '../../attendance/models/attendance_model.dart';
 
 import '../../auth/models/user_model.dart';
@@ -77,7 +79,7 @@ class _HomeViewState extends State<HomeView> {
                             child: _buildGreeting(user),
                           ),
                           const SizedBox(height: 10),
-                          _buildOverviewCard(state),
+                          _buildOverviewCard(state, user?.id ?? ''),
                           const SizedBox(height: 20),
                           _buildRecentActivityList(state.recentActivity),
                           const SizedBox(height: 30),
@@ -173,7 +175,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   // OVERVIEW CARD
-  Widget _buildOverviewCard(HomeState state) {
+  Widget _buildOverviewCard(HomeState state, String userId) {
     final today = state.todayAttendance;
     final hasCheckedIn = today != null;
 
@@ -243,7 +245,25 @@ class _HomeViewState extends State<HomeView> {
                         subtitle: hasCheckedIn
                             ? "Checked in success"
                             : "Not checked in",
-                        onTap: () => Navigator.pushNamed(context, '/check-in'),
+                        onTap: () async {
+                          final result = await Navigator.pushNamed(
+                            context,
+                            '/check-in',
+                          );
+                          if (mounted && userId.isNotEmpty) {
+                            if (result == true) {
+                              await AppDialog.showSuccess(
+                                context: context,
+                                title: "You're checked in",
+                                message: "Attendance recorded successfully.",
+                              );
+                            }
+                            if (!context.mounted) return;
+                            context.read<HomeBloc>().add(
+                              HomeRefreshRequested(userId),
+                            );
+                          }
+                        },
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -251,10 +271,18 @@ class _HomeViewState extends State<HomeView> {
                       child: _OverviewBox(
                         cupertinoIcon: CupertinoIcons.arrow_right_circle,
                         label: "Check out",
-                        time: "--:--", // Placeholder until model updated
-                        badge: "n/a",
-                        badgeColor: Colors.grey,
-                        subtitle: "It's not time yet",
+                        time: (hasCheckedIn && today.checkOutTime != null)
+                            ? DateFormat("hh:mm a").format(today.checkOutTime!)
+                            : "--:--",
+                        badge: (hasCheckedIn && today.checkOutTime != null)
+                            ? "Done"
+                            : "n/a",
+                        badgeColor: (hasCheckedIn && today.checkOutTime != null)
+                            ? Colors.blue
+                            : Colors.grey,
+                        subtitle: (hasCheckedIn && today.checkOutTime != null)
+                            ? "Checked out"
+                            : "Not checked out",
                       ),
                     ),
                   ],
@@ -263,24 +291,160 @@ class _HomeViewState extends State<HomeView> {
                 Row(
                   children: [
                     Expanded(
-                      child: _OverviewBox(
-                        cupertinoIcon: CupertinoIcons.stopwatch,
-                        label: "Break",
-                        time: "--:--",
-                        badge: "n/a",
-                        badgeColor: Colors.grey,
-                        subtitle: "No break record",
+                      child: Builder(
+                        builder: (context) {
+                          String breakTime = "--:--";
+                          String breakSubtitle = "No break record";
+                          String badge = "n/a";
+                          Color badgeColor = Colors.grey;
+
+                          if (hasCheckedIn &&
+                              today.breaks != null &&
+                              today.breaks!.isNotEmpty) {
+                            final lastBreak = today.breaks!.last;
+                            final startTime = (lastBreak['start'] as Timestamp)
+                                .toDate();
+                            final startStr = DateFormat(
+                              "hh:mm a",
+                            ).format(startTime);
+
+                            if (lastBreak['end'] == null) {
+                              breakTime = "$startStr - ...";
+                              breakSubtitle = "Currently on break";
+                              badge = "Active";
+                              badgeColor = Colors.orange;
+                            } else {
+                              final endTime = (lastBreak['end'] as Timestamp)
+                                  .toDate();
+                              final endStr = DateFormat(
+                                "hh:mm a",
+                              ).format(endTime);
+                              breakTime = "$startStr - $endStr";
+                              breakSubtitle = "Break finished";
+                              badge = "Done";
+                              badgeColor = Colors.green;
+                            }
+                          }
+
+                          return _OverviewBox(
+                            cupertinoIcon: CupertinoIcons.stopwatch,
+                            label: "Break",
+                            time: breakTime,
+                            badge: badge,
+                            badgeColor: badgeColor,
+                            subtitle: breakSubtitle,
+                            onTap: () {
+                              if (!hasCheckedIn) {
+                                AppDialog.showError(
+                                  context: context,
+                                  title: "Action not available",
+                                  message:
+                                      "Please complete the previous step first.",
+                                );
+                                return;
+                              }
+
+                              bool isOnBreak = false;
+                              if (today.breaks != null &&
+                                  today.breaks!.isNotEmpty) {
+                                if (today.breaks!.last['end'] == null) {
+                                  isOnBreak = true;
+                                }
+                              }
+
+                              if (isOnBreak) {
+                                // End Break Popup
+                                AppDialog.show(
+                                  context: context,
+                                  title: "End break?",
+                                  message: "Working time will resume.",
+                                  primaryButtonText: "End break",
+                                  secondaryButtonText: "Cancel",
+                                  onPrimary: () {
+                                    context.read<HomeBloc>().add(
+                                      HomeBreakToggled(today.id, false),
+                                    );
+                                  },
+                                );
+                              } else {
+                                // Start Break Popup
+                                AppDialog.show(
+                                  context: context,
+                                  title: "Start break?",
+                                  message:
+                                      "Working time will pause until you return.",
+                                  primaryButtonText: "Start break",
+                                  secondaryButtonText: "Cancel",
+                                  onPrimary: () {
+                                    context.read<HomeBloc>().add(
+                                      HomeBreakToggled(today.id, true),
+                                    );
+                                  },
+                                );
+                              }
+                            },
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(width: 6),
                     Expanded(
-                      child: _OverviewBox(
-                        cupertinoIcon: CupertinoIcons.clock,
-                        label: "Overtime",
-                        time: "--:--",
-                        badge: "n/a",
-                        badgeColor: Colors.grey,
-                        subtitle: "No overtime",
+                      child: Builder(
+                        builder: (context) {
+                          String overtimeTime = "--:--";
+                          String badge = "n/a";
+                          Color badgeColor = Colors.grey;
+                          String subtitle = "No overtime";
+
+                          if (hasCheckedIn) {
+                            final now = DateTime.now();
+                            final endTime = today.checkOutTime ?? now;
+                            final totalSession = endTime.difference(
+                              today.checkInTime,
+                            );
+
+                            int totalBreakMinutes = 0;
+                            if (today.breaks != null) {
+                              for (var b in today.breaks!) {
+                                final start = (b['start'] as Timestamp)
+                                    .toDate();
+                                final end = b['end'] != null
+                                    ? (b['end'] as Timestamp).toDate()
+                                    : now;
+                                totalBreakMinutes += end
+                                    .difference(start)
+                                    .inMinutes;
+                              }
+                            }
+
+                            final netWorkMinutes =
+                                totalSession.inMinutes - totalBreakMinutes;
+
+                            // Assuming 8 hour work day (480 minutes)
+                            final overtimeMinutes = netWorkMinutes - 480;
+
+                            if (overtimeMinutes > 0) {
+                              final h = overtimeMinutes ~/ 60;
+                              final m = overtimeMinutes % 60;
+                              overtimeTime = "${h}h ${m}m";
+                              badge = "Extra";
+                              badgeColor = Colors.purple;
+                              subtitle = "Good job!";
+                            } else {
+                              overtimeTime = "00:00";
+                              subtitle = "Not yet";
+                            }
+                          }
+
+                          return _OverviewBox(
+                            cupertinoIcon: CupertinoIcons.clock,
+                            label: "Overtime",
+                            time: overtimeTime,
+                            badge: badge,
+                            badgeColor: badgeColor,
+                            subtitle: subtitle,
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -419,13 +583,16 @@ class _OverviewBox extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    time,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      time,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 8),

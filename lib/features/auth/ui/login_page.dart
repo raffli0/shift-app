@@ -49,6 +49,30 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 
+  String _getErrorMessage(String? error) {
+    if (error == null) return "An unknown error occurred";
+    // Clean up standard exception prefixes
+    final cleanError = error.replaceAll("Exception: ", "");
+
+    if (cleanError.contains("user-not-found")) {
+      return "No user found for that email.";
+    } else if (cleanError.contains("wrong-password")) {
+      return "Wrong password provided.";
+    } else if (cleanError.contains("invalid-email")) {
+      return "The email address is invalid.";
+    } else if (cleanError.contains("user-disabled")) {
+      return "This user account has been disabled.";
+    } else if (cleanError.contains("too-many-requests")) {
+      return "Too many login attempts. Please try again later.";
+    } else if (cleanError.contains("network-request-failed")) {
+      return "Network error. Check your connection.";
+    } else if (cleanError.contains("email-already-in-use")) {
+      return "Email is already in use.";
+    }
+
+    return cleanError;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
@@ -63,10 +87,21 @@ class _LoginViewState extends State<LoginView> {
             (route) => false,
           );
         } else if (state.status == AuthStatus.error) {
+          final message = _getErrorMessage(state.errorMessage);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(state.errorMessage ?? "Authentication failed"),
-              backgroundColor: Colors.red,
+              content: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(message)),
+                ],
+              ),
+              backgroundColor: Colors.red.shade600,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           );
         }

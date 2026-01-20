@@ -12,6 +12,29 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       super(const HomeState()) {
     on<HomeStarted>(_onStarted);
     on<HomeRefreshRequested>(_onRefresh);
+    on<HomeBreakToggled>(_onBreakToggled);
+  }
+
+  Future<void> _onBreakToggled(
+    HomeBreakToggled event,
+    Emitter<HomeState> emit,
+  ) async {
+    try {
+      if (event.isStarting) {
+        await _attendanceService.startBreak(event.attendanceId);
+      } else {
+        await _attendanceService.endBreak(event.attendanceId);
+      }
+
+      final userId = state.todayAttendance?.userId;
+      if (userId != null) {
+        add(HomeRefreshRequested(userId));
+      }
+    } catch (e) {
+      emit(
+        state.copyWith(status: HomeStatus.failure, errorMessage: e.toString()),
+      );
+    }
   }
 
   Future<void> _onStarted(HomeStarted event, Emitter<HomeState> emit) async {

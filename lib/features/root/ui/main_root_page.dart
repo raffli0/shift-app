@@ -4,7 +4,7 @@ import '../../home/ui/home_page.dart';
 import '../../attendance/ui/attendance_page.dart';
 import '../../attendance/ui/attendance_history_page.dart';
 import '../../home/ui/profile_page.dart';
-import '../../request/ui/request_page.dart';
+import '../../request/ui/my_requests_list_page.dart';
 import 'package:flutter/services.dart';
 
 class MainRootPage extends StatefulWidget {
@@ -20,7 +20,7 @@ class _MainRootPageState extends State<MainRootPage> {
   final pages = const [
     HomePage(),
     AttendancePage(),
-    RequestsPage(),
+    MyRequestsListPage(),
     AttendanceHistoryPage(),
     ProfilePage(),
   ];

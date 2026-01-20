@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shift/core/services/location_service.dart';
 import 'package:shift/core/services/config_service.dart';
-import '../services/attendance_api.dart';
+import '../../auth/services/auth_service.dart';
+import '../services/attendance_service.dart';
 import 'package:latlong2/latlong.dart';
 import 'attendance_event.dart';
 import 'attendance_state.dart';
@@ -10,6 +11,8 @@ import 'attendance_state.dart';
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   final LocationService _locationService;
   final ConfigService _configService;
+  final AttendanceService _attendanceService;
+  final AuthService _authService;
   StreamSubscription? _locationSubscription;
   Timer? _clockTimer;
 
@@ -21,10 +24,13 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   AttendanceBloc({
     required LocationService locationService,
     ConfigService? configService,
+    AttendanceService? attendanceService,
+    AuthService? authService,
   }) : _locationService = locationService,
        _configService = configService ?? ConfigService(),
+       _attendanceService = attendanceService ?? AttendanceService(),
+       _authService = authService ?? AuthService(),
        super(AttendanceState(now: DateTime.now())) {
-    // Fixed const constructor
     on<AttendanceStarted>(_onStarted);
     on<AttendanceLocationUpdated>(_onLocationUpdated);
     on<AttendanceAddressUpdated>(_onAddressUpdated);
@@ -51,7 +57,34 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
       emit(state.copyWith(officeLocation: officeLatLng, officeRadius: radius));
 
-      // 2. Start Location Tracking
+      // 2. Check Initial Attendance Status
+      final user = _authService.currentUser;
+      if (user != null) {
+        final today = await _attendanceService.getTodayAttendance(user.uid);
+        if (today != null) {
+          AttendanceMainStatus mainStatus;
+          BreakStatus breakStatus = BreakStatus.none;
+
+          if (today.checkOutTime == null) {
+            mainStatus = AttendanceMainStatus.checkin;
+            // Check if currently on break
+            if (today.breaks != null && today.breaks!.isNotEmpty) {
+              final lastBreak = today.breaks!.last;
+              if (lastBreak['end'] == null) {
+                breakStatus = BreakStatus.onBreak;
+              }
+            }
+          } else {
+            mainStatus = AttendanceMainStatus.none;
+          }
+
+          emit(
+            state.copyWith(mainStatus: mainStatus, breakStatus: breakStatus),
+          );
+        }
+      }
+
+      // 3. Start Location Tracking
       final pos = await _locationService.getCurrentPosition();
       final latLng = LatLng(pos.latitude, pos.longitude);
       add(AttendanceLocationUpdated(latLng));
@@ -151,30 +184,28 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     try {
       if (state.userLatLng == null) throw Exception("Location not available");
 
-      final success = await AttendanceApi.checkIn(
-        employeeId: "EMP-123", // Mock ID
-        latitude: state.userLatLng!.latitude,
-        longitude: state.userLatLng!.longitude,
-        address: state.currentAddress,
-        insideOffice: state.isInsideOffice,
+      final user = _authService.currentUser;
+      if (user == null) throw Exception("User not authenticated");
+
+      final locationString = state.currentAddress.isNotEmpty
+          ? state.currentAddress
+          : "${state.userLatLng!.latitude}, ${state.userLatLng!.longitude}";
+
+      await _attendanceService.checkIn(
+        userId: user.uid,
+        userName: user.displayName ?? "Employee", // Fallback name
+        location: locationString,
+        status: state.now.hour > 9 ? "Late" : "On Time", // Simple logic for now
+        imageFile: null, // Image capture not yet implemented in Bloc event
       );
 
-      if (success) {
-        emit(
-          state.copyWith(
-            status: AttendanceStatus.success,
-            mainStatus: AttendanceMainStatus.checkin,
-            breakStatus: BreakStatus.none,
-          ),
-        );
-      } else {
-        emit(
-          state.copyWith(
-            status: AttendanceStatus.error,
-            errorMessage: "Check-in failed on server.",
-          ),
-        );
-      }
+      emit(
+        state.copyWith(
+          status: AttendanceStatus.success,
+          mainStatus: AttendanceMainStatus.checkin,
+          breakStatus: BreakStatus.none,
+        ),
+      );
     } catch (e) {
       emit(
         state.copyWith(
@@ -185,27 +216,105 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     }
   }
 
-  void _onCheckOut(
+  Future<void> _onCheckOut(
     AttendanceCheckOutRequested event,
     Emitter<AttendanceState> emit,
-  ) {
-    emit(
-      state.copyWith(
-        mainStatus: AttendanceMainStatus.none,
-        breakStatus: BreakStatus.none,
-      ),
-    );
+  ) async {
+    emit(state.copyWith(status: AttendanceStatus.loading));
+    try {
+      final user = _authService.currentUser;
+      if (user == null) throw Exception("User not authenticated");
+
+      // Get today's attendance to find ID
+      final today = await _attendanceService.getTodayAttendance(user.uid);
+      if (today == null) throw Exception("No active check-in found");
+
+      final locationString = state.currentAddress.isNotEmpty
+          ? state.currentAddress
+          : "${state.userLatLng?.latitude ?? 0}, ${state.userLatLng?.longitude ?? 0}";
+
+      await _attendanceService.checkOut(
+        attendanceId: today.id,
+        location: locationString,
+        imageFile: null,
+      );
+
+      emit(
+        state.copyWith(
+          status: AttendanceStatus.success,
+          mainStatus: AttendanceMainStatus.none, // Reset check-in cycle
+          breakStatus: BreakStatus.none,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: AttendanceStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
   }
 
-  void _onBreak(AttendanceBreakRequested event, Emitter<AttendanceState> emit) {
-    emit(state.copyWith(breakStatus: BreakStatus.onBreak));
+  Future<void> _onBreak(
+    AttendanceBreakRequested event,
+    Emitter<AttendanceState> emit,
+  ) async {
+    emit(state.copyWith(status: AttendanceStatus.loading));
+    try {
+      final user = _authService.currentUser;
+      if (user == null) throw Exception("User not authenticated");
+
+      final today = await _attendanceService.getTodayAttendance(user.uid);
+      if (today == null) throw Exception("No active attendance found");
+
+      await _attendanceService.startBreak(today.id);
+
+      emit(
+        state.copyWith(
+          status: AttendanceStatus.success,
+          breakStatus: BreakStatus.onBreak,
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: AttendanceStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
   }
 
-  void _onOffBreak(
+  Future<void> _onOffBreak(
     AttendanceOffBreakRequested event,
     Emitter<AttendanceState> emit,
-  ) {
-    emit(state.copyWith(breakStatus: BreakStatus.offBreak));
+  ) async {
+    emit(state.copyWith(status: AttendanceStatus.loading));
+    try {
+      final user = _authService.currentUser;
+      if (user == null) throw Exception("User not authenticated");
+
+      final today = await _attendanceService.getTodayAttendance(user.uid);
+      if (today == null) throw Exception("No active attendance found");
+
+      await _attendanceService.endBreak(today.id);
+
+      emit(
+        state.copyWith(
+          status: AttendanceStatus.success,
+          breakStatus:
+              BreakStatus.none, // Or offBreak if special styling needed
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          status: AttendanceStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
+    }
   }
 
   @override

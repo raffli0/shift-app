@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shift/shared/widgets/app_header.dart';
 
+import '../../leave/models/leave_request_model.dart';
+import 'package:intl/intl.dart';
+
 class LeaveStatusPage extends StatelessWidget {
-  const LeaveStatusPage({super.key});
+  final LeaveRequestModel request;
+
+  const LeaveStatusPage({super.key, required this.request});
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +37,15 @@ class LeaveStatusPage extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.1),
+                          color: _getStatusColor(
+                            request.status,
+                          ).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Text(
-                          "Pending Review",
+                        child: Text(
+                          _capitalize(request.status),
                           style: TextStyle(
-                            color: Colors.orange,
+                            color: _getStatusColor(request.status),
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
                           ),
@@ -46,40 +53,79 @@ class LeaveStatusPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
 
-                      const Text(
-                        "Sick Leave",
-                        style: TextStyle(
+                      Text(
+                        request.type,
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        "Submitted on Oct 24, 2025",
-                        style: TextStyle(color: Colors.grey),
+                      Text(
+                        "Submitted on ${DateFormat("MMM dd, yyyy").format(request.createdAt)}",
+                        style: const TextStyle(color: Colors.grey),
                       ),
                       const SizedBox(height: 32),
 
-                      _DetailRow(label: "From", value: "Oct 24, 2025"),
+                      _DetailRow(
+                        label: "From",
+                        value: DateFormat(
+                          "MMM dd, yyyy",
+                        ).format(request.startDate),
+                      ),
                       const SizedBox(height: 16),
-                      _DetailRow(label: "To", value: "Oct 26, 2025"),
+                      _DetailRow(
+                        label: "To",
+                        value: DateFormat(
+                          "MMM dd, yyyy",
+                        ).format(request.endDate),
+                      ),
                       const SizedBox(height: 16),
-                      _DetailRow(label: "Total Days", value: "3 Days"),
+                      _DetailRow(
+                        label: "Total Days",
+                        value:
+                            "${request.endDate.difference(request.startDate).inDays + 1} Days",
+                      ),
 
-                      const SizedBox(height: 32),
-                      const Text(
-                        "Reason",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54,
+                      if (request.reason.isNotEmpty) ...[
+                        const SizedBox(height: 32),
+                        const Text(
+                          "Reason",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Feeling unwell with high fever. Need rest as advised by doctor.",
-                        style: TextStyle(color: Colors.black87, height: 1.5),
-                      ),
+                        const SizedBox(height: 8),
+                        Text(
+                          request.reason,
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+
+                      if (request.adminNote != null &&
+                          request.adminNote!.isNotEmpty) ...[
+                        const SizedBox(height: 32),
+                        const Text(
+                          "Admin Note",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          request.adminNote!,
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -90,6 +136,22 @@ class LeaveStatusPage extends StatelessWidget {
       ),
     );
   }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'approved':
+        return Colors.green;
+      case 'rejected':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _capitalize(String s) =>
+      s.isNotEmpty ? '${s[0].toUpperCase()}${s.substring(1)}' : '';
 }
 
 class _DetailRow extends StatelessWidget {

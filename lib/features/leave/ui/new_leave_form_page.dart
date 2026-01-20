@@ -1,22 +1,111 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:intl/intl.dart';
+import 'package:shift/shared/widgets/app_dialog.dart';
 import 'package:shift/shared/widgets/app_header.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shift/features/auth/services/auth_service.dart';
+import 'package:shift/features/leave/services/leave_service.dart';
+import 'package:shift/features/auth/models/user_model.dart';
+import 'package:shift/features/auth/bloc/auth_bloc.dart';
 
-class LeaveRequestPage extends StatefulWidget {
-  const LeaveRequestPage({super.key});
+class NewLeaveFormPage extends StatefulWidget {
+  const NewLeaveFormPage({super.key});
 
   @override
-  State<LeaveRequestPage> createState() => _LeaveRequestPageState();
+  State<NewLeaveFormPage> createState() => _NewLeaveFormPageState();
 }
 
-class _LeaveRequestPageState extends State<LeaveRequestPage> {
+class _NewLeaveFormPageState extends State<NewLeaveFormPage> {
   final _reasonController = TextEditingController();
+  final _leaveService = LeaveService();
+  final _authService = AuthService();
   DateTime? _startDate;
   DateTime? _endDate;
   String _selectedType = 'Sick Leave';
+  bool _isLoading = false;
 
   final _types = ['Sick Leave', 'Annual Leave', 'Unpaid Leave', 'Other'];
+
+  Future<void> _submitRequest() async {
+    if (_startDate == null ||
+        _endDate == null ||
+        _reasonController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please fill all fields"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Try to get user from AuthBloc state first if available
+      UserModel? user;
+      try {
+        final authBloc = context.read<AuthBloc>();
+        user = authBloc.state.user;
+      } catch (_) {}
+
+      // Fallback to service if Bloc not providing user
+      user ??= await _authService.checkAuthStatus();
+
+      if (user == null) {
+        // Ultimate fallback: Firebase User (if Bloc/Firestore missing)
+        final firebaseUser = _authService.currentUser;
+        if (firebaseUser == null) throw Exception("User not authenticated");
+        user = UserModel(
+          id: firebaseUser.uid,
+          fullName: firebaseUser.displayName ?? "User",
+          email: firebaseUser.email ?? "",
+          role: "employee",
+        );
+      }
+
+      await _leaveService.submitLeaveRequest(
+        user: user,
+        type: _selectedType,
+        reason: _reasonController.text,
+        startDate: _startDate!,
+        endDate: _endDate!,
+      );
+
+      if (mounted) {
+        await AppDialog.showSuccess(
+          context: context,
+          title: "Leave request sent",
+          message: "Your request is waiting for approval.",
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        // Strip "Exception: " prefix for cleaner display
+        final message = e.toString().replaceAll("Exception: ", "");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(child: Text(message)),
+              ],
+            ),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +134,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // TITLE
                       const Text(
                         "New Leave Request",
                         style: TextStyle(
@@ -60,9 +148,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                         style: TextStyle(fontSize: 14, color: Colors.black54),
                       ),
                       const SizedBox(height: 24),
-
-                      // TYPE DROPDOWN (Generic look using FSelect or just simple container for now)
-                      // Using Column for label + DropdownButton
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -101,8 +186,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                         ],
                       ),
                       const SizedBox(height: 20),
-
-                      // DATES
                       Row(
                         children: [
                           Expanded(
@@ -143,8 +226,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                         ],
                       ),
                       const SizedBox(height: 20),
-
-                      // REASON
                       FTextFormField(
                         label: const Text("Reason"),
                         hint: "Enter reason for leave...",
@@ -152,22 +233,14 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                         maxLines: 4,
                       ),
                       const SizedBox(height: 32),
-
-                      // SUBMIT
                       GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Leave request submitted!"),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                        },
+                        onTap: _isLoading ? null : _submitRequest,
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: const Color(0xff5a64d6),
+                            color: _isLoading
+                                ? Colors.grey
+                                : const Color(0xff5a64d6),
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
@@ -180,14 +253,23 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                             ],
                           ),
                           alignment: Alignment.center,
-                          child: const Text(
-                            "Submit Request",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  "Submit Request",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
                     ],

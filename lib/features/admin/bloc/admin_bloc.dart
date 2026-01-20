@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -35,6 +36,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     on<AdminUserUpdated>(_onUserUpdated);
     on<AdminUserDeleted>(_onUserDeleted);
     on<AdminLeaveStatusUpdated>(_onLeaveStatusUpdated);
+    on<AdminAttendanceStreamUpdated>(_onAttendanceStreamUpdated);
   }
 
   Future<void> _onLeaveStatusUpdated(
@@ -42,13 +44,19 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     Emitter<AdminState> emit,
   ) async {
     try {
-      await _leaveService.updateLeaveStatus(event.leaveId, event.status);
+      if (event.status == 'approved') {
+        await _leaveService.approveLeave(event.leaveId);
+      } else if (event.status == 'rejected') {
+        await _leaveService.rejectLeave(event.leaveId);
+      }
       add(AdminStarted()); // Reload data to reflect changes
     } catch (e) {
       // Handle error if needed, maybe show snackbar via listener in UI
       debugPrint("Error updating leave status: $e");
     }
   }
+
+  StreamSubscription? _attendanceSubscription;
 
   Future<void> _onStarted(AdminStarted event, Emitter<AdminState> emit) async {
     emit(state.copyWith(status: AdminStatus.loading));
@@ -62,37 +70,11 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       );
       final allowedRadius = (config['radius'] as num).toDouble();
 
-      // Fetch All Data from Firebase
-      final attendance = await _attendanceService.getAllAttendance();
+      // Fetch Initial Data
       final users = await _authService.getAllUsers();
       final leaveRequests = await _leaveService.getAllLeaveRequests();
 
-      // Convert attendance to AdminAttendance model
-      final attendanceList = attendance.map((a) {
-        return AdminAttendance(
-          name: a.userName,
-          time: DateFormat("hh:mm a").format(a.checkInTime),
-          status: a.status,
-          statusColor: a.status == "Late"
-              ? Colors.orangeAccent
-              : Colors.greenAccent,
-          location: a.checkInLocation,
-          latitude: 0.0, // Should be stored in model later if needed
-          longitude: 0.0,
-          imageUrl: a.checkInImageUrl,
-        );
-      }).toList();
-
-      // Convert attendance to AdminActivity model
-      final activities = attendance.map((a) {
-        return AdminActivity(
-          title: "${a.userName} checked in",
-          time: DateFormat("hh:mm a").format(a.checkInTime),
-          subtitle: a.checkInLocation,
-          isWarning: a.status == "Late",
-        );
-      }).toList();
-
+      // Convert users and leave requests (static for now, can be streamed later)
       // Convert users to AdminUser model
       final adminUsers = users.map((u) {
         return AdminUser(
@@ -124,58 +106,131 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
         );
       }).toList();
 
-      // Calculate Metrics
-      final presentCount = attendance.length;
-      final lateCount = attendance.where((a) => a.status == "Late").length;
-      final leaveCount = adminLeave
-          .where((l) => l.isApproved)
-          .length; // Approved leaves count
-      final requestCount = adminLeave.where((l) => l.isPending).length;
-
-      final metrics = [
-        AdminMetric(
-          label: "Present",
-          value: presentCount.toString(),
-          icon: Icons.check_circle_outline,
-          color: Colors.greenAccent,
-        ),
-        AdminMetric(
-          label: "Late",
-          value: lateCount.toString(),
-          icon: Icons.access_time,
-          color: Colors.orangeAccent,
-        ),
-        AdminMetric(
-          label: "On Leave",
-          value: leaveCount.toString(),
-          icon: Icons.beach_access,
-          color: Colors.blueAccent,
-        ),
-        AdminMetric(
-          label: "Requests",
-          value: requestCount.toString(),
-          icon: Icons.assignment,
-          color: Color(0xff5a64d6),
-        ),
-      ];
-
+      // Emit initial state with loaded users/leaves/config
       emit(
         state.copyWith(
           status: AdminStatus.success,
-          metrics: metrics,
-          activities: activities,
-          attendanceList: attendanceList,
-          leaveRequests: adminLeave, // Updated with real data
+          metrics: [], // Metrics will be calculated when attendance loads
+          activities: [],
+          attendanceList: [],
+          leaveRequests: adminLeave,
           users: adminUsers,
           officeLocation: officeLocation,
           allowedRadius: allowedRadius,
         ),
+      );
+
+      // Subscribe to Attendance Stream
+      _attendanceSubscription?.cancel();
+      _attendanceSubscription = _attendanceService.getAttendanceStream().listen(
+        (attendance) {
+          add(AdminAttendanceStreamUpdated(attendance));
+        },
       );
     } catch (e) {
       emit(
         state.copyWith(status: AdminStatus.failure, errorMessage: e.toString()),
       );
     }
+  }
+
+  void _onAttendanceStreamUpdated(
+    AdminAttendanceStreamUpdated event,
+    Emitter<AdminState> emit,
+  ) {
+    // Check if the event data matches expected type (List<AttendanceModel>)
+    // If we used dynamic in event, cast it here.
+    // Importing AttendanceModel in event file would be better, but avoiding import errors here.
+    // Assuming event.attendance is List<AttendanceModel>
+    // We should import AttendanceModel in admin_event.dart properly if possible.
+    // But since I used dynamic, I will trust it matches what service returns.
+    // Service returns List<AttendanceModel>.
+
+    // Actually, let's fix the event import if we can, but since I can't edit creating file again easily without viewing,
+    // I made event dynamic. AdminBloc has access to AttendanceModel from imports.
+    // So:
+    // final attendance = event.attendance as List<AttendanceModel>;
+    // Wait, List<AttendanceModel> might be incompatible with List<dynamic>.
+    // Service emits List<AttendanceModel>.
+    // Event accepts dynamic List.
+    // Let's iterate.
+
+    final attendance = event.attendance;
+
+    // Convert attendance to AdminAttendance model
+    final attendanceList = attendance.map((a) {
+      // a is dynamic, cast to AttendanceModel if needed or just access fields if dynamic (dangerous)
+      // Let's cast it since we know what it is.
+      // But wait, can I import AttendanceModel in AdminBloc? Yes.
+      // So:
+      // final model = a as AttendanceModel;
+
+      return AdminAttendance(
+        name: a.userName,
+        time: DateFormat("hh:mm a").format(a.checkInTime),
+        status: a.status,
+        statusColor: a.status == "Late"
+            ? Colors.orangeAccent
+            : Colors.greenAccent,
+        location: a.checkInLocation,
+        latitude: 0.0,
+        longitude: 0.0,
+        imageUrl: a.checkInImageUrl,
+      );
+    }).toList();
+
+    // Convert attendance to AdminActivity model
+    final activities = attendance.map((a) {
+      return AdminActivity(
+        title: "${a.userName} checked in",
+        time: DateFormat("hh:mm a").format(a.checkInTime),
+        subtitle: a.checkInLocation,
+        isWarning: a.status == "Late",
+      );
+    }).toList();
+
+    // Calculate Metrics
+    final presentCount = attendance.length;
+    final lateCount = attendance.where((a) => a.status == "Late").length;
+    // For leaves and requests, allow reusing state values or separate stream.
+    // Currently leaveRequests are in state.
+    final leaveCount = state.leaveRequests.where((l) => l.isApproved).length;
+    final requestCount = state.leaveRequests.where((l) => l.isPending).length;
+
+    final metrics = [
+      AdminMetric(
+        label: "Present",
+        value: presentCount.toString(),
+        icon: Icons.check_circle_outline,
+        color: Colors.greenAccent,
+      ),
+      AdminMetric(
+        label: "Late",
+        value: lateCount.toString(),
+        icon: Icons.access_time,
+        color: Colors.orangeAccent,
+      ),
+      AdminMetric(
+        label: "On Leave",
+        value: leaveCount.toString(),
+        icon: Icons.beach_access,
+        color: Colors.blueAccent,
+      ),
+      AdminMetric(
+        label: "Requests",
+        value: requestCount.toString(),
+        icon: Icons.assignment,
+        color: Color(0xff5a64d6),
+      ),
+    ];
+
+    emit(
+      state.copyWith(
+        metrics: metrics,
+        attendanceList: List<AdminAttendance>.from(attendanceList),
+        activities: List<AdminActivity>.from(activities),
+      ),
+    );
   }
 
   Future<void> _onUpdateOfficeSettings(

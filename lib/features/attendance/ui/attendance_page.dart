@@ -51,7 +51,33 @@ class _AttendanceViewState extends State<AttendanceView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AttendanceBloc, AttendanceState>(
+    return BlocConsumer<AttendanceBloc, AttendanceState>(
+      listener: (context, state) {
+        if (state.status == AttendanceStatus.error) {
+          // Strip "Exception: " prefix for cleaner display
+          final message = (state.errorMessage ?? "Attendance Failed")
+              .replaceAll("Exception: ", "");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(message)),
+                ],
+              ),
+              backgroundColor: Colors.red.shade600,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          );
+        } else if (state.status == AttendanceStatus.success) {
+          // Return to home with success indicator
+          Navigator.pop(context, true);
+        }
+      },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: const Color(0xFF0c202e),
@@ -388,7 +414,9 @@ class _AttendanceViewState extends State<AttendanceView> {
         Expanded(
           child: _attendanceButton(
             label: "Check In",
-            disabledLabel: "Outside Area",
+            disabledLabel: state.mainStatus == AttendanceMainStatus.checkin
+                ? "Checked In"
+                : "Outside Area",
             icon: FIcons.logIn,
             color: Colors.green,
             active: state.mainStatus == AttendanceMainStatus.checkin,
@@ -403,9 +431,13 @@ class _AttendanceViewState extends State<AttendanceView> {
                     callback: (success) {
                       if (success) {
                         bloc.add(AttendanceCheckInRequested());
-                        _showSnackBar(context, true);
                       } else {
-                        _showSnackBar(context, false);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Face Verification Failed"),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
                       }
                     },
                   ),
@@ -448,14 +480,6 @@ class _AttendanceViewState extends State<AttendanceView> {
         ),
       ],
     );
-  }
-
-  void _showSnackBar(BuildContext context, bool success) {
-    final message = success ? "Attendance Success" : "Attendance Failed";
-    final color = success ? Colors.green : Colors.red;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
   }
 
   Widget _attendanceButton({

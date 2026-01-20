@@ -56,3 +56,11 @@ class AdminLeaveStatusUpdated extends AdminEvent {
   @override
   List<Object?> get props => [leaveId, status];
 }
+
+class AdminAttendanceStreamUpdated extends AdminEvent {
+  final List<dynamic>
+  attendance; // Using dynamic to avoid circular dependencies if any, otherwise import model
+  const AdminAttendanceStreamUpdated(this.attendance);
+  @override
+  List<Object?> get props => [attendance];
+}

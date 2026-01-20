@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:developer' as developer;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:shift/features/attendance/models/attendance_model.dart';
@@ -11,15 +12,24 @@ class AttendanceService {
     required String userId,
     required String userName,
     required String location,
-    required File imageFile,
     required String status,
+    File? imageFile,
   }) async {
-    // 1. Upload Image to Firebase Storage
-    final fileName =
-        'attendance/${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final ref = _storage.ref().child(fileName);
-    await ref.putFile(imageFile);
-    final imageUrl = await ref.getDownloadURL();
+    String imageUrl = "";
+
+    // 1. Upload Image to Firebase Storage if provided
+    if (imageFile != null) {
+      try {
+        final fileName =
+            'attendance/${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final ref = _storage.ref().child(fileName);
+        await ref.putFile(imageFile);
+        imageUrl = await ref.getDownloadURL();
+      } catch (e) {
+        // Fallback or log error
+        developer.log("Image upload failed: $e", name: 'AttendanceService');
+      }
+    }
 
     // 2. Save to Firestore
     final attendance = AttendanceModel(
@@ -35,17 +45,60 @@ class AttendanceService {
     await _firestore.collection('attendance').add(attendance.toJson());
   }
 
+  Future<void> startBreak(String attendanceId) async {
+    // We add a new break entry with just start time
+    final breakEntry = {'start': Timestamp.now(), 'end': null};
+
+    // We need to read current breaks maybe?
+    // FieldValue.arrayUnion works if we treat the whole object as unique.
+    // But 'end' will change later, so arrayUnion might be tricky if we want to update it.
+    // Simplest reliable way: Update via transaction or simple read-modify-write.
+    // Let's use arrayUnion for start since it's a new object.
+
+    await _firestore.collection('attendance').doc(attendanceId).update({
+      'breaks': FieldValue.arrayUnion([breakEntry]),
+    });
+  }
+
+  Future<void> endBreak(String attendanceId) async {
+    // We need to find the open break (where end is null) and close it.
+    // Firestore doesn't support updating an array element by condition.
+    // We must read, modify, write.
+
+    final docRef = _firestore.collection('attendance').doc(attendanceId);
+    final snapshot = await docRef.get();
+
+    if (snapshot.exists) {
+      final data = snapshot.data();
+      List<dynamic> breaks = data?['breaks'] ?? [];
+
+      // Find the last break with null end
+      // We iterate backwards
+      for (int i = breaks.length - 1; i >= 0; i--) {
+        if (breaks[i]['end'] == null) {
+          breaks[i]['end'] = Timestamp.now();
+          break; // Close only one
+        }
+      }
+
+      await docRef.update({'breaks': breaks});
+    }
+  }
+
   Future<void> checkOut({
     required String attendanceId,
     required String location,
-    required File imageFile,
+    File? imageFile,
   }) async {
+    String imageUrl = "";
     // 1. Upload image
-    final fileName =
-        'attendance/checkout_${attendanceId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final ref = _storage.ref().child(fileName);
-    await ref.putFile(imageFile);
-    final imageUrl = await ref.getDownloadURL();
+    if (imageFile != null) {
+      final fileName =
+          'attendance/checkout_${attendanceId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final ref = _storage.ref().child(fileName);
+      await ref.putFile(imageFile);
+      imageUrl = await ref.getDownloadURL();
+    }
 
     // 2. Update Firestore
     await _firestore.collection('attendance').doc(attendanceId).update({
@@ -67,6 +120,35 @@ class AttendanceService {
         .toList();
   }
 
+  Future<AttendanceModel?> getTodayAttendance(String userId) async {
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    final snapshot = await _firestore
+        .collection('attendance')
+        .where('user_id', isEqualTo: userId)
+        .where(
+          'check_in_time',
+          isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
+        )
+        .where(
+          'check_in_time',
+          isLessThanOrEqualTo: Timestamp.fromDate(endOfDay),
+        )
+        .orderBy('check_in_time', descending: true)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      return AttendanceModel.fromJson(
+        snapshot.docs.first.data(),
+        snapshot.docs.first.id,
+      );
+    }
+    return null;
+  }
+
   Future<List<AttendanceModel>> getAllAttendance() async {
     final snapshot = await _firestore
         .collection('attendance')
@@ -76,5 +158,17 @@ class AttendanceService {
     return snapshot.docs
         .map((doc) => AttendanceModel.fromJson(doc.data(), doc.id))
         .toList();
+  }
+
+  Stream<List<AttendanceModel>> getAttendanceStream() {
+    return _firestore
+        .collection('attendance')
+        .orderBy('check_in_time', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => AttendanceModel.fromJson(doc.data(), doc.id))
+              .toList();
+        });
   }
 }

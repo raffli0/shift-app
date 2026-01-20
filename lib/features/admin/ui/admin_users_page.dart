@@ -245,72 +245,74 @@ class _UserFormState extends State<_UserForm> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            widget.user == null ? "Add User" : "Edit User",
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 24),
-          FTextFormField(
-            label: const Text("Name"),
-            controller: _nameController,
-          ),
-          const SizedBox(height: 16),
-          FTextFormField(
-            label: const Text("Email"),
-            controller: _emailController,
-            enabled:
-                widget.user ==
-                null, // Only editable for new users for linked Logic?
-            // Actually, admin should be able to edit. But key is email for linking.
-            // Let's allow edit.
-          ),
-          const SizedBox(height: 16),
-          FTextFormField(
-            label: const Text("Role"),
-            controller: _roleController,
-          ),
-          const SizedBox(height: 16),
-          FTextFormField(
-            label: const Text("Department"),
-            controller: _deptController,
-          ),
-          const SizedBox(height: 16),
-          // Simple Status Dropdown (Simulated)
-          DropdownButtonFormField<String>(
-            initialValue: _status,
-            decoration: const InputDecoration(labelText: "Status"),
-            items: [
-              "Active",
-              "Inactive",
-            ].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-            onChanged: (val) => setState(() => _status = val!),
-          ),
-          const SizedBox(height: 24),
-          FButton(
-            onPress: () {
-              final newUser = AdminUser(
-                id:
-                    widget.user?.id ??
-                    "", // Preserve ID if editing, empty if new
-                name: _nameController.text,
-                email: _emailController.text,
-                role: _roleController.text,
-                department: _deptController.text,
-                status: _status,
-                imageUrl:
-                    widget.user?.imageUrl ??
-                    "https://i.pravatar.cc/150?u=${_nameController.text}",
-                isDestructive: _status == "Inactive",
-              );
-              widget.onSave(newUser);
-            },
-            child: const Text("Save"),
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              widget.user == null ? "Add User" : "Edit User",
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            FTextFormField(
+              label: const Text("Name"),
+              controller: _nameController,
+            ),
+            const SizedBox(height: 16),
+            FTextFormField(
+              label: const Text("Email"),
+              controller: _emailController,
+              enabled:
+                  widget.user ==
+                  null, // Only editable for new users for linked Logic?
+              // Actually, admin should be able to edit. But key is email for linking.
+              // Let's allow edit.
+            ),
+            const SizedBox(height: 16),
+            FTextFormField(
+              label: const Text("Role"),
+              controller: _roleController,
+            ),
+            const SizedBox(height: 16),
+            FTextFormField(
+              label: const Text("Department"),
+              controller: _deptController,
+            ),
+            const SizedBox(height: 16),
+            // Simple Status Dropdown (Simulated)
+            DropdownButtonFormField<String>(
+              initialValue: _status,
+              decoration: const InputDecoration(labelText: "Status"),
+              items: [
+                "Active",
+                "Inactive",
+              ].map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
+              onChanged: (val) => setState(() => _status = val!),
+            ),
+            const SizedBox(height: 24),
+            FButton(
+              onPress: () {
+                final newUser = AdminUser(
+                  id:
+                      widget.user?.id ??
+                      "", // Preserve ID if editing, empty if new
+                  name: _nameController.text,
+                  email: _emailController.text,
+                  role: _roleController.text,
+                  department: _deptController.text,
+                  status: _status,
+                  imageUrl:
+                      widget.user?.imageUrl ??
+                      "https://i.pravatar.cc/150?u=${_nameController.text}",
+                  isDestructive: _status == "Inactive",
+                );
+                widget.onSave(newUser);
+              },
+              child: const Text("Save"),
+            ),
+          ],
+        ),
       ),
     );
   }
