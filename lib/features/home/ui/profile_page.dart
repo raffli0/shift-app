@@ -15,7 +15,9 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
-    final user = context.select((AuthBloc bloc) => bloc.state.user);
+    final authState = context.select((AuthBloc bloc) => bloc.state);
+    final user = authState.user;
+    final companyName = authState.companyName;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0c202e),
@@ -30,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => _showEditDialog(context, user),
+            onPressed: () => _showEditDialog(context, user, companyName),
             child: const Text(
               'Edit',
               style: TextStyle(
@@ -74,40 +76,76 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.email,
                       title: 'Email',
                       value: user?.email ?? 'Unknown',
+                      onTap: () => _showSingleFieldEditDialog(
+                        context,
+                        title: 'Edit Email',
+                        label: 'Email',
+                        initialValue: user?.email ?? '',
+                        onSave: (value) {
+                          context.read<AuthBloc>().add(
+                            AuthProfileUpdateRequested(
+                              fullName: user!.fullName,
+                              email: value,
+                              phone: user.phone,
+                              department: user.department,
+                              manager: user.manager,
+                              companyName: companyName,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                     const _Divider(),
                     _InfoTile(
                       icon: Icons.phone,
                       title: 'Phone',
                       value: user?.phone ?? 'Not set',
+                      onTap: () => _showSingleFieldEditDialog(
+                        context,
+                        title: 'Edit Phone',
+                        label: 'Phone Number',
+                        initialValue: user?.phone ?? '',
+                        onSave: (value) {
+                          context.read<AuthBloc>().add(
+                            AuthProfileUpdateRequested(
+                              fullName: user!.fullName,
+                              email: user.email,
+                              phone: value,
+                              department: user.department,
+                              manager: user.manager,
+                              companyName: companyName,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
               ),
-              if (user?.role != 'admin') ...[
-                const SizedBox(height: 24),
-                _section(
-                  title: 'EMPLOYMENT DETAILS',
-                  child: Column(
-                    children: [
-                      _RowTile(
-                        label: 'Department',
-                        value: user?.department ?? 'Not set',
-                      ),
-                      const _Divider(),
-                      _RowTile(
-                        label: 'Employee ID',
-                        value: user?.employeeId ?? 'Not set',
-                      ),
-                      const _Divider(),
-                      _RowTile(
-                        label: 'Manager',
-                        value: user?.manager ?? 'Not set',
-                      ),
-                    ],
-                  ),
+              const SizedBox(height: 24),
+              _section(
+                title: 'EMPLOYMENT DETAILS',
+                child: Column(
+                  children: [
+                    _RowTile(
+                      label: 'Department',
+                      value: user?.department ?? 'Not set',
+                    ),
+                    const _Divider(),
+                    _RowTile(label: 'Company', value: companyName ?? 'Not set'),
+                    const _Divider(),
+                    _RowTile(
+                      label: 'Employee ID',
+                      value: user?.employeeId ?? 'Not set',
+                    ),
+                    const _Divider(),
+                    _RowTile(
+                      label: 'Manager',
+                      value: user?.manager ?? 'Not set',
+                    ),
+                  ],
                 ),
-              ],
+              ),
               const SizedBox(height: 30),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
@@ -143,29 +181,89 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _showEditDialog(BuildContext context, dynamic user) {
+  void _showSingleFieldEditDialog(
+    BuildContext context, {
+    required String title,
+    required String label,
+    required String initialValue,
+    required Function(String) onSave,
+  }) {
+    final controller = TextEditingController(text: initialValue);
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(labelText: label),
+            autofocus: true,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              onSave(controller.text);
+              Navigator.pop(dialogContext);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditDialog(
+    BuildContext context,
+    dynamic user,
+    String? currentCompanyName,
+  ) {
     if (user == null) return;
 
     final nameController = TextEditingController(text: user.fullName);
-    final emailController = TextEditingController(text: user.email);
+    final deptController = TextEditingController(text: user.department ?? '');
+    final managerController = TextEditingController(text: user.manager ?? '');
+    final companyController = TextEditingController(
+      text: currentCompanyName ?? '',
+    );
+    final isAdmin = user.role == 'admin';
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Edit Profile'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Full Name'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Full Name'),
+              ),
+              if (isAdmin) ...[
+                const SizedBox(height: 16),
+                TextField(
+                  controller: deptController,
+                  decoration: const InputDecoration(labelText: 'Department'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: managerController,
+                  decoration: const InputDecoration(labelText: 'Manager'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: companyController,
+                  decoration: const InputDecoration(labelText: 'Company Name'),
+                ),
+              ],
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -177,7 +275,11 @@ class _ProfilePageState extends State<ProfilePage> {
               context.read<AuthBloc>().add(
                 AuthProfileUpdateRequested(
                   fullName: nameController.text,
-                  email: emailController.text,
+                  email: user.email,
+                  phone: user.phone,
+                  department: isAdmin ? deptController.text : user.department,
+                  manager: isAdmin ? managerController.text : user.manager,
+                  companyName: isAdmin ? companyController.text : null,
                 ),
               );
               Navigator.pop(dialogContext);
@@ -304,16 +406,19 @@ class _InfoTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String value;
+  final VoidCallback? onTap;
 
   const _InfoTile({
     required this.icon,
     required this.title,
     required this.value,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onTap: onTap,
       leading: Icon(icon, color: Colors.blue),
       title: Text(title),
       subtitle: Text(value),

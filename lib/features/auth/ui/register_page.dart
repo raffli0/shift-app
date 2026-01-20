@@ -6,6 +6,7 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import '../../root/ui/main_root_page.dart';
+import '../../admin/ui/admin_root_page.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -26,6 +27,7 @@ class RegisterView extends StatefulWidget {
 class _RegisterViewState extends State<RegisterView> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _companyController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -35,6 +37,7 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   void dispose() {
     _nameController.dispose();
+    _companyController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -48,6 +51,7 @@ class _RegisterViewState extends State<RegisterView> {
           fullName: _nameController.text,
           email: _emailController.text,
           password: _passwordController.text,
+          companyName: _companyController.text,
         ),
       );
     }
@@ -57,9 +61,13 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.authenticated) {
+        if (state.status == AuthStatus.authenticated && state.user != null) {
+          final isAdmin = state.user!.role == 'admin';
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const MainRootPage()),
+            MaterialPageRoute(
+              builder: (_) =>
+                  isAdmin ? const AdminRootPage() : const MainRootPage(),
+            ),
             (route) => false,
           );
         } else if (state.status == AuthStatus.error) {
@@ -139,6 +147,18 @@ class _RegisterViewState extends State<RegisterView> {
                                 label: const Text('Full Name'),
                                 hint: 'Enter your full name',
                                 controller: _nameController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Required';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                              FTextFormField(
+                                label: const Text('Company Name'),
+                                hint: 'Enter your company name',
+                                controller: _companyController,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Required';

@@ -27,7 +27,27 @@ class LeaveService {
       throw Exception("Start date must be before or equal to end date.");
     }
 
-    // TODO: Ideally check for overlap here, but complex in Firestore.
+    // Check for overlap
+    final existingRequests = await getMyRequests(user.id);
+    for (final existing in existingRequests) {
+      if (existing.status == 'rejected') continue;
+
+      // Overlap logic: (StartA <= EndB) and (EndA >= StartB)
+      final bool overlaps =
+          startDate.isBefore(
+            existing.endDate.add(const Duration(seconds: 1)),
+          ) &&
+          endDate.isAfter(
+            existing.startDate.subtract(const Duration(seconds: 1)),
+          );
+
+      if (overlaps) {
+        throw Exception(
+          "This request overlaps with an existing ${existing.status} request "
+          "(${existing.startDate.day}/${existing.startDate.month} - ${existing.endDate.day}/${existing.endDate.month}).",
+        );
+      }
+    }
 
     final leave = LeaveRequestModel(
       id: '',

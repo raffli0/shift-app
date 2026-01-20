@@ -49,14 +49,9 @@ class AuthService {
     required String fullName,
     required String email,
     required String password,
+    required String companyName,
   }) async {
-    // Check if user already exists in Firestore (Employee Placeholder)
-    final existingUserQuery = await _firestore
-        .collection('users')
-        .where('email', isEqualTo: email)
-        .limit(1)
-        .get();
-
+    // 1. Create Auth Account
     final UserCredential credential = await _auth
         .createUserWithEmailAndPassword(email: email, password: password);
 
@@ -64,39 +59,37 @@ class AuthService {
       throw Exception("Registration failed");
     }
 
-    // Update display name
-    await credential.user!.updateDisplayName(fullName);
+    final uid = credential.user!.uid;
 
-    String role = "admin"; // Default for new sign-ups is Admin (Company)
+    // 2. Run Firestore Transaction to create Company and User profile
+    return await _firestore.runTransaction((transaction) async {
+      // Create NEW company
+      final companyRef = _firestore.collection('companies').doc();
+      transaction.set(companyRef, {
+        'name': companyName,
+        'created_at': FieldValue.serverTimestamp(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
 
-    // Profile Linking Logic
-    if (existingUserQuery.docs.isNotEmpty) {
-      // Employee account pre-created by Admin found!
-      final existingDoc = existingUserQuery.docs.first;
-      final existingData = existingDoc.data();
+      final companyId = companyRef.id;
 
-      role = existingData['role'] ?? "employee"; // Preserve employee role
+      // Update Firebase Auth display name (optional but good)
+      await credential.user!.updateDisplayName(fullName);
 
-      // Delete the placeholder doc (since it has no valid UID yet)
-      // or we can update it? Key issue: Doc ID needs to match Auth UID.
-      // Strategy: Delete old placeholder, create NEW doc with correct UID.
-      await _firestore.collection('users').doc(existingDoc.id).delete();
-    }
+      final user = UserModel(
+        id: uid,
+        fullName: fullName,
+        email: email,
+        role: "admin",
+        companyId: companyId,
+      );
 
-    final user = UserModel(
-      id: credential.user!.uid,
-      fullName: fullName,
-      email: email,
-      role: role,
-    );
+      // Create Admin User Profile linked to the new company
+      final userRef = _firestore.collection('users').doc(uid);
+      transaction.set(userRef, user.toJson());
 
-    // Save to Firestore with correct UID
-    await _firestore
-        .collection('users')
-        .doc(credential.user!.uid)
-        .set(user.toJson());
-
-    return user;
+      return user;
+    });
   }
 
   Future<void> logout() async {
@@ -106,27 +99,51 @@ class AuthService {
   Future<UserModel> updateProfile({
     required String fullName,
     required String email,
+    String? phone,
+    String? department,
+    String? manager,
+    String? companyName,
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception("User not authenticated");
 
-    // Note: Updating email in Firebase Auth requires re-auth usually,
-    // keeping it simple for now.
-    if (user.email != email) {
-      // await user.verifyBeforeUpdateEmail(email);
-      // We'll skip complex email update flows for this step to focus on data.
-    }
+    // Fetch current user data to get companyId
+    final userDoc = await _firestore.collection('users').doc(user.uid).get();
+    final userData = userDoc.data();
+    final companyId = userData?['company_id'];
+
     await user.updateDisplayName(fullName);
 
-    // Update Firestore
-    await _firestore.collection('users').doc(user.uid).update({
+    // Update Firestore User
+    final Map<String, dynamic> updateData = {
       'full_name': fullName,
       'email': email,
-    });
+    };
+    if (phone != null) updateData['phone'] = phone;
+    if (department != null) updateData['department'] = department;
+    if (manager != null) updateData['manager'] = manager;
+
+    await _firestore.collection('users').doc(user.uid).update(updateData);
+
+    // Update Company Name if provided and user is admin
+    if (companyName != null && companyName.isNotEmpty && companyId != null) {
+      await _firestore.collection('companies').doc(companyId).update({
+        'name': companyName,
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+    }
 
     // Fetch updated user
     final doc = await _firestore.collection('users').doc(user.uid).get();
     return UserModel.fromJson(doc.data()!);
+  }
+
+  Future<String?> getCompanyName(String companyId) async {
+    final doc = await _firestore.collection('companies').doc(companyId).get();
+    if (doc.exists) {
+      return doc.data()?['name'] as String?;
+    }
+    return null;
   }
 
   // --- Admin Features ---
@@ -167,7 +184,7 @@ class AuthService {
     final user = _auth.currentUser;
     if (user != null) {
       final doc = await _firestore.collection('users').doc(user.uid).get();
-      if (doc.exists) {
+      if (doc.exists && doc.data() != null) {
         return UserModel.fromJson(doc.data()!);
       }
     }

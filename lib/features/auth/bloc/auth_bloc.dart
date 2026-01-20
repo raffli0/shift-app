@@ -24,7 +24,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final user = await _authService.checkAuthStatus();
       if (user != null) {
-        emit(state.copyWith(status: AuthStatus.authenticated, user: user));
+        String? companyName;
+        if (user.companyId != null) {
+          companyName = await _authService.getCompanyName(user.companyId!);
+        }
+        emit(
+          state.copyWith(
+            status: AuthStatus.authenticated,
+            user: user,
+            companyName: companyName,
+          ),
+        );
       } else {
         emit(state.copyWith(status: AuthStatus.unauthenticated));
       }
@@ -42,8 +52,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final updatedUser = await _authService.updateProfile(
         fullName: event.fullName,
         email: event.email,
+        phone: event.phone,
+        department: event.department,
+        manager: event.manager,
+        companyName: event.companyName,
       );
-      emit(state.copyWith(status: AuthStatus.authenticated, user: updatedUser));
+
+      String? companyName = state.companyName;
+      if (event.companyName != null && event.companyName!.isNotEmpty) {
+        companyName = event.companyName;
+      } else if (updatedUser.companyId != null && companyName == null) {
+        companyName = await _authService.getCompanyName(updatedUser.companyId!);
+      }
+
+      emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          user: updatedUser,
+          companyName: companyName,
+        ),
+      );
     } catch (e) {
       emit(
         state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
@@ -61,7 +89,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         email: event.email,
         password: event.password,
       );
-      emit(state.copyWith(status: AuthStatus.authenticated, user: user));
+      String? companyName;
+      if (user.companyId != null) {
+        companyName = await _authService.getCompanyName(user.companyId!);
+      }
+      emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          user: user,
+          companyName: companyName,
+        ),
+      );
     } catch (e) {
       emit(
         state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
@@ -79,8 +117,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         fullName: event.fullName,
         email: event.email,
         password: event.password,
+        companyName: event.companyName,
       );
-      emit(state.copyWith(status: AuthStatus.authenticated, user: user));
+      emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          user: user,
+          companyName: event.companyName,
+        ),
+      );
     } catch (e) {
       emit(
         state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
