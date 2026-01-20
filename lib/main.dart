@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/routing/app_router.dart';
 import 'core/utils/app_bloc_observer.dart';
 import 'features/auth/bloc/auth_bloc.dart';
+import 'features/auth/bloc/auth_event.dart';
 import 'features/auth/services/auth_service.dart';
 import 'features/admin/bloc/admin_bloc.dart';
 import 'features/admin/bloc/admin_event.dart';
@@ -20,7 +21,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => AuthBloc(authService: AuthService())),
+        BlocProvider(
+          create: (context) =>
+              AuthBloc(authService: AuthService())..add(AuthCheckRequested()),
+        ),
         BlocProvider(create: (context) => AdminBloc()..add(AdminStarted())),
       ],
       child: MaterialApp(

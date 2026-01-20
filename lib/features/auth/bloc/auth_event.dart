@@ -32,4 +32,6 @@ class AuthRegisterRequested extends AuthEvent {
   List<Object?> get props => [fullName, email, password];
 }
 
+class AuthCheckRequested extends AuthEvent {}
+
 class AuthLogoutRequested extends AuthEvent {}
