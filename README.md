@@ -15,7 +15,7 @@ Tujuan dari pengembangan aplikasi Shift adalah:
 ## Fitur Aplikasi
 
 ### Fitur Karyawan
-- Check-in dan check-out berbasis lokasi (geofencing).
+- Check-in berbasis lokasi (geofencing).
 - Verifikasi wajah menggunakan face liveness detection.
 - Pengambilan foto selfie sebagai bukti absensi.
 - Manajemen waktu istirahat.
