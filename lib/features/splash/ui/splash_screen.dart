@@ -19,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen>
     // ANIMASI LOGO (Scale + Fade via Opacity if needed, but Scale is good)
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500), // Longer animation
+      duration: const Duration(milliseconds: 2500), // Longer animation
     );
 
     _scaleAnimation = Tween<double>(
@@ -61,26 +61,6 @@ class _SplashScreenState extends State<SplashScreen>
                     color: Colors.white,
                   );
                 },
-              ),
-              const SizedBox(height: 24),
-
-              // NAMA APP
-              const Text(
-                "Shift",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFEDEDED),
-                  letterSpacing: 0.8,
-                ),
-              ),
-
-              const SizedBox(height: 6),
-
-              // SUBTEXT
-              const Text(
-                "Smart Presence System",
-                style: TextStyle(color: Color(0xFF9AA0AA), fontSize: 14),
               ),
             ],
           ),
