@@ -52,8 +52,9 @@ class AuthService {
       return newUser;
     }
 
-    // Save token for Dio
-    await _saveToken(credential.user);
+    // Token persistence is handled by Firebase Auth SDK
+    // No need to manually save token for Dio anymore
+    // await _saveToken(credential.user);
 
     return UserModel.fromJson(doc.data()!);
   }

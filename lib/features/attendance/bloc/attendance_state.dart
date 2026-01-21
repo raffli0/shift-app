@@ -7,65 +7,74 @@ enum AttendanceMainStatus { none, checkin, checkout }
 
 enum BreakStatus { none, onBreak, offBreak }
 
+enum AttendanceSuccessType { none, checkIn, checkOut, breakStart, breakEnd }
+
 class AttendanceState extends Equatable {
   final AttendanceStatus status;
+  final String? errorMessage;
+  final AttendanceSuccessType successType; // New field
+
   final AttendanceMainStatus mainStatus;
   final BreakStatus breakStatus;
   final LatLng? userLatLng;
   final String currentAddress;
   final bool isInsideOffice;
-  final int tabIndex;
+
+  final LatLng? officeLocation; // Fetched from config
+  final double officeRadius; // Fetched from config
+
   final DateTime now;
-  final String? errorMessage;
-  // Office settings synced from Firestore
-  final LatLng? officeLocation;
-  final double officeRadius;
+  final int tabIndex;
+
   final String? shiftStart;
   final String? shiftEnd;
 
   const AttendanceState({
     this.status = AttendanceStatus.initial,
+    this.errorMessage,
+    this.successType = AttendanceSuccessType.none,
     this.mainStatus = AttendanceMainStatus.none,
     this.breakStatus = BreakStatus.none,
     this.userLatLng,
     this.currentAddress = "",
     this.isInsideOffice = false,
-    this.tabIndex = 0,
-    required this.now,
-    this.errorMessage,
     this.officeLocation,
-    this.officeRadius = 100.0, // Default safe radius before sync
+    this.officeRadius = 100.0,
+    required this.now,
+    this.tabIndex = 0,
     this.shiftStart,
     this.shiftEnd,
   });
 
   AttendanceState copyWith({
     AttendanceStatus? status,
+    String? errorMessage,
+    AttendanceSuccessType? successType,
     AttendanceMainStatus? mainStatus,
     BreakStatus? breakStatus,
     LatLng? userLatLng,
     String? currentAddress,
     bool? isInsideOffice,
-    int? tabIndex,
-    DateTime? now,
-    String? errorMessage,
     LatLng? officeLocation,
     double? officeRadius,
+    DateTime? now,
+    int? tabIndex,
     String? shiftStart,
     String? shiftEnd,
   }) {
     return AttendanceState(
       status: status ?? this.status,
+      errorMessage: errorMessage,
+      successType: successType ?? this.successType,
       mainStatus: mainStatus ?? this.mainStatus,
       breakStatus: breakStatus ?? this.breakStatus,
       userLatLng: userLatLng ?? this.userLatLng,
       currentAddress: currentAddress ?? this.currentAddress,
       isInsideOffice: isInsideOffice ?? this.isInsideOffice,
-      tabIndex: tabIndex ?? this.tabIndex,
-      now: now ?? this.now,
-      errorMessage: errorMessage ?? this.errorMessage,
       officeLocation: officeLocation ?? this.officeLocation,
       officeRadius: officeRadius ?? this.officeRadius,
+      now: now ?? this.now,
+      tabIndex: tabIndex ?? this.tabIndex,
       shiftStart: shiftStart ?? this.shiftStart,
       shiftEnd: shiftEnd ?? this.shiftEnd,
     );
@@ -74,16 +83,17 @@ class AttendanceState extends Equatable {
   @override
   List<Object?> get props => [
     status,
+    errorMessage,
+    successType,
     mainStatus,
     breakStatus,
     userLatLng,
     currentAddress,
     isInsideOffice,
-    tabIndex,
-    now,
-    errorMessage,
     officeLocation,
     officeRadius,
+    now,
+    tabIndex,
     shiftStart,
     shiftEnd,
   ];

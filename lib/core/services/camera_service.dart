@@ -19,7 +19,7 @@ class CameraService {
 
       _controller = CameraController(
         frontCamera,
-        ResolutionPreset.veryHigh,
+        ResolutionPreset.medium,
         enableAudio: false,
       );
 

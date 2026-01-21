@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -42,7 +43,13 @@ class AttendanceTabChanged extends AttendanceEvent {
   List<Object?> get props => [index];
 }
 
-class AttendanceCheckInRequested extends AttendanceEvent {}
+class AttendanceCheckInRequested extends AttendanceEvent {
+  final File? imageFile;
+  const AttendanceCheckInRequested({this.imageFile});
+
+  @override
+  List<Object?> get props => [imageFile];
+}
 
 class AttendanceCheckOutRequested extends AttendanceEvent {}
 

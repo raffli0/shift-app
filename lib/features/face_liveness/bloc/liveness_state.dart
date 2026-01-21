@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:shift/utils/liveness_action_util.dart';
 
@@ -22,6 +23,7 @@ class LivenessState extends Equatable {
   final double? leftEyeOpenProbability;
   final double? rightEyeOpenProbability;
   final double? headEulerAngleY;
+  final File? imageFile;
 
   const LivenessState({
     this.status = LivenessStatus.initial,
@@ -33,6 +35,7 @@ class LivenessState extends Equatable {
     this.leftEyeOpenProbability,
     this.rightEyeOpenProbability,
     this.headEulerAngleY,
+    this.imageFile,
   });
 
   LivenessAction? get currentAction =>
@@ -52,6 +55,7 @@ class LivenessState extends Equatable {
     double? leftEyeOpenProbability,
     double? rightEyeOpenProbability,
     double? headEulerAngleY,
+    File? imageFile,
   }) {
     return LivenessState(
       status: status ?? this.status,
@@ -65,6 +69,7 @@ class LivenessState extends Equatable {
       rightEyeOpenProbability:
           rightEyeOpenProbability ?? this.rightEyeOpenProbability,
       headEulerAngleY: headEulerAngleY ?? this.headEulerAngleY,
+      imageFile: imageFile ?? this.imageFile,
     );
   }
 
@@ -79,5 +84,6 @@ class LivenessState extends Equatable {
     leftEyeOpenProbability,
     rightEyeOpenProbability,
     headEulerAngleY,
+    imageFile,
   ];
 }

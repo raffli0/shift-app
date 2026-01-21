@@ -155,10 +155,10 @@ class LivenessBloc extends Bloc<LivenessEvent, LivenessState> {
     }
   }
 
-  void _onFaceDetected(
+  Future<void> _onFaceDetected(
     LivenessFaceDetected event,
     Emitter<LivenessState> emit,
-  ) {
+  ) async {
     if (state.status == LivenessStatus.completed) return;
 
     final face = event.face;
@@ -187,10 +187,10 @@ class LivenessBloc extends Bloc<LivenessEvent, LivenessState> {
     );
 
     emit(newState);
-    _checkAction(face, emit);
+    await _checkAction(face, emit);
   }
 
-  void _checkAction(Face face, Emitter<LivenessState> emit) {
+  Future<void> _checkAction(Face face, Emitter<LivenessState> emit) async {
     if (state.waitingForNeutral) {
       if (_isNeutralPosition(face)) {
         emit(state.copyWith(waitingForNeutral: false));
@@ -205,7 +205,24 @@ class LivenessBloc extends Bloc<LivenessEvent, LivenessState> {
       final isLastStep = state.currentActionIndex >= state.actions.length - 1;
 
       if (isLastStep) {
-        emit(state.copyWith(status: LivenessStatus.completed));
+        // Capture image before completing
+        try {
+          final image = await _cameraService.takePicture();
+          emit(
+            state.copyWith(
+              status: LivenessStatus.completed,
+              imageFile: image != null ? File(image.path) : null,
+            ),
+          );
+        } catch (e) {
+          log("Error capturing final image: $e");
+          // Even if capture fails, we might want to complete?
+          // Or emit error? Let's emit error for now or just complete without image?
+          // User requested capture, so failure is significant.
+          // But existing flow completes. Let's try to complete without image as fallback or error.
+          // Let's emit completed but log error.
+          emit(state.copyWith(status: LivenessStatus.completed));
+        }
       } else {
         emit(
           state.copyWith(

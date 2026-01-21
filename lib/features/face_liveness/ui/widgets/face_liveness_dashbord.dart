@@ -35,7 +35,7 @@ class FaceLivenessDashbord extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'DEV MODE',
+            'Face Liveness',
             style: TextStyle(
               color: Colors.yellow,
               fontSize: 12,

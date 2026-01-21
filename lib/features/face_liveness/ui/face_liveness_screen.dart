@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +13,7 @@ import 'widgets/face_liveness_painter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class FaceLivenessScreen extends StatelessWidget {
-  final Function(bool success)? callback;
+  final Function(File? image)? callback;
 
   const FaceLivenessScreen({super.key, this.callback});
 
@@ -41,7 +42,7 @@ class FaceLivenessScreen extends StatelessWidget {
 }
 
 class FaceLivenessView extends StatelessWidget {
-  final Function(bool success)? callback;
+  final Function(File? image)? callback;
 
   const FaceLivenessView({super.key, this.callback});
 
@@ -50,7 +51,7 @@ class FaceLivenessView extends StatelessWidget {
     return BlocConsumer<LivenessBloc, LivenessState>(
       listener: (context, state) {
         if (state.status == LivenessStatus.completed) {
-          callback?.call(true);
+          callback?.call(state.imageFile);
           Navigator.of(context).pop();
         } else if (state.status == LivenessStatus.permissionDenied) {
           _showPermissionDeniedDialog(context);

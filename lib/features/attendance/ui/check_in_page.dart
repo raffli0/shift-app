@@ -137,6 +137,9 @@ class CheckInActionPage extends StatelessWidget {
                                   location: "Headquarters",
                                   imageFile: File(imagePath),
                                   status: "On Time",
+                                  latitude: center.latitude,
+                                  longitude: center.longitude,
+                                  insideOffice: true,
                                 );
 
                                 if (context.mounted) {

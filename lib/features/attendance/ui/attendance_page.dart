@@ -63,6 +63,9 @@ class _AttendanceViewState extends State<AttendanceView> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AttendanceBloc, AttendanceState>(
+      listenWhen: (previous, current) =>
+          previous.status != current.status ||
+          previous.successType != current.successType,
       listener: (context, state) {
         if (state.status == AttendanceStatus.error) {
           // Strip "Exception: " prefix for cleaner display
@@ -84,30 +87,39 @@ class _AttendanceViewState extends State<AttendanceView> {
               ),
             ),
           );
-        } else if (state.status == AttendanceStatus.success) {
-          // For break events, just show a success dialog
-          // Don't pop navigation - user stays on attendance page
-          // We can detect break events by checking if we're still checked in
-          if (state.mainStatus == AttendanceMainStatus.checkin) {
-            // Still checked in - this was likely a break event
-            // Show success dialog without popping
-            if (state.breakStatus == BreakStatus.onBreak) {
+        } else if (state.status == AttendanceStatus.success &&
+            state.successType != AttendanceSuccessType.none) {
+          switch (state.successType) {
+            case AttendanceSuccessType.checkIn:
+              AppDialog.showSuccess(
+                context: context,
+                title: "You're checked in",
+                message: "Attendance recorded successfully.",
+              );
+              break;
+            case AttendanceSuccessType.checkOut:
+              AppDialog.showSuccess(
+                context: context,
+                title: "Checked out",
+                message: "See you tomorrow!",
+              );
+              break;
+            case AttendanceSuccessType.breakStart:
               AppDialog.showSuccess(
                 context: context,
                 title: "Break started",
                 message: "Enjoy your break!",
               );
-            } else {
-              // Break ended
+              break;
+            case AttendanceSuccessType.breakEnd:
               AppDialog.showSuccess(
                 context: context,
                 title: "Break ended",
                 message: "Welcome back!",
               );
-            }
-          } else {
-            // Check-in or check-out success - pop navigation
-            Navigator.pop(context, true);
+              break;
+            case AttendanceSuccessType.none:
+              break;
           }
         }
       },
@@ -497,9 +509,9 @@ class _AttendanceViewState extends State<AttendanceView> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => FaceLivenessScreen(
-                    callback: (success) {
-                      if (success) {
-                        bloc.add(AttendanceCheckInRequested());
+                    callback: (image) {
+                      if (image != null) {
+                        bloc.add(AttendanceCheckInRequested(imageFile: image));
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(

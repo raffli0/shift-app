@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:developer' as developer;
+import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../auth/models/user_model.dart';
 import 'package:shift/core/services/location_service.dart';
@@ -202,13 +204,23 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     AttendanceCheckInRequested event,
     Emitter<AttendanceState> emit,
   ) async {
-    emit(state.copyWith(status: AttendanceStatus.loading));
+    emit(
+      state.copyWith(
+        status: AttendanceStatus.loading,
+        successType: AttendanceSuccessType.none,
+      ),
+    );
 
     try {
       if (state.userLatLng == null) throw Exception("Location not available");
 
       final user = _authService.currentUser;
       if (user == null) throw Exception("User not authenticated");
+
+      developer.log(
+        "Checking in with image: ${event.imageFile?.path}",
+        name: "AttendanceBloc",
+      );
 
       final locationString = state.currentAddress.isNotEmpty
           ? state.currentAddress
@@ -220,12 +232,16 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         companyId: companyId,
         location: locationString,
         status: state.now.hour > 9 ? "Late" : "On Time", // Simple logic for now
-        imageFile: null, // Image capture not yet implemented in Bloc event
+        latitude: state.userLatLng!.latitude,
+        longitude: state.userLatLng!.longitude,
+        insideOffice: state.isInsideOffice,
+        imageFile: event.imageFile,
       );
 
       emit(
         state.copyWith(
           status: AttendanceStatus.success,
+          successType: AttendanceSuccessType.checkIn,
           mainStatus: AttendanceMainStatus.checkin,
           breakStatus: BreakStatus.none,
         ),
@@ -235,6 +251,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         state.copyWith(
           status: AttendanceStatus.error,
           errorMessage: e.toString(),
+          successType: AttendanceSuccessType.none,
         ),
       );
     }
@@ -244,7 +261,12 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     AttendanceCheckOutRequested event,
     Emitter<AttendanceState> emit,
   ) async {
-    emit(state.copyWith(status: AttendanceStatus.loading));
+    emit(
+      state.copyWith(
+        status: AttendanceStatus.loading,
+        successType: AttendanceSuccessType.none,
+      ),
+    );
     try {
       final user = _authService.currentUser;
       if (user == null) throw Exception("User not authenticated");
@@ -266,6 +288,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       emit(
         state.copyWith(
           status: AttendanceStatus.success,
+          successType: AttendanceSuccessType.checkOut,
           mainStatus: AttendanceMainStatus.none, // Reset check-in cycle
           breakStatus: BreakStatus.none,
         ),
@@ -275,6 +298,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         state.copyWith(
           status: AttendanceStatus.error,
           errorMessage: e.toString(),
+          successType: AttendanceSuccessType.none,
         ),
       );
     }
@@ -284,7 +308,12 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     AttendanceBreakRequested event,
     Emitter<AttendanceState> emit,
   ) async {
-    emit(state.copyWith(status: AttendanceStatus.loading));
+    emit(
+      state.copyWith(
+        status: AttendanceStatus.loading,
+        successType: AttendanceSuccessType.none,
+      ),
+    );
     try {
       final user = _authService.currentUser;
       if (user == null) throw Exception("User not authenticated");
@@ -297,6 +326,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       emit(
         state.copyWith(
           status: AttendanceStatus.success,
+          successType: AttendanceSuccessType.breakStart,
           breakStatus: BreakStatus.onBreak,
         ),
       );
@@ -305,6 +335,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         state.copyWith(
           status: AttendanceStatus.error,
           errorMessage: e.toString(),
+          successType: AttendanceSuccessType.none,
         ),
       );
     }
@@ -314,7 +345,12 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     AttendanceOffBreakRequested event,
     Emitter<AttendanceState> emit,
   ) async {
-    emit(state.copyWith(status: AttendanceStatus.loading));
+    emit(
+      state.copyWith(
+        status: AttendanceStatus.loading,
+        successType: AttendanceSuccessType.none,
+      ),
+    );
     try {
       final user = _authService.currentUser;
       if (user == null) throw Exception("User not authenticated");
@@ -327,6 +363,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       emit(
         state.copyWith(
           status: AttendanceStatus.success,
+          successType: AttendanceSuccessType.breakEnd,
           breakStatus:
               BreakStatus.none, // Or offBreak if special styling needed
         ),
@@ -336,6 +373,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         state.copyWith(
           status: AttendanceStatus.error,
           errorMessage: e.toString(),
+          successType: AttendanceSuccessType.none,
         ),
       );
     }

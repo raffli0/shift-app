@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:shift/features/attendance/models/attendance_model.dart';
 
+import 'package:shift/features/attendance/services/attendance_api.dart';
+
 class AttendanceService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -14,21 +16,52 @@ class AttendanceService {
     required String? companyId,
     required String location,
     required String status,
+    required double latitude,
+    required double longitude,
+    required bool insideOffice,
     File? imageFile,
   }) async {
     String imageUrl = "";
 
-    // 1. Upload Image to Firebase Storage if provided
+    // 1. Try Upload via Custom API
     if (imageFile != null) {
+      developer.log(
+        "Attempting upload to Custom API with image: ${imageFile.path}",
+        name: 'AttendanceService',
+      );
       try {
-        final fileName =
-            'attendance/${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-        final ref = _storage.ref().child(fileName);
-        await ref.putFile(imageFile);
-        imageUrl = await ref.getDownloadURL();
+        final apiResult = await AttendanceApi.checkIn(
+          employeeId: userId,
+          photo: imageFile,
+          latitude: latitude,
+          longitude: longitude,
+          address: location,
+          insideOffice: insideOffice,
+        );
+        if (apiResult != null && apiResult.isNotEmpty) {
+          imageUrl = apiResult;
+        }
       } catch (e) {
-        // Fallback or log error
-        developer.log("Image upload failed: $e", name: 'AttendanceService');
+        developer.log(
+          "Custom API upload failed: $e",
+          name: 'AttendanceService',
+        );
+      }
+
+      // 2. Fallback to Firebase Storage if API failed
+      if (imageUrl.isEmpty) {
+        try {
+          final fileName =
+              'attendance/${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+          final ref = _storage.ref().child(fileName);
+          await ref.putFile(imageFile);
+          imageUrl = await ref.getDownloadURL();
+        } catch (e) {
+          developer.log(
+            "Firebase upload failed: $e",
+            name: 'AttendanceService',
+          );
+        }
       }
     }
 
