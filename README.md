@@ -60,9 +60,7 @@ A. Halaman Umum
 3. Halaman Login
     - Halaman untuk autentikasi pengguna menggunakan akun yang terdaftar.
 4. Halaman Register
-    - Halaman untuk melakukan pendaftaran pengguna sebagai admin atau karyawan.
-  
-B. Halaman Karyawan
+    - Halaman untuk melakukan pendaftaran pengguna sebagai admin atau karyawan.  
 5. Halaman Home (Karyawan)
     - Menampilkan informasi utama karyawan seperti status kehadiran hari ini, jam kerja, dan menu navigasi ke fitur lainnya.
 6. Halaman Attendance (Karyawan)
@@ -75,8 +73,6 @@ B. Halaman Karyawan
   - Menampilkan detail absensi seluruh karyawan, termasuk waktu, lokasi pada peta, dan foto bukti.
 9. Halaman Profil Pengguna (karyawan)
   - Menampilkan informasi profil pengguna dan pengaturan akun.
-
-C. Halaman Admin
 10. Halaman Home (admin)
   - Menampilkan ringkasan data kehadiran seluruh karyawan secara keseluruhan.
 11. Halaman Monitor (admin)
