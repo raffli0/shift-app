@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer' as developer;
-import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../auth/models/user_model.dart';
 import 'package:shift/core/services/location_service.dart';

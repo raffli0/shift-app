@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,36 +16,18 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // ANIMASI LOGO (zoom in)
+    // ANIMASI LOGO (Scale + Fade via Opacity if needed, but Scale is good)
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 1500), // Longer animation
     );
 
     _scaleAnimation = Tween<double>(
-      begin: 0.98,
+      begin: 0.5, // Start smaller
       end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
 
     _controller.forward();
-
-    // CHECK ONBOARDING STATUS
-    Future.delayed(const Duration(seconds: 2), () async {
-      bool seen = false;
-      try {
-        final prefs = await SharedPreferences.getInstance();
-        seen = prefs.getBool('seenOnboarding') ?? false;
-      } catch (e) {
-        debugPrint("Error reading SharedPreferences: $e");
-      }
-
-      if (!mounted) return;
-      if (seen) {
-        Navigator.pushReplacementNamed(context, "/login");
-      } else {
-        Navigator.pushReplacementNamed(context, "/onboarding");
-      }
-    });
   }
 
   @override
@@ -66,24 +47,20 @@ class _SplashScreenState extends State<SplashScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               // LOGO
-              Container(
-                width: 110,
-                height: 110,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFF7C7FFF), // kAccentColor
-                      Color(0xFF9EA1FF),
-                    ],
-                  ),
-                ),
-                alignment: Alignment.center,
-                child: const Icon(
-                  Icons.scatter_plot_outlined,
-                  size: 55,
-                  color: Colors.white,
-                ),
+              Image.asset(
+                'assets/logo/logo_shift.png',
+                width: 120,
+                height: 120,
+                cacheWidth: 300, // Optimize memory usage
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  debugPrint("LOGO LOAD ERROR: $error");
+                  return const Icon(
+                    Icons.scatter_plot_outlined,
+                    size: 80,
+                    color: Colors.white,
+                  );
+                },
               ),
               const SizedBox(height: 24),
 

@@ -96,14 +96,6 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                               );
                             },
                           ),
-                          const _Divider(),
-                          _NavTile(
-                            icon: Icons.rule,
-                            title: 'Attendance Rules',
-                            onTap: () {
-                              // TODO: Navigate to Attendance Rules
-                            },
-                          ),
                         ],
                       ),
                     ),

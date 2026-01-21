@@ -60,6 +60,7 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
+  flutter_native_splash: ^2.4.7
   flutter_test:
     sdk: flutter
 
@@ -70,17 +71,24 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
+flutter_native_splash:
+  color: "#0E0F13"
+  image: assets/logo/logo_shift.png
+  android_12:
+    image: assets/logo/logo_shift.png
+    icon_background_color: "#0E0F13"
+
 flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
-  image_path: "lib/assets/logo/logo_shift.png"
+  image_path: "assets/logo/logo_shift.png"
 
 
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - lib/assets/logo/
+    - assets/logo/logo_shift.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
