@@ -64,28 +64,28 @@ A. Halaman Umum
 5. Halaman Home (Karyawan)
     - Menampilkan informasi utama karyawan seperti status kehadiran hari ini, jam kerja, dan menu navigasi ke fitur lainnya.
 6. Halaman Attendance (Karyawan)
-  - Checkin untuk melakukan absensi masuk dengan validasi lokasi (geofencing) dan pengambilan foto sebagai bukti kehadiran.
-  - Checkout untuk melakukan absensi pulang yang mencatat waktu dan lokasi pengguna.
-  - Break untuk memulai dan mengakhiri waktu istirahat karyawan dengan pencatatan durasi otomatis.
+    - Checkin untuk melakukan absensi masuk dengan validasi lokasi (geofencing) dan pengambilan foto sebagai bukti kehadiran.
+    - Checkout untuk melakukan absensi pulang yang mencatat waktu dan lokasi pengguna.
+    - Break untuk memulai dan mengakhiri waktu istirahat karyawan dengan pencatatan durasi otomatis.
 7. Halaman Request (Karyawan)
-  - Halam untuk melakukan pengajuan cuti(liburan, sakit, dsb) serta melihat status pengajuan cuti.
+    - Halam untuk melakukan pengajuan cuti(liburan, sakit, dsb) serta melihat status pengajuan cuti.
 8. Halaman History Absensi (Karyawan)
-  - Menampilkan detail absensi seluruh karyawan, termasuk waktu, lokasi pada peta, dan foto bukti.
+    - Menampilkan detail absensi seluruh karyawan, termasuk waktu, lokasi pada peta, dan foto bukti.
 9. Halaman Profil Pengguna (karyawan)
-  - Menampilkan informasi profil pengguna dan pengaturan akun.
+    - Menampilkan informasi profil pengguna dan pengaturan akun.
 10. Halaman Home (admin)
-  - Menampilkan ringkasan data kehadiran seluruh karyawan secara keseluruhan.
+    - Menampilkan ringkasan data kehadiran seluruh karyawan secara keseluruhan.
 11. Halaman Monitor (admin)
-  - Menampilkan history data kehadiran seluruh karyawan.
+    - Menampilkan history data kehadiran seluruh karyawan.
 12. Halaman Leaves (admin)
-  - Halaman untuk mengelola pengajuan cuti seluruh karyawan.
+    - Halaman untuk mengelola pengajuan cuti seluruh karyawan.
 13. Halaman Users Management (admin)
-  - Halaman untuk mengelola data karyawan, termasuk penambahan, pengubahan, dan penghapusan data.
+    - Halaman untuk mengelola data karyawan, termasuk penambahan, pengubahan, dan penghapusan data.
 14. Halaman Settings (admin)
-  - Untuk mengelola jam kerja pada seluruh karyawan.
-  - Untuk menentukan lokasi kantor dan radius kehadiran menggunakan peta.
+    - Untuk mengelola jam kerja pada seluruh karyawan.
+    - Untuk menentukan lokasi kantor dan radius kehadiran menggunakan peta.
 15. Halaman Profil Pengguna (admin)
-  - Menampilkan informasi profil pengguna dan pengaturan akun.
+    - Menampilkan informasi profil pengguna dan pengaturan akun.
 
 ## (Getting Started)
 
