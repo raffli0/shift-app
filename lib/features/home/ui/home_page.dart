@@ -293,6 +293,7 @@ class _HomeViewState extends State<HomeView> {
                   Expanded(
                     child: Builder(
                       builder: (context) {
+                        bool isOnBreak = false;
                         String breakTime = "--:--";
                         String breakSubtitle = "No break record";
                         String badge = "n/a";
@@ -309,6 +310,7 @@ class _HomeViewState extends State<HomeView> {
                           ).format(startTime);
 
                           if (lastBreak['end'] == null) {
+                            isOnBreak = true;
                             breakTime = "$startStr - ...";
                             breakSubtitle = "Currently on break";
                             badge = "Active";
@@ -344,12 +346,14 @@ class _HomeViewState extends State<HomeView> {
                               return;
                             }
 
-                            bool isOnBreak = false;
-                            if (today.breaks != null &&
-                                today.breaks!.isNotEmpty) {
-                              if (today.breaks!.last['end'] == null) {
-                                isOnBreak = true;
-                              }
+                            if (today.checkOutTime != null) {
+                              AppDialog.showError(
+                                context: context,
+                                title: "Action not available",
+                                message:
+                                    "You have already checked out for today.",
+                              );
+                              return;
                             }
 
                             if (isOnBreak) {

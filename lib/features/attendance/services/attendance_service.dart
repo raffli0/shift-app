@@ -102,11 +102,37 @@ class AttendanceService {
       imageUrl = await ref.getDownloadURL();
     }
 
-    // 2. Update Firestore
-    await _firestore.collection('attendance').doc(attendanceId).update({
-      'check_out_time': Timestamp.now(),
-      'check_out_location': location,
-      'check_out_image_url': imageUrl,
+    // 2. Update Firestore (Read-Modify-Write to close breaks)
+    final docRef = _firestore.collection('attendance').doc(attendanceId);
+
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      if (!snapshot.exists) return;
+
+      final data = snapshot.data()!;
+      List<dynamic> breaks = data['breaks'] ?? [];
+      bool breaksModified = false;
+
+      // Close any open breaks
+      for (int i = 0; i < breaks.length; i++) {
+        if (breaks[i]['end'] == null) {
+          breaks[i]['end'] = Timestamp.now();
+          breaksModified = true;
+        }
+      }
+
+      final updateData = <String, dynamic>{
+        'check_out_time': Timestamp.now(),
+        'check_out_location': location,
+        'check_out_image_url': imageUrl,
+        'status': 'Checked Out', // Optional: update status if needed
+      };
+
+      if (breaksModified) {
+        updateData['breaks'] = breaks;
+      }
+
+      transaction.update(docRef, updateData);
     });
   }
 

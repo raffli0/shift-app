@@ -256,7 +256,10 @@ class _AttendanceViewState extends State<AttendanceView> {
           ],
           Container(
             height: 220,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(18)),
+            decoration: BoxDecoration(
+              color: kBgColor, // Dark background to prevent white flash
+              borderRadius: BorderRadius.circular(18),
+            ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(18),
               child: Stack(
@@ -268,11 +271,13 @@ class _AttendanceViewState extends State<AttendanceView> {
                       initialZoom: zoomLevel,
                       minZoom: 15,
                       maxZoom: 18.5,
+                      backgroundColor: kBgColor, // Set canvas background
                     ),
                     children: [
                       TileLayer(
                         urlTemplate:
-                            "https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png",
+                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        userAgentPackageName: 'com.shift.app',
                       ),
                       CircleLayer(
                         circles: [
@@ -304,12 +309,14 @@ class _AttendanceViewState extends State<AttendanceView> {
                     ],
                   ),
                   Positioned.fill(
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, Color(0x88000000)],
+                    child: IgnorePointer(
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Colors.transparent, Color(0x88000000)],
+                          ),
                         ),
                       ),
                     ),
