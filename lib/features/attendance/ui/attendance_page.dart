@@ -26,6 +26,7 @@ class AttendancePage extends StatelessWidget {
           return AttendanceBloc(
             locationService: context.read<LocationService>(),
             companyId: authState.user?.companyId ?? '',
+            user: authState.user,
           )..add(AttendanceStarted());
         },
         child: const AttendanceView(),
@@ -53,13 +54,10 @@ class _AttendanceViewState extends State<AttendanceView> {
   static const kTextSecondary = Color(0xFF9AA0AA);
 
   String _formatTime(DateTime time) {
-    final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
+    final hour = time.hour.toString().padLeft(2, '0');
     final minute = time.minute.toString().padLeft(2, '0');
-    return '$hour:$minute';
-  }
-
-  String _formatAmPm(DateTime time) {
-    return time.hour >= 12 ? 'PM' : 'AM';
+    final period = time.hour >= 12 ? 'PM' : 'AM';
+    return '$hour:$minute $period';
   }
 
   @override
@@ -214,7 +212,7 @@ class _AttendanceViewState extends State<AttendanceView> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withOpacity(0.08),
             blurRadius: 20,
             offset: const Offset(0, 6),
           ),
@@ -223,6 +221,39 @@ class _AttendanceViewState extends State<AttendanceView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (state.shiftStart != null && state.shiftEnd != null) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: kAccentColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: kAccentColor.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.schedule, size: 16, color: kAccentColor),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Today's Shift: ",
+                    style: TextStyle(
+                      color: kSurfaceColor,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    "${state.shiftStart} - ${state.shiftEnd}",
+                    style: TextStyle(
+                      color: kSurfaceColor,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           Container(
             height: 220,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(18)),
@@ -410,11 +441,6 @@ class _AttendanceViewState extends State<AttendanceView> {
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    _formatAmPm(state.now),
-                    style: const TextStyle(color: Colors.black45),
                   ),
                 ],
               ),

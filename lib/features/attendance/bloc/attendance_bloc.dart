@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../auth/models/user_model.dart';
 import 'package:shift/core/services/location_service.dart';
 import 'package:shift/core/services/config_service.dart';
 import '../../auth/services/auth_service.dart';
@@ -19,19 +20,23 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   DateTime? _lastGeocodeTime;
   LatLng? _lastGeocodeLatLng;
   static const Duration _geoCacheDuration = Duration(seconds: 30);
+
   static const double _geoCacheDistanceMeter = 30;
   final String companyId;
+  final UserModel? _user;
 
   AttendanceBloc({
     required LocationService locationService,
     ConfigService? configService,
     AttendanceService? attendanceService,
     AuthService? authService,
+    UserModel? user,
     required this.companyId,
   }) : _locationService = locationService,
        _configService = configService ?? ConfigService(),
        _attendanceService = attendanceService ?? AttendanceService(),
        _authService = authService ?? AuthService(),
+       _user = user,
        super(AttendanceState(now: DateTime.now())) {
     on<AttendanceStarted>(_onStarted);
     on<AttendanceLocationUpdated>(_onLocationUpdated);
@@ -57,7 +62,23 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       );
       final radius = (config['radius'] as num).toDouble();
 
-      emit(state.copyWith(officeLocation: officeLatLng, officeRadius: radius));
+      // Fetch Shift Config (Global Default)
+      final shiftConfig = await _configService.getShiftConfig(companyId);
+      final defaultStart = shiftConfig['start_time'] ?? "09:00";
+      final defaultEnd = shiftConfig['end_time'] ?? "17:00";
+
+      // Determine Effective Shift (Override > Default)
+      final shiftStart = _user?.shiftStart ?? defaultStart;
+      final shiftEnd = _user?.shiftEnd ?? defaultEnd;
+
+      emit(
+        state.copyWith(
+          officeLocation: officeLatLng,
+          officeRadius: radius,
+          shiftStart: shiftStart,
+          shiftEnd: shiftEnd,
+        ),
+      );
 
       // 2. Check Initial Attendance Status
       final user = _authService.currentUser;
