@@ -99,3 +99,39 @@ class AdminUser {
     this.companyId,
   });
 }
+
+class Shift {
+  final String id;
+  final String name;
+  final String startTime;
+  final String endTime;
+  final int toleranceMinutes;
+
+  const Shift({
+    required this.id,
+    required this.name,
+    required this.startTime,
+    required this.endTime,
+    required this.toleranceMinutes,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'start_time': startTime,
+      'end_time': endTime,
+      'tolerance_time': toleranceMinutes,
+    };
+  }
+
+  factory Shift.fromMap(Map<String, dynamic> map) {
+    return Shift(
+      id: map['id'] ?? '',
+      name: map['name'] ?? '',
+      startTime: map['start_time'] ?? '09:00',
+      endTime: map['end_time'] ?? '17:00',
+      toleranceMinutes: map['tolerance_time'] ?? 0,
+    );
+  }
+}

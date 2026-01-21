@@ -81,4 +81,55 @@ class ConfigService {
       'tolerance_time': toleranceTime,
     });
   }
+
+  // --- Multiple Shifts Implementation ---
+
+  Stream<List<Map<String, dynamic>>> streamShifts(String companyId) {
+    return _firestore
+        .collection(_collection)
+        .doc(companyId)
+        .collection('shifts')
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            return data;
+          }).toList();
+        });
+  }
+
+  Future<void> addShift(
+    String companyId,
+    Map<String, dynamic> shiftData,
+  ) async {
+    // Generate a new ID if not present
+    await _firestore
+        .collection(_collection)
+        .doc(companyId)
+        .collection('shifts')
+        .add(shiftData);
+  }
+
+  Future<void> updateShift(
+    String companyId,
+    String shiftId,
+    Map<String, dynamic> shiftData,
+  ) async {
+    await _firestore
+        .collection(_collection)
+        .doc(companyId)
+        .collection('shifts')
+        .doc(shiftId)
+        .update(shiftData);
+  }
+
+  Future<void> deleteShift(String companyId, String shiftId) async {
+    await _firestore
+        .collection(_collection)
+        .doc(companyId)
+        .collection('shifts')
+        .doc(shiftId)
+        .delete();
+  }
 }
