@@ -51,6 +51,38 @@ Tujuan dari pengembangan aplikasi Shift adalah:
 
 > *Catatan: Ganti path gambar di atas dengan screenshot aplikasi yang sebenarnya.*
 
+### Daftar Halaman Aplikasi Shift
+1. Splash Screen
+2. Onboarding Screen
+3. Halaman Login
+  - Halaman untuk autentikasi pengguna menggunakan akun yang terdaftar pada sistem. Digunakan sebagai pintu masuk awal ke aplikasi.
+4. Halaman Home (Karyawan)
+  - Menampilkan informasi utama karyawan seperti status kehadiran hari ini, jam kerja, dan menu navigasi ke fitur lainnya.
+4. Halaman Attendance (Karyawan)
+  - Checkin untuk melakukan absensi masuk dengan validasi lokasi (geofencing) dan pengambilan foto sebagai bukti kehadiran.
+  - Checkout untuk melakukan absensi pulang yang mencatat waktu dan lokasi pengguna.
+  - Break untuk memulai dan mengakhiri waktu istirahat karyawan dengan pencatatan durasi otomatis.
+5. Halaman Request (Karyawan)
+  - Halam untuk melakukan pengajuan cuti(liburan, sakit, dsb) serta melihat status pengajuan cuti.
+6. Halaman History Absensi (Karyawan)
+  - Menampilkan detail absensi seluruh karyawan, termasuk waktu, lokasi pada peta, dan foto bukti.
+7. Halaman Profil Pengguna (karyawan)
+  - Menampilkan informasi profil pengguna dan pengaturan akun.
+
+8. Halaman Home (admin)
+  - Menampilkan ringkasan data kehadiran seluruh karyawan secara keseluruhan.
+9. Halaman Monitor (admin)
+  - Menampilkan history data kehadiran seluruh karyawan.
+11. Halaman Leaves (admin)
+  - Halaman untuk mengelola pengajuan cuti seluruh karyawan.
+10. Halaman Users Management (admin)
+  - Halaman untuk mengelola data karyawan, termasuk penambahan, pengubahan, dan penghapusan data.
+11. Halaman Settings (admin)
+  - Untuk mengelola jam kerja pada seluruh karyawan.
+  - Untuk menentukan lokasi kantor dan radius kehadiran menggunakan peta.
+14. Halaman Profil Pengguna (admin)
+  - Menampilkan informasi profil pengguna dan pengaturan akun.
+
 ## (Getting Started)
 
 ### Syarat
