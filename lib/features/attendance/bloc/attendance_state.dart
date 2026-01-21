@@ -28,6 +28,8 @@ class AttendanceState extends Equatable {
 
   final String? shiftStart;
   final String? shiftEnd;
+  final int toleranceMinutes;
+  final bool isShiftValid;
 
   const AttendanceState({
     this.status = AttendanceStatus.initial,
@@ -44,6 +46,8 @@ class AttendanceState extends Equatable {
     this.tabIndex = 0,
     this.shiftStart,
     this.shiftEnd,
+    this.toleranceMinutes = 0,
+    this.isShiftValid = false,
   });
 
   AttendanceState copyWith({
@@ -61,6 +65,8 @@ class AttendanceState extends Equatable {
     int? tabIndex,
     String? shiftStart,
     String? shiftEnd,
+    int? toleranceMinutes,
+    bool? isShiftValid,
   }) {
     return AttendanceState(
       status: status ?? this.status,
@@ -77,6 +83,8 @@ class AttendanceState extends Equatable {
       tabIndex: tabIndex ?? this.tabIndex,
       shiftStart: shiftStart ?? this.shiftStart,
       shiftEnd: shiftEnd ?? this.shiftEnd,
+      toleranceMinutes: toleranceMinutes ?? this.toleranceMinutes,
+      isShiftValid: isShiftValid ?? this.isShiftValid,
     );
   }
 
@@ -96,5 +104,7 @@ class AttendanceState extends Equatable {
     tabIndex,
     shiftStart,
     shiftEnd,
+    toleranceMinutes,
+    isShiftValid,
   ];
 }

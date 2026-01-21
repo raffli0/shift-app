@@ -66,12 +66,16 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
       // Fetch Shift Config (Global Default)
       final shiftConfig = await _configService.getShiftConfig(companyId);
-      final defaultStart = shiftConfig['start_time'] ?? "09:00";
-      final defaultEnd = shiftConfig['end_time'] ?? "17:00";
+      final defaultStart = shiftConfig['start_time'] as String? ?? "09:00";
+      final defaultEnd = shiftConfig['end_time'] as String? ?? "17:00";
+      final tolerance = shiftConfig['tolerance_time'] as int? ?? 0;
 
       // Determine Effective Shift (Override > Default)
       final shiftStart = _user?.shiftStart ?? defaultStart;
       final shiftEnd = _user?.shiftEnd ?? defaultEnd;
+
+      final now = DateTime.now();
+      final isShiftValid = _validateShift(now, shiftStart, shiftEnd);
 
       emit(
         state.copyWith(
@@ -79,6 +83,8 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           officeRadius: radius,
           shiftStart: shiftStart,
           shiftEnd: shiftEnd,
+          toleranceMinutes: tolerance,
+          isShiftValid: isShiftValid,
         ),
       );
 
@@ -190,7 +196,13 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     AttendanceClockTicked event,
     Emitter<AttendanceState> emit,
   ) {
-    emit(state.copyWith(now: event.now));
+    final now = event.now;
+    final isValid = _validateShift(
+      now,
+      state.shiftStart ?? "09:00",
+      state.shiftEnd ?? "17:00",
+    );
+    emit(state.copyWith(now: now, isShiftValid: isValid));
   }
 
   void _onTabChanged(
@@ -226,12 +238,82 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           ? state.currentAddress
           : "${state.userLatLng!.latitude}, ${state.userLatLng!.longitude}";
 
+      // Validate Shift Timing
+      final now = state.now;
+      final shiftStartStr = state.shiftStart ?? "09:00";
+      final shiftEndStr = state.shiftEnd ?? "17:00";
+
+      final startParts = shiftStartStr.split(':');
+      final endParts = shiftEndStr.split(':');
+
+      final shiftStartTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(startParts[0]),
+        int.parse(startParts[1]),
+      );
+
+      final shiftEndTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(endParts[0]),
+        int.parse(endParts[1]),
+      );
+
+      // Strict validation: Must be within Shift Start and Shift End
+      // Note: If shift end is next day (e.g. night shift), this simple logic fails.
+      // Assuming same-day shift for now as per current simple implementation.
+      // If we need night shift support, we need to handle day overflow.
+
+      // Let's assume standard day shift for MVP as per user "out of range" request.
+
+      bool isShiftValid = false;
+
+      // Handle night shift case where end < start (e.g. 22:00 to 06:00)
+      if (shiftEndTime.isBefore(shiftStartTime)) {
+        // This implies shift ends the next day.
+        // If now is > start (e.g. 23:00), valid.
+        // If now is < end (e.g. 05:00), valid.
+        if (now.isAfter(shiftStartTime) || now.isBefore(shiftEndTime)) {
+          isShiftValid = true;
+        }
+      } else {
+        // Standard Day Shift
+        if (now.isAfter(shiftStartTime) && now.isBefore(shiftEndTime)) {
+          isShiftValid = true;
+        }
+      }
+
+      if (!isShiftValid) {
+        emit(
+          state.copyWith(
+            status: AttendanceStatus.error,
+            errorMessage:
+                "You can only check in between $shiftStartStr and $shiftEndStr",
+          ),
+        );
+        return;
+      }
+
+      // Calculate Check-in Status
+      String status = "On Time";
+      try {
+        final tolerance = Duration(minutes: state.toleranceMinutes);
+        if (now.isAfter(shiftStartTime.add(tolerance))) {
+          status = "Late";
+        }
+      } catch (e) {
+        developer.log("Error calculating status: $e", name: "AttendanceBloc");
+      }
+
       await _attendanceService.checkIn(
         userId: user.uid,
         userName: user.displayName ?? "Employee", // Fallback name
         companyId: companyId,
         location: locationString,
-        status: state.now.hour > 9 ? "Late" : "On Time", // Simple logic for now
+        status: status,
         latitude: state.userLatLng!.latitude,
         longitude: state.userLatLng!.longitude,
         insideOffice: state.isInsideOffice,
@@ -376,6 +458,42 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           successType: AttendanceSuccessType.none,
         ),
       );
+    }
+  }
+
+  bool _validateShift(DateTime now, String startStr, String endStr) {
+    try {
+      final startParts = startStr.split(':');
+      final endParts = endStr.split(':');
+
+      final startTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(startParts[0]),
+        int.parse(startParts[1]),
+      );
+
+      final endTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(endParts[0]),
+        int.parse(endParts[1]),
+      );
+
+      // Handle night shift case where end < start (e.g. 22:00 to 06:00)
+      if (endTime.isBefore(startTime)) {
+        // This implies shift ends the next day.
+        // If now is > start (e.g. 23:00), valid.
+        // If now is < end (e.g. 05:00), valid.
+        return now.isAfter(startTime) || now.isBefore(endTime);
+      } else {
+        // Standard Day Shift
+        return now.isAfter(startTime) && now.isBefore(endTime);
+      }
+    } catch (e) {
+      return false; // Fail safe
     }
   }
 

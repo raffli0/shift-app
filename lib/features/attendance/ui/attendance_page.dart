@@ -497,13 +497,16 @@ class _AttendanceViewState extends State<AttendanceView> {
             label: "Check In",
             disabledLabel: state.mainStatus == AttendanceMainStatus.checkin
                 ? "Checked In"
-                : "Outside Area",
+                : !state.isInsideOffice
+                ? "Outside Area"
+                : "Out of Shift",
             icon: FIcons.logIn,
             color: Colors.green,
             active: state.mainStatus == AttendanceMainStatus.checkin,
             enabled:
                 state.mainStatus == AttendanceMainStatus.none &&
-                state.isInsideOffice,
+                state.isInsideOffice &&
+                state.isShiftValid,
             onTap: () {
               Navigator.push(
                 context,

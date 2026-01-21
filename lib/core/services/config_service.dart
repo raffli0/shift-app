@@ -60,11 +60,12 @@ class ConfigService {
   }
 
   // Shift Configuration
-  Future<Map<String, String>> getShiftConfig(String companyId) async {
+  Future<Map<String, dynamic>> getShiftConfig(String companyId) async {
     final data = await getOfficeConfig(companyId);
     return {
       'start_time': data['start_time'] as String? ?? '09:00',
       'end_time': data['end_time'] as String? ?? '17:00',
+      'tolerance_time': data['tolerance_time'] as int? ?? 0,
     };
   }
 
@@ -72,10 +73,12 @@ class ConfigService {
     String companyId,
     String startTime,
     String endTime,
+    int toleranceTime,
   ) async {
     await _firestore.collection(_collection).doc(companyId).update({
       'start_time': startTime,
       'end_time': endTime,
+      'tolerance_time': toleranceTime,
     });
   }
 }

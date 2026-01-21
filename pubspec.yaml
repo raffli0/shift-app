@@ -57,6 +57,7 @@ dependencies:
   firebase_storage: ^12.4.1
   dio: ^5.8.0
   flutter_secure_storage: ^9.2.4
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -69,11 +70,17 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "lib/assets/logo/logo_shift.png"
+
 
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+    - lib/assets/logo/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

@@ -25,6 +25,7 @@ class _AdminWorkingHoursPageState extends State<AdminWorkingHoursPage> {
   String? _companyId;
   TimeOfDay _startTime = const TimeOfDay(hour: 9, minute: 0);
   TimeOfDay _endTime = const TimeOfDay(hour: 17, minute: 0);
+  int _toleranceMinutes = 0; // Tolerance in minutes
   bool _applyToAll = true;
   final Set<String> _selectedUserIds = {};
 
@@ -48,6 +49,7 @@ class _AdminWorkingHoursPageState extends State<AdminWorkingHoursPage> {
         setState(() {
           _startTime = _parseTime(config['start_time'] ?? '09:00');
           _endTime = _parseTime(config['end_time'] ?? '17:00');
+          _toleranceMinutes = config['tolerance_time'] as int? ?? 0;
         });
       } catch (e) {
         debugPrint("Error loading shift config: $e");
@@ -78,7 +80,12 @@ class _AdminWorkingHoursPageState extends State<AdminWorkingHoursPage> {
 
       if (_applyToAll) {
         // Update Global Config
-        await _configService.updateShiftConfig(_companyId!, startStr, endStr);
+        await _configService.updateShiftConfig(
+          _companyId!,
+          startStr,
+          endStr,
+          _toleranceMinutes,
+        );
       } else {
         // Update Specific Users
         if (_selectedUserIds.isEmpty) {
@@ -190,6 +197,54 @@ class _AdminWorkingHoursPageState extends State<AdminWorkingHoursPage> {
                                       setState(() => _endTime = t);
                                     }
                                   },
+                                ),
+                                const SizedBox(height: 16),
+                                Divider(color: Colors.white.withOpacity(0.05)),
+                                const SizedBox(height: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          "Tolerance Time",
+                                          style: TextStyle(
+                                            color: AdminWorkingHoursPage
+                                                .kTextSecondary,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        Text(
+                                          "$_toleranceMinutes min",
+                                          style: const TextStyle(
+                                            color: AdminWorkingHoursPage
+                                                .kTextPrimary,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Slider(
+                                      value: _toleranceMinutes.toDouble(),
+                                      min: 0,
+                                      max: 60,
+                                      divisions: 12, // 5 min intervals
+                                      activeColor:
+                                          AdminWorkingHoursPage.kAccentColor,
+                                      inactiveColor: Colors.white.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      label: "$_toleranceMinutes min",
+                                      onChanged: (val) {
+                                        setState(() {
+                                          _toleranceMinutes = val.toInt();
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
