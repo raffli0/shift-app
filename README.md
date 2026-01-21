@@ -56,13 +56,16 @@ A. Halaman Umum
 1. Splash Screen
     - Halaman pembuka aplikasi yang ditampilkan saat aplikasi pertama kali dijalankan.
 2. Onboarding Screen
-Halaman pengenalan aplikasi yang berisi informasi singkat mengenai fitur dan fungsi utama aplikasi.
-
-Halaman Login
-Halaman untuk autentikasi pengguna menggunakan akun yang terdaftar sebagai pintu masuk ke dalam sistem.
-#### 4. Halaman Home (Karyawan)
-  - Menampilkan informasi utama karyawan seperti status kehadiran hari ini, jam kerja, dan menu navigasi ke fitur lainnya.
-#### 4. Halaman Attendance (Karyawan)
+    - Halaman pengenalan aplikasi yang berisi informasi singkat mengenai fitur dan fungsi utama aplikasi.
+3. Halaman Login
+    - Halaman untuk autentikasi pengguna menggunakan akun yang terdaftar.
+4. Halaman Register
+    - Halaman untuk melakukan pendaftaran pengguna sebagai admin atau karyawan.
+  
+B. Halaman Karyawan
+4. Halaman Home (Karyawan)
+    - Menampilkan informasi utama karyawan seperti status kehadiran hari ini, jam kerja, dan menu navigasi ke fitur lainnya.
+5. Halaman Attendance (Karyawan)
   - Checkin untuk melakukan absensi masuk dengan validasi lokasi (geofencing) dan pengambilan foto sebagai bukti kehadiran.
   - Checkout untuk melakukan absensi pulang yang mencatat waktu dan lokasi pengguna.
   - Break untuk memulai dan mengakhiri waktu istirahat karyawan dengan pencatatan durasi otomatis.
@@ -73,6 +76,7 @@ Halaman untuk autentikasi pengguna menggunakan akun yang terdaftar sebagai pintu
 7. Halaman Profil Pengguna (karyawan)
   - Menampilkan informasi profil pengguna dan pengaturan akun.
 
+C. Halaman Admin
 8. Halaman Home (admin)
   - Menampilkan ringkasan data kehadiran seluruh karyawan secara keseluruhan.
 9. Halaman Monitor (admin)
