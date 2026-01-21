@@ -54,7 +54,7 @@ Tujuan dari pengembangan aplikasi Shift adalah:
 ### Daftar Halaman Aplikasi Shift
 A. Halaman Umum
 1. Splash Screen
-  - Halaman pembuka aplikasi yang ditampilkan saat aplikasi pertama kali dijalankan.
+    - Halaman pembuka aplikasi yang ditampilkan saat aplikasi pertama kali dijalankan.
 2. Onboarding Screen
 Halaman pengenalan aplikasi yang berisi informasi singkat mengenai fitur dan fungsi utama aplikasi.
 
