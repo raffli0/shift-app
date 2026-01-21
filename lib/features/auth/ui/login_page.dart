@@ -6,8 +6,6 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import 'register_page.dart';
-import '../../root/ui/main_root_page.dart';
-import '../../admin/ui/admin_root_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -77,16 +75,7 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.authenticated && state.user != null) {
-          final isAdmin = state.user!.role == 'admin';
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (_) =>
-                  isAdmin ? const AdminRootPage() : const MainRootPage(),
-            ),
-            (route) => false,
-          );
-        } else if (state.status == AuthStatus.error) {
+        if (state.status == AuthStatus.error) {
           final message = _getErrorMessage(state.errorMessage);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

@@ -175,67 +175,77 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
           const SizedBox(height: 12),
 
-          /// OVERVIEW BOXES
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Column(
               children: [
-                if (state.metrics.isNotEmpty) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _OverviewBox(
-                          cupertinoIcon: CupertinoIcons.person_2,
-                          label: "Present",
-                          time: state.metrics[0].value,
-                          badge: state.metrics[0].label,
-                          badgeColor: Colors.green,
-                          subtitle: "Staff present",
-                        ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _OverviewBox(
+                        cupertinoIcon: CupertinoIcons.person_2,
+                        label: "Present",
+                        time: state.metrics.isNotEmpty
+                            ? state.metrics[0].value
+                            : "0",
+                        badge: state.metrics.isNotEmpty
+                            ? state.metrics[0].label
+                            : "Staff",
+                        badgeColor: Colors.green,
+                        subtitle: "Staff present",
                       ),
-                      const SizedBox(width: 6),
-                      if (state.metrics.length > 1)
-                        Expanded(
-                          child: _OverviewBox(
-                            cupertinoIcon: CupertinoIcons.clock,
-                            label: "Late",
-                            time: state.metrics[1].value,
-                            badge: state.metrics[1].label,
-                            badgeColor: Colors.orange,
-                            subtitle: "Staff late",
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  if (state.metrics.length > 2)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _OverviewBox(
-                            cupertinoIcon: CupertinoIcons.airplane,
-                            label: "Leave",
-                            time: state.metrics[2].value,
-                            badge: state.metrics[2].label,
-                            badgeColor: Colors.purple,
-                            subtitle: "On leave",
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        if (state.metrics.length > 3)
-                          Expanded(
-                            child: _OverviewBox(
-                              cupertinoIcon: CupertinoIcons.doc_text,
-                              label: "Requests",
-                              time: state.metrics[3].value,
-                              badge: state.metrics[3].label,
-                              badgeColor: Colors.red,
-                              subtitle: "Pending actions",
-                            ),
-                          ),
-                      ],
                     ),
-                ],
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: _OverviewBox(
+                        cupertinoIcon: CupertinoIcons.clock,
+                        label: "Late",
+                        time: state.metrics.length > 1
+                            ? state.metrics[1].value
+                            : "0",
+                        badge: state.metrics.length > 1
+                            ? state.metrics[1].label
+                            : "Today",
+                        badgeColor: Colors.orange,
+                        subtitle: "Staff late",
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _OverviewBox(
+                        cupertinoIcon: CupertinoIcons.airplane,
+                        label: "Leave",
+                        time: state.metrics.length > 2
+                            ? state.metrics[2].value
+                            : "0",
+                        badge: state.metrics.length > 2
+                            ? state.metrics[2].label
+                            : "Today",
+                        badgeColor: Colors.purple,
+                        subtitle: "On leave",
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: _OverviewBox(
+                        cupertinoIcon: CupertinoIcons.doc_text,
+                        label: "Requests",
+                        time: state.metrics.length > 3
+                            ? state.metrics[3].value
+                            : "0",
+                        badge: state.metrics.length > 3
+                            ? state.metrics[3].label
+                            : "Pending",
+                        badgeColor: Colors.red,
+                        subtitle: "Pending actions",
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

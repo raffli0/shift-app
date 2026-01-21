@@ -20,12 +20,14 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   LatLng? _lastGeocodeLatLng;
   static const Duration _geoCacheDuration = Duration(seconds: 30);
   static const double _geoCacheDistanceMeter = 30;
+  final String companyId;
 
   AttendanceBloc({
     required LocationService locationService,
     ConfigService? configService,
     AttendanceService? attendanceService,
     AuthService? authService,
+    required this.companyId,
   }) : _locationService = locationService,
        _configService = configService ?? ConfigService(),
        _attendanceService = attendanceService ?? AttendanceService(),
@@ -48,7 +50,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   ) async {
     try {
       // 1. Fetch Office Config from Firestore
-      final config = await _configService.getOfficeConfig();
+      final config = await _configService.getOfficeConfig(companyId);
       final officeLatLng = LatLng(
         (config['latitude'] as num).toDouble(),
         (config['longitude'] as num).toDouble(),
@@ -194,6 +196,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       await _attendanceService.checkIn(
         userId: user.uid,
         userName: user.displayName ?? "Employee", // Fallback name
+        companyId: companyId,
         location: locationString,
         status: state.now.hour > 9 ? "Late" : "On Time", // Simple logic for now
         imageFile: null, // Image capture not yet implemented in Bloc event

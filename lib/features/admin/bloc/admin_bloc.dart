@@ -18,12 +18,14 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
   final AuthService _authService;
   final LeaveService _leaveService;
   final ConfigService _configService;
+  final String? companyId;
 
   AdminBloc({
     AttendanceService? attendanceService,
     AuthService? authService,
     LeaveService? leaveService,
     ConfigService? configService,
+    this.companyId,
   }) : _attendanceService = attendanceService ?? AttendanceService(),
        _authService = authService ?? AuthService(),
        _leaveService = leaveService ?? LeaveService(),
@@ -63,7 +65,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
 
     try {
       // Config Service
-      final config = await _configService.getOfficeConfig();
+      final config = await _configService.getOfficeConfig(companyId ?? '');
       final officeLocation = LatLng(
         (config['latitude'] as num).toDouble(),
         (config['longitude'] as num).toDouble(),
@@ -72,7 +74,9 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
 
       // Fetch Initial Data
       final users = await _authService.getAllUsers();
-      final leaveRequests = await _leaveService.getAllLeaveRequests();
+      final leaveRequests = await _leaveService.getAllLeaveRequests(
+        companyId: companyId,
+      );
 
       // Convert users and leave requests (static for now, can be streamed later)
       // Convert users to AdminUser model
@@ -122,11 +126,11 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
 
       // Subscribe to Attendance Stream
       _attendanceSubscription?.cancel();
-      _attendanceSubscription = _attendanceService.getAttendanceStream().listen(
-        (attendance) {
-          add(AdminAttendanceStreamUpdated(attendance));
-        },
-      );
+      _attendanceSubscription = _attendanceService
+          .getAttendanceStream(companyId ?? '')
+          .listen((attendance) {
+            add(AdminAttendanceStreamUpdated(attendance));
+          });
     } catch (e) {
       emit(
         state.copyWith(status: AdminStatus.failure, errorMessage: e.toString()),
@@ -238,6 +242,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     Emitter<AdminState> emit,
   ) async {
     await _configService.updateOfficeConfig(
+      companyId ?? '',
       event.location.latitude,
       event.location.longitude,
       event.radius,
@@ -262,6 +267,7 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
         fullName: event.user.name,
         email: event.user.email,
         role: event.user.role,
+        companyId: companyId,
       );
 
       await _authService.createEmployeeProfile(newUserModel);

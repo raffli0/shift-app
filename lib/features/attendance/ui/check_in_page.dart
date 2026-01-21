@@ -133,6 +133,7 @@ class CheckInActionPage extends StatelessWidget {
                                   userId: authState.user?.id ?? "unknown",
                                   userName:
                                       authState.user?.fullName ?? "Unknown",
+                                  companyId: authState.user?.companyId,
                                   location: "Headquarters",
                                   imageFile: File(imagePath),
                                   status: "On Time",
@@ -190,7 +191,10 @@ class _CheckInButtonState extends State<_CheckInButton>
       vsync: this,
       duration: const Duration(milliseconds: 150),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(_controller);
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.98,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override

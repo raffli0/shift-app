@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "1083745348265",
-    "project_id": "shift-bc8db",
-    "storage_bucket": "shift-bc8db.firebasestorage.app"
+    "project_number": "99353392208",
+    "project_id": "shiftv1",
+    "storage_bucket": "shiftv1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1083745348265:android:9fc2e8eac363f3c6a097b8",
+        "mobilesdk_app_id": "1:99353392208:android:0d620e576832f154b3cd55",
         "android_client_info": {
           "package_name": "com.example.shift"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAjGEPdoD395g0tB1xmMBvhNqpDxz2ECLU"
+          "current_key": "AIzaSyDmZuNXTNd2ckeDSuyPPHBgoKJKYhJKLF8"
         }
       ],
       "services": {

@@ -11,6 +11,7 @@ class AttendanceService {
   Future<void> checkIn({
     required String userId,
     required String userName,
+    required String? companyId,
     required String location,
     required String status,
     File? imageFile,
@@ -36,6 +37,7 @@ class AttendanceService {
       id: '', // Will be generated
       userId: userId,
       userName: userName,
+      companyId: companyId,
       checkInTime: DateTime.now(),
       checkInLocation: location,
       checkInImageUrl: imageUrl,
@@ -149,9 +151,10 @@ class AttendanceService {
     return null;
   }
 
-  Future<List<AttendanceModel>> getAllAttendance() async {
+  Future<List<AttendanceModel>> getAllAttendance(String companyId) async {
     final snapshot = await _firestore
         .collection('attendance')
+        .where('company_id', isEqualTo: companyId)
         .orderBy('check_in_time', descending: true)
         .get();
 
@@ -160,9 +163,10 @@ class AttendanceService {
         .toList();
   }
 
-  Stream<List<AttendanceModel>> getAttendanceStream() {
+  Stream<List<AttendanceModel>> getAttendanceStream(String companyId) {
     return _firestore
         .collection('attendance')
+        .where('company_id', isEqualTo: companyId)
         .orderBy('check_in_time', descending: true)
         .snapshots()
         .map((snapshot) {

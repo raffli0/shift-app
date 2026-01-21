@@ -258,7 +258,7 @@ class _HomeViewState extends State<HomeView> {
                                 message: "Attendance recorded successfully.",
                               );
                             }
-                            if (!context.mounted) return;
+                            if (!mounted) return;
                             context.read<HomeBloc>().add(
                               HomeRefreshRequested(userId),
                             );

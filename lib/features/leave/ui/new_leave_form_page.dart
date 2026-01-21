@@ -71,6 +71,7 @@ class _NewLeaveFormPageState extends State<NewLeaveFormPage> {
         reason: _reasonController.text,
         startDate: _startDate!,
         endDate: _endDate!,
+        companyId: user.companyId,
       );
 
       if (mounted) {
@@ -79,7 +80,7 @@ class _NewLeaveFormPageState extends State<NewLeaveFormPage> {
           title: "Leave request sent",
           message: "Your request is waiting for approval.",
         );
-        Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {

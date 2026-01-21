@@ -32,8 +32,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void _onNext() {
     if (_currentPage < _onboardingData.length - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeInOutCubicEmphasized,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
       );
     } else {
       _finishOnboarding();
@@ -52,7 +52,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
-        transitionDuration: const Duration(milliseconds: 800),
+        transitionDuration: const Duration(milliseconds: 180),
       ),
     );
   }
@@ -119,7 +119,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       children: List.generate(
                         _onboardingData.length,
                         (index) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
+                          duration: const Duration(milliseconds: 150),
                           margin: const EdgeInsets.only(right: 8),
                           height: 6,
                           width: _currentPage == index ? 24 : 6,

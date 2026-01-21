@@ -1,12 +1,22 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shift/features/auth/models/user_model.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static const _storage = FlutterSecureStorage();
 
   User? get currentUser => _auth.currentUser;
+
+  Future<void> _saveToken(User? user) async {
+    if (user != null) {
+      final token = await user.getIdToken();
+      await _storage.write(key: 'access_token', value: token);
+    }
+  }
 
   Future<UserModel> login({
     required String email,
@@ -33,7 +43,7 @@ class AuthService {
         id: credential.user!.uid,
         fullName: credential.user!.displayName ?? "User",
         email: email,
-        role: "user",
+        role: "admin",
       );
       await _firestore
           .collection('users')
@@ -41,6 +51,9 @@ class AuthService {
           .set(newUser.toJson());
       return newUser;
     }
+
+    // Save token for Dio
+    await _saveToken(credential.user);
 
     return UserModel.fromJson(doc.data()!);
   }
@@ -88,12 +101,20 @@ class AuthService {
       final userRef = _firestore.collection('users').doc(uid);
       transaction.set(userRef, user.toJson());
 
+      // Save token for Dio
+      await _saveToken(credential.user);
+
       return user;
     });
   }
 
   Future<void> logout() async {
     await _auth.signOut();
+    // Clear ALL secure storage
+    await _storage.deleteAll();
+    // Clear SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
   }
 
   Future<UserModel> updateProfile({
@@ -154,11 +175,13 @@ class AuthService {
     // we use a random ID or email as key?
     // Better: Auto-generate ID. Logic in register() handles matching by email.
 
-    await _firestore.collection('users').add({
+    final docRef = _firestore.collection('users').doc();
+    await docRef.set({
       'full_name': user.fullName,
       'email': user.email,
-      'role': 'employee',
-      'id': '', // Placeholder ID
+      'role': user.role, // Use role from model
+      'company_id': user.companyId,
+      'id': docRef.id, // Use generated ID
     });
   }
 
@@ -192,7 +215,13 @@ class AuthService {
   }
 
   Future<List<UserModel>> getAllUsers() async {
-    final snapshot = await _firestore.collection('users').get();
+    final user = await checkAuthStatus();
+    if (user?.companyId == null) return [];
+
+    final snapshot = await _firestore
+        .collection('users')
+        .where('company_id', isEqualTo: user!.companyId)
+        .get();
     return snapshot.docs.map((doc) => UserModel.fromJson(doc.data())).toList();
   }
 }

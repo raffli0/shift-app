@@ -47,23 +47,17 @@ class _MonthDropdownState extends State<MonthDropdown>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 280),
+      duration: const Duration(milliseconds: 180),
     );
 
     // Fade-in
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
 
-    // Slide down sedikit
-    _slide = Tween<Offset>(
-      begin: const Offset(0, -0.12),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    // Subtle scale (0.98 -> 1.0)
+    _scale = Tween<double>(begin: 0.98, end: 1.0).animate(_fade);
 
-    // Spring bounce scale
-    _scale = Tween<double>(
-      begin: 0.92,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+    // No slide needed for human feel
+    _slide = const AlwaysStoppedAnimation(Offset.zero);
   }
 
   @override

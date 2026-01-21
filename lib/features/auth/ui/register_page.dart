@@ -5,8 +5,6 @@ import '../../../shared/widgets/app_header.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import '../../root/ui/main_root_page.dart';
-import '../../admin/ui/admin_root_page.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -61,16 +59,7 @@ class _RegisterViewState extends State<RegisterView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.status == AuthStatus.authenticated && state.user != null) {
-          final isAdmin = state.user!.role == 'admin';
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (_) =>
-                  isAdmin ? const AdminRootPage() : const MainRootPage(),
-            ),
-            (route) => false,
-          );
-        } else if (state.status == AuthStatus.error) {
+        if (state.status == AuthStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.errorMessage ?? "Registration failed"),

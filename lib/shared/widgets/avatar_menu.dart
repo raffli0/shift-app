@@ -13,6 +13,7 @@ void showAvatarMenu(BuildContext context) {
     backgroundColor: Colors.transparent, // IMPORTANT
     barrierColor: Colors.black.withValues(alpha: 0.35), // optional dim
     builder: (_) {
+      final user = context.read<AuthBloc>().state.user;
       return BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), // BLUR LAYER BAWAH
         child: Container(
@@ -27,20 +28,20 @@ void showAvatarMenu(BuildContext context) {
               // Avatar
               FAvatar(
                 size: 70,
-                image: const NetworkImage(
-                  'https://raw.githubusercontent.com/forus-labs/forui/main/samples/assets/avatar.png',
+                image: NetworkImage(
+                  'https://i.pravatar.cc/150?u=${user?.fullName ?? "User"}',
                 ),
-                fallback: const Text(
-                  'JN',
-                  style: TextStyle(fontSize: 28, color: Colors.white),
+                fallback: Text(
+                  (user?.fullName ?? "User").substring(0, 2).toUpperCase(),
+                  style: const TextStyle(fontSize: 28, color: Colors.white),
                 ),
               ),
 
               const SizedBox(height: 12),
 
-              const Text(
-                "John Nathan",
-                style: TextStyle(
+              Text(
+                user?.fullName ?? "User",
+                style: const TextStyle(
                   fontSize: 18,
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -50,7 +51,7 @@ void showAvatarMenu(BuildContext context) {
               const SizedBox(height: 4),
 
               Text(
-                "Software Engineer",
+                user?.role.toUpperCase() ?? "EMPLOYEE",
                 style: TextStyle(fontSize: 14, color: Colors.white70),
               ),
 

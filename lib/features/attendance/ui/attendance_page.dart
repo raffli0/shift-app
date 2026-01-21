@@ -4,6 +4,7 @@ import '../../../shared/widgets/app_header.dart';
 import '../bloc/attendance_bloc.dart';
 import '../bloc/attendance_event.dart';
 import '../bloc/attendance_state.dart';
+import '../../auth/bloc/auth_bloc.dart';
 import 'package:shift/core/services/location_service.dart';
 import '../../face_liveness/ui/face_liveness_screen.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -19,9 +20,13 @@ class AttendancePage extends StatelessWidget {
       create: (_) => LocationService(),
       dispose: (service) => service.dispose(),
       child: BlocProvider(
-        create: (context) =>
-            AttendanceBloc(locationService: context.read<LocationService>())
-              ..add(AttendanceStarted()),
+        create: (context) {
+          final authState = context.read<AuthBloc>().state;
+          return AttendanceBloc(
+            locationService: context.read<LocationService>(),
+            companyId: authState.user?.companyId ?? '',
+          )..add(AttendanceStarted());
+        },
         child: const AttendanceView(),
       ),
     );
@@ -492,12 +497,12 @@ class _AttendanceViewState extends State<AttendanceView> {
     String? disabledLabel,
   }) {
     return AnimatedOpacity(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 150),
       opacity: enabled ? 1.0 : 0.4,
       child: IgnorePointer(
         ignoring: !enabled,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
+          duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
             color: active

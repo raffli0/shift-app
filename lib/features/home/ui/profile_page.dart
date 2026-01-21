@@ -319,7 +319,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         const SizedBox(height: 12),
         Text(
-          name ?? 'John Nathan',
+          name ?? 'User',
           style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -328,7 +328,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         const SizedBox(height: 4),
         Text(
-          role?.toUpperCase() ?? 'Software Engineer',
+          role?.toUpperCase() ?? 'EMPLOYEE',
           style: const TextStyle(color: Colors.white70),
         ),
         const SizedBox(height: 10),

@@ -10,6 +10,7 @@ class AttendanceModel {
   final String? checkOutLocation;
   final String checkInImageUrl;
   final String? checkOutImageUrl;
+  final String? companyId;
   final String status; // On Time, Late, etc.
   final List<Map<String, dynamic>>? breaks;
 
@@ -17,6 +18,7 @@ class AttendanceModel {
     required this.id,
     required this.userId,
     required this.userName,
+    this.companyId,
     required this.checkInTime,
     this.checkOutTime,
     required this.checkInLocation,
@@ -32,6 +34,7 @@ class AttendanceModel {
       id: docId,
       userId: json['user_id'],
       userName: json['user_name'],
+      companyId: json['company_id'],
       checkInTime: (json['check_in_time'] as Timestamp).toDate(),
       checkOutTime: json['check_out_time'] != null
           ? (json['check_out_time'] as Timestamp).toDate()
@@ -51,6 +54,7 @@ class AttendanceModel {
     return {
       'user_id': userId,
       'user_name': userName,
+      'company_id': companyId,
       'check_in_time': Timestamp.fromDate(checkInTime),
       'check_out_time': checkOutTime != null
           ? Timestamp.fromDate(checkOutTime!)

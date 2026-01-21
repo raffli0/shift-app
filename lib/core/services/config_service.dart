@@ -4,16 +4,15 @@ import 'package:latlong2/latlong.dart';
 class ConfigService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static const String _collection = 'settings';
-  static const String _docId = 'office';
 
   // Default fallback values
   static const double _defaultLat = -6.93586;
   static const double _defaultLng = 107.63932;
   static const double _defaultRadius = 50.0;
 
-  Future<Map<String, dynamic>> getOfficeConfig() async {
+  Future<Map<String, dynamic>> getOfficeConfig(String companyId) async {
     try {
-      final doc = await _firestore.collection(_collection).doc(_docId).get();
+      final doc = await _firestore.collection(_collection).doc(companyId).get();
       if (doc.exists && doc.data() != null) {
         return doc.data()!;
       }
@@ -32,8 +31,13 @@ class ConfigService {
     }
   }
 
-  Future<void> updateOfficeConfig(double lat, double lng, double radius) async {
-    await _firestore.collection(_collection).doc(_docId).set({
+  Future<void> updateOfficeConfig(
+    String companyId,
+    double lat,
+    double lng,
+    double radius,
+  ) async {
+    await _firestore.collection(_collection).doc(companyId).set({
       'latitude': lat,
       'longitude': lng,
       'radius': radius,
@@ -41,8 +45,8 @@ class ConfigService {
   }
 
   // Helper to get LatLng object directly
-  Future<LatLng> getOfficeLocation() async {
-    final data = await getOfficeConfig();
+  Future<LatLng> getOfficeLocation(String companyId) async {
+    final data = await getOfficeConfig(companyId);
     return LatLng(
       (data['latitude'] as num).toDouble(),
       (data['longitude'] as num).toDouble(),
@@ -50,8 +54,8 @@ class ConfigService {
   }
 
   // Helper to get radius directly
-  Future<double> getOfficeRadius() async {
-    final data = await getOfficeConfig();
+  Future<double> getOfficeRadius(String companyId) async {
+    final data = await getOfficeConfig(companyId);
     return (data['radius'] as num).toDouble();
   }
 }

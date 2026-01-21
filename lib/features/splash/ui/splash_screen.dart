@@ -20,13 +20,13 @@ class _SplashScreenState extends State<SplashScreen>
     // ANIMASI LOGO (zoom in)
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 500),
     );
 
     _scaleAnimation = Tween<double>(
-      begin: 0.6,
+      begin: 0.98,
       end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
     _controller.forward();
 
