@@ -63,32 +63,32 @@ A. Halaman Umum
     - Halaman untuk melakukan pendaftaran pengguna sebagai admin atau karyawan.
   
 B. Halaman Karyawan
-4. Halaman Home (Karyawan)
+5. Halaman Home (Karyawan)
     - Menampilkan informasi utama karyawan seperti status kehadiran hari ini, jam kerja, dan menu navigasi ke fitur lainnya.
-5. Halaman Attendance (Karyawan)
+6. Halaman Attendance (Karyawan)
   - Checkin untuk melakukan absensi masuk dengan validasi lokasi (geofencing) dan pengambilan foto sebagai bukti kehadiran.
   - Checkout untuk melakukan absensi pulang yang mencatat waktu dan lokasi pengguna.
   - Break untuk memulai dan mengakhiri waktu istirahat karyawan dengan pencatatan durasi otomatis.
-5. Halaman Request (Karyawan)
+7. Halaman Request (Karyawan)
   - Halam untuk melakukan pengajuan cuti(liburan, sakit, dsb) serta melihat status pengajuan cuti.
-6. Halaman History Absensi (Karyawan)
+8. Halaman History Absensi (Karyawan)
   - Menampilkan detail absensi seluruh karyawan, termasuk waktu, lokasi pada peta, dan foto bukti.
-7. Halaman Profil Pengguna (karyawan)
+9. Halaman Profil Pengguna (karyawan)
   - Menampilkan informasi profil pengguna dan pengaturan akun.
 
 C. Halaman Admin
-8. Halaman Home (admin)
+10. Halaman Home (admin)
   - Menampilkan ringkasan data kehadiran seluruh karyawan secara keseluruhan.
-9. Halaman Monitor (admin)
+11. Halaman Monitor (admin)
   - Menampilkan history data kehadiran seluruh karyawan.
-11. Halaman Leaves (admin)
+12. Halaman Leaves (admin)
   - Halaman untuk mengelola pengajuan cuti seluruh karyawan.
-10. Halaman Users Management (admin)
+13. Halaman Users Management (admin)
   - Halaman untuk mengelola data karyawan, termasuk penambahan, pengubahan, dan penghapusan data.
-11. Halaman Settings (admin)
+14. Halaman Settings (admin)
   - Untuk mengelola jam kerja pada seluruh karyawan.
   - Untuk menentukan lokasi kantor dan radius kehadiran menggunakan peta.
-14. Halaman Profil Pengguna (admin)
+15. Halaman Profil Pengguna (admin)
   - Menampilkan informasi profil pengguna dan pengaturan akun.
 
 ## (Getting Started)
