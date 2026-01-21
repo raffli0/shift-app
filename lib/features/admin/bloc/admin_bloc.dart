@@ -123,8 +123,9 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
           email: u.email,
           role: u.role,
           department: "Staff", // Default for now
-          status: "Active",
+          status: u.status, // Map status from UserModel
           imageUrl: "https://i.pravatar.cc/150?u=${u.id}",
+          companyId: u.companyId,
         );
       }).toList();
 
@@ -354,6 +355,8 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
         fullName: event.user.name,
         email: event.user.email,
         role: event.user.role,
+        status: event.user.status, // Include status
+        companyId: event.user.companyId, // Preserve companyId
       );
 
       await _authService.updateUser(updatedUserModel);

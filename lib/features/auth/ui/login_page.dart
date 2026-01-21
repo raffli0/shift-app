@@ -74,6 +74,15 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
+        if (state.status == AuthStatus.authenticated) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login successful'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
         if (state.status == AuthStatus.error) {
           final message = _getErrorMessage(state.errorMessage);
           ScaffoldMessenger.of(context).showSnackBar(

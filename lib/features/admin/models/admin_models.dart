@@ -85,6 +85,7 @@ class AdminUser {
   final String status;
   final bool isDestructive;
   final String imageUrl;
+  final String? companyId; // Added companyId to preserve it
 
   const AdminUser({
     required this.id,
@@ -95,5 +96,6 @@ class AdminUser {
     required this.status,
     this.isDestructive = false,
     required this.imageUrl,
+    this.companyId,
   });
 }

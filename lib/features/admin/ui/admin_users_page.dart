@@ -33,7 +33,7 @@ class _AdminUsersPageState extends State<AdminUsersPage> {
             const AppHeader(
               title: "User Management",
               showAvatar: true,
-              showBell: true,
+              showBell: false,
             ),
             Expanded(
               child: Padding(
@@ -332,6 +332,10 @@ class _UserFormState extends State<_UserForm> {
       text: widget.user?.department ?? "",
     );
     _status = widget.user?.status ?? "Active";
+    // Normalize status to Title Case to match dropdown items
+    if (_status.isNotEmpty) {
+      _status = _status[0].toUpperCase() + _status.substring(1).toLowerCase();
+    }
   }
 
   @override
@@ -399,6 +403,8 @@ class _UserFormState extends State<_UserForm> {
                       widget.user?.imageUrl ??
                       "https://i.pravatar.cc/150?u=${_nameController.text}",
                   isDestructive: _status == "Inactive",
+                  companyId:
+                      widget.user?.companyId, // Preserve existing companyId
                 );
                 widget.onSave(newUser);
               },

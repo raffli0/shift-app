@@ -96,8 +96,20 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
+      listenWhen: (previous, current) {
+        // Only trigger if we were authenticated and now we are not
+        return previous.status == AuthStatus.authenticated &&
+            current.status == AuthStatus.unauthenticated;
+      },
       listener: (context, state) {
-        // Optional: Global listeners for error handling
+        if (state.status == AuthStatus.unauthenticated) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Logged out successfully'),
+              backgroundColor: Colors.green, // or a neutral color
+            ),
+          );
+        }
       },
       builder: (context, state) {
         return AnimatedSwitcher(

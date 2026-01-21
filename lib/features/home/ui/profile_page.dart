@@ -7,7 +7,9 @@ import '../../auth/ui/login_page.dart';
 import '../../attendance/services/attendance_service.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final bool showBackButton;
+
+  const ProfilePage({super.key, this.showBackButton = false});
 
   // Design Constants
   static const kBgColor = Color(0xFF0E0F13);
@@ -33,7 +35,10 @@ class _ProfilePageState extends State<ProfilePage> {
         elevation: 0,
         backgroundColor: ProfilePage.kBgColor,
         centerTitle: true,
-        leading: const BackButton(color: ProfilePage.kTextPrimary),
+        automaticallyImplyLeading: widget.showBackButton,
+        leading: widget.showBackButton
+            ? const BackButton(color: ProfilePage.kTextPrimary)
+            : null,
         title: const Text(
           'My Profile',
           style: TextStyle(

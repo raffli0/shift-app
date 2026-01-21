@@ -29,7 +29,7 @@ class _AdminAttendancePageState extends State<AdminAttendancePage> {
             const AppHeader(
               title: "Attendance",
               showAvatar: true,
-              showBell: true,
+              showBell: false,
             ),
             Expanded(
               child: BlocBuilder<AdminBloc, AdminState>(

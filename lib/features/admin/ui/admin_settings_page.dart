@@ -32,7 +32,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
             const AppHeader(
               title: "Settings",
               showAvatar: true,
-              showBell: true,
+              showBell: false,
             ),
             Expanded(
               child: SingleChildScrollView(

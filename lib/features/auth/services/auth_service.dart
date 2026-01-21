@@ -52,11 +52,18 @@ class AuthService {
       return newUser;
     }
 
+    final userData = doc.data()!;
+    final status = userData['status'] as String? ?? 'active';
+    if (status.toLowerCase() == 'inactive') {
+      await _auth.signOut(); // Ensure they are not left signed in
+      throw Exception("Your account is deactivated. Please contact admin.");
+    }
+
     // Token persistence is handled by Firebase Auth SDK
     // No need to manually save token for Dio anymore
     // await _saveToken(credential.user);
 
-    return UserModel.fromJson(doc.data()!);
+    return UserModel.fromJson(userData);
   }
 
   Future<UserModel> register({

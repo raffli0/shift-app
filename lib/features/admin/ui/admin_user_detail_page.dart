@@ -5,6 +5,7 @@ import '../bloc/admin_state.dart';
 import '../models/admin_models.dart';
 import '../../../shared/widgets/app_header.dart';
 import 'admin_attendance_detail_page.dart';
+import '../bloc/admin_event.dart';
 
 class AdminUserDetailPage extends StatelessWidget {
   final AdminUser user;
@@ -35,7 +36,7 @@ class AdminUserDetailPage extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    _buildProfileHeader(),
+                    _buildProfileHeader(context),
                     const SizedBox(height: 24),
                     _buildInfoSection(),
                     const SizedBox(height: 24),
@@ -50,7 +51,7 @@ class AdminUserDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader(BuildContext context) {
     return Column(
       children: [
         Stack(
@@ -99,22 +100,44 @@ class AdminUserDetailPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: user.status == "Active"
-                ? const Color(0xFF4CAF50).withOpacity(0.15)
-                : const Color(0xFFE57373).withOpacity(0.15),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            "${user.role.toUpperCase()} • ${user.status.toUpperCase()}",
-            style: TextStyle(
-              color: user.status == "Active"
-                  ? const Color(0xFF4CAF50)
-                  : const Color(0xFFE57373),
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+        InkWell(
+          onTap: () => _showStatusChangeDialog(context),
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: user.status.toLowerCase() == "active"
+                  ? const Color(0xFF4CAF50).withValues(alpha: 0.15)
+                  : const Color(0xFFE57373).withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: user.status.toLowerCase() == "active"
+                    ? const Color(0xFF4CAF50).withValues(alpha: 0.3)
+                    : const Color(0xFFE57373).withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "${user.role.toUpperCase()} • ${user.status.toUpperCase()}",
+                  style: TextStyle(
+                    color: user.status.toLowerCase() == "active"
+                        ? const Color(0xFF4CAF50)
+                        : const Color(0xFFE57373),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.edit,
+                  size: 12,
+                  color: user.status.toLowerCase() == "active"
+                      ? const Color(0xFF4CAF50)
+                      : const Color(0xFFE57373),
+                ),
+              ],
             ),
           ),
         ),
@@ -128,7 +151,7 @@ class AdminUserDetailPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: kSurfaceColor,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         children: [
@@ -185,7 +208,7 @@ class AdminUserDetailPage extends StatelessWidget {
   Widget _buildDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Divider(height: 1, color: Colors.white.withOpacity(0.05)),
+      child: Divider(height: 1, color: Colors.white.withValues(alpha: 0.05)),
     );
   }
 
@@ -220,7 +243,9 @@ class AdminUserDetailPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: kSurfaceColor,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Colors.white.withOpacity(0.05)),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
                 ),
                 child: const Column(
                   children: [
@@ -261,7 +286,9 @@ class AdminUserDetailPage extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: attendance.statusColor.withOpacity(0.1),
+                                color: attendance.statusColor.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
@@ -309,6 +336,62 @@ class AdminUserDetailPage extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+
+  void _showStatusChangeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: kSurfaceColor,
+          title: const Text(
+            "Change Status",
+            style: TextStyle(color: kTextPrimary),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildStatusOption(context, "Active", Colors.green),
+              const SizedBox(height: 8),
+              _buildStatusOption(context, "Inactive", Colors.red),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatusOption(BuildContext context, String status, Color color) {
+    final isSelected = user.status.toLowerCase() == status.toLowerCase();
+    return ListTile(
+      title: Text(
+        status,
+        style: TextStyle(color: color, fontWeight: FontWeight.bold),
+      ),
+      trailing: isSelected ? Icon(Icons.check, color: color) : null,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: color.withValues(alpha: 0.3)),
+      ),
+      onTap: () {
+        final updatedUser = AdminUser(
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          department: user.department,
+          status: status,
+          imageUrl: user.imageUrl,
+          isDestructive: status == "Inactive",
+          companyId: user.companyId,
+        );
+
+        context.read<AdminBloc>().add(AdminUserUpdated(updatedUser));
+
+        Navigator.pop(context); // Close dialog
+        Navigator.pop(context); // Close detail page
+      },
     );
   }
 }

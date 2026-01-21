@@ -35,7 +35,7 @@ class _AdminLeavePageState extends State<AdminLeavePage> {
             const AppHeader(
               title: "Leave Requests",
               showAvatar: true,
-              showBell: true,
+              showBell: false,
             ),
 
             // Header with Date & Filter

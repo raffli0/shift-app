@@ -10,6 +10,7 @@ class UserModel {
   final String? companyId;
   final String? shiftStart;
   final String? shiftEnd;
+  final String status;
 
   UserModel({
     required this.id,
@@ -23,6 +24,7 @@ class UserModel {
     this.companyId,
     this.shiftStart,
     this.shiftEnd,
+    this.status = 'active',
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class UserModel {
       companyId: json['company_id'],
       shiftStart: json['shift_start'],
       shiftEnd: json['shift_end'],
+      status: json['status'] ?? 'active',
     );
   }
 
@@ -54,6 +57,7 @@ class UserModel {
       'company_id': companyId,
       'shift_start': shiftStart,
       'shift_end': shiftEnd,
+      'status': status,
     };
   }
 
@@ -69,6 +73,7 @@ class UserModel {
     String? companyId,
     String? shiftStart,
     String? shiftEnd,
+    String? status,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -82,6 +87,7 @@ class UserModel {
       companyId: companyId ?? this.companyId,
       shiftStart: shiftStart ?? this.shiftStart,
       shiftEnd: shiftEnd ?? this.shiftEnd,
+      status: status ?? this.status,
     );
   }
 }

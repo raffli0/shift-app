@@ -95,7 +95,11 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
       body: SafeArea(
         child: Column(
           children: [
-            const AppHeader(title: "History", showAvatar: false),
+            const AppHeader(
+              title: "History",
+              showAvatar: false,
+              showBell: false,
+            ),
             Expanded(
               child: FutureBuilder<List<AttendanceModel>>(
                 future: _historyFuture,

@@ -206,31 +206,60 @@ class _AdminOfficeLocationPageState extends State<AdminOfficeLocationPage> {
                               ],
                             ),
                             const SizedBox(height: 8),
-                            SliderTheme(
-                              data: SliderThemeData(
-                                activeTrackColor: kAccentColor,
-                                inactiveTrackColor: kAccentColor.withValues(
-                                  alpha: 0.2,
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.remove,
+                                    color: kTextSecondary,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _radius = (_radius - 10).clamp(10, 1000);
+                                      _hasChanges = true;
+                                    });
+                                  },
                                 ),
-                                thumbColor: kAccentColor,
-                                overlayColor: kAccentColor.withValues(
-                                  alpha: 0.1,
+                                Expanded(
+                                  child: SliderTheme(
+                                    data: SliderThemeData(
+                                      activeTrackColor: kAccentColor,
+                                      inactiveTrackColor: kAccentColor
+                                          .withValues(alpha: 0.2),
+                                      thumbColor: kAccentColor,
+                                      overlayColor: kAccentColor.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      trackHeight: 4,
+                                    ),
+                                    child: Slider(
+                                      value: _radius,
+                                      min: 10,
+                                      max: 1000,
+                                      divisions: 99,
+                                      label: "${_radius.toInt()}m",
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _radius = value;
+                                          _hasChanges = true;
+                                        });
+                                      },
+                                    ),
+                                  ),
                                 ),
-                                trackHeight: 4,
-                              ),
-                              child: Slider(
-                                value: _radius,
-                                min: 10,
-                                max: 1000,
-                                divisions: 99,
-                                label: "${_radius.toInt()}m",
-                                onChanged: (value) {
-                                  setState(() {
-                                    _radius = value;
-                                    _hasChanges = true;
-                                  });
-                                },
-                              ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.add,
+                                    color: kTextSecondary,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _radius = (_radius + 10).clamp(10, 1000);
+                                      _hasChanges = true;
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
