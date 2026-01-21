@@ -249,4 +249,28 @@ class AuthService {
         .get();
     return snapshot.docs.map((doc) => UserModel.fromJson(doc.data())).toList();
   }
+
+  Future<void> updateUserShift(
+    String userId,
+    String? start,
+    String? end,
+  ) async {
+    await _firestore.collection('users').doc(userId).update({
+      'shift_start': start,
+      'shift_end': end,
+    });
+  }
+
+  Future<void> batchUpdateUserShifts(
+    List<String> userIds,
+    String? start,
+    String? end,
+  ) async {
+    final batch = _firestore.batch();
+    for (final uid in userIds) {
+      final docRef = _firestore.collection('users').doc(uid);
+      batch.update(docRef, {'shift_start': start, 'shift_end': end});
+    }
+    await batch.commit();
+  }
 }

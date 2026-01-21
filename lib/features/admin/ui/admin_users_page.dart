@@ -6,6 +6,7 @@ import '../bloc/admin_state.dart';
 import '../bloc/admin_event.dart'; // Import AdminEvent
 import '../models/admin_models.dart'; // Import AdminUser
 import '../../../shared/widgets/app_header.dart';
+import 'admin_user_detail_page.dart';
 
 class AdminUsersPage extends StatefulWidget {
   const AdminUsersPage({super.key});
@@ -196,83 +197,109 @@ class _UserListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF0E0F13), // Distinct dark card
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
-      child: Row(
-        children: [
-          FAvatar(
-            fallback: Text(user.name.substring(0, 2).toUpperCase()),
-            image: NetworkImage(user.imageUrl),
-            // style: FAvatarStyle.secondary, // Assuming ForUI has styles or default is fine
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            final adminBloc = context.read<AdminBloc>();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BlocProvider.value(
+                  value: adminBloc,
+                  child: AdminUserDetailPage(user: user),
+                ),
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                Text(
-                  user.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    color: Color(0xFFEDEDED),
+                FAvatar(
+                  fallback: Text(user.name.substring(0, 2).toUpperCase()),
+                  image: NetworkImage(user.imageUrl),
+                  // style: FAvatarStyle.secondary, // Assuming ForUI has styles or default is fine
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: Color(0xFFEDEDED),
+                        ),
+                      ),
+                      Text(
+                        "${user.role} • ${user.email}",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF9AA0AA),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  "${user.role} • ${user.email}",
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF9AA0AA),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
                   ),
+                  decoration: BoxDecoration(
+                    color: user.isDestructive
+                        ? const Color(0xFFE06C75).withOpacity(0.2)
+                        : const Color(0xFF4CAF8C).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    user.status,
+                    style: TextStyle(
+                      color: user.isDestructive
+                          ? const Color(0xFFE06C75)
+                          : const Color(0xFF4CAF8C),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                PopupMenuButton(
+                  icon: const Icon(Icons.more_vert, color: Color(0xFF8A8F98)),
+                  color: const Color(0xFF151821),
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: Text(
+                        "Edit",
+                        style: TextStyle(color: Color(0xFFEDEDED)),
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Text(
+                        "Delete",
+                        style: TextStyle(color: Color(0xFFE06C75)),
+                      ),
+                    ),
+                  ],
+                  onSelected: (value) {
+                    if (value == 'edit') onEdit();
+                    if (value == 'delete') onDelete();
+                  },
                 ),
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: user.isDestructive
-                  ? const Color(0xFFE06C75).withValues(alpha: 0.2)
-                  : const Color(0xFF4CAF8C).withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              user.status,
-              style: TextStyle(
-                color: user.isDestructive
-                    ? const Color(0xFFE06C75)
-                    : const Color(0xFF4CAF8C),
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          PopupMenuButton(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF8A8F98)),
-            color: const Color(0xFF151821),
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: Text("Edit", style: TextStyle(color: Color(0xFFEDEDED))),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Text(
-                  "Delete",
-                  style: TextStyle(color: Color(0xFFE06C75)),
-                ),
-              ),
-            ],
-            onSelected: (value) {
-              if (value == 'edit') onEdit();
-              if (value == 'delete') onDelete();
-            },
-          ),
-        ],
+        ),
       ),
     );
   }

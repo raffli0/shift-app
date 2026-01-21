@@ -58,4 +58,24 @@ class ConfigService {
     final data = await getOfficeConfig(companyId);
     return (data['radius'] as num).toDouble();
   }
+
+  // Shift Configuration
+  Future<Map<String, String>> getShiftConfig(String companyId) async {
+    final data = await getOfficeConfig(companyId);
+    return {
+      'start_time': data['start_time'] as String? ?? '09:00',
+      'end_time': data['end_time'] as String? ?? '17:00',
+    };
+  }
+
+  Future<void> updateShiftConfig(
+    String companyId,
+    String startTime,
+    String endTime,
+  ) async {
+    await _firestore.collection(_collection).doc(companyId).update({
+      'start_time': startTime,
+      'end_time': endTime,
+    });
+  }
 }

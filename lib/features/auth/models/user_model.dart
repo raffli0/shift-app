@@ -8,6 +8,8 @@ class UserModel {
   final String? employeeId;
   final String? manager;
   final String? companyId;
+  final String? shiftStart;
+  final String? shiftEnd;
 
   UserModel({
     required this.id,
@@ -19,6 +21,8 @@ class UserModel {
     this.employeeId,
     this.manager,
     this.companyId,
+    this.shiftStart,
+    this.shiftEnd,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +36,8 @@ class UserModel {
       employeeId: json['employee_id'],
       manager: json['manager'],
       companyId: json['company_id'],
+      shiftStart: json['shift_start'],
+      shiftEnd: json['shift_end'],
     );
   }
 
@@ -46,6 +52,8 @@ class UserModel {
       'employee_id': employeeId,
       'manager': manager,
       'company_id': companyId,
+      'shift_start': shiftStart,
+      'shift_end': shiftEnd,
     };
   }
 
@@ -59,6 +67,8 @@ class UserModel {
     String? employeeId,
     String? manager,
     String? companyId,
+    String? shiftStart,
+    String? shiftEnd,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -70,6 +80,8 @@ class UserModel {
       employeeId: employeeId ?? this.employeeId,
       manager: manager ?? this.manager,
       companyId: companyId ?? this.companyId,
+      shiftStart: shiftStart ?? this.shiftStart,
+      shiftEnd: shiftEnd ?? this.shiftEnd,
     );
   }
 }

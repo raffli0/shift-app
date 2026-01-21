@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/admin_bloc.dart';
 import 'admin_office_location_page.dart';
+import 'admin_working_hours_page.dart';
 import '../../../shared/widgets/app_header.dart';
 
 class AdminSettingsPage extends StatefulWidget {
@@ -83,7 +84,16 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                             icon: Icons.access_time,
                             title: 'Working Hours',
                             onTap: () {
-                              // TODO: Navigate to Working Hours
+                              final adminBloc = context.read<AdminBloc>();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BlocProvider.value(
+                                    value: adminBloc,
+                                    child: const AdminWorkingHoursPage(),
+                                  ),
+                                ),
+                              );
                             },
                           ),
                           const _Divider(),
