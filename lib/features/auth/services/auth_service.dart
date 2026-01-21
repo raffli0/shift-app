@@ -133,9 +133,13 @@ class AuthService {
     await _auth.signOut();
     // Clear ALL secure storage
     await _storage.deleteAll();
-    // Clear SharedPreferences
+    // Clear SharedPreferences but keep 'seenOnboarding'
     final prefs = await SharedPreferences.getInstance();
+    final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
     await prefs.clear();
+    if (seenOnboarding) {
+      await prefs.setBool('seenOnboarding', true);
+    }
   }
 
   Future<UserModel> updateProfile({

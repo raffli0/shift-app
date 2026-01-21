@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:shift/shared/widgets/app_header.dart';
+import '../../../shared/widgets/app_header.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
+
+  // Design Constants matches AdminHomePage
+  static const kBgColor = Color(0xFF0E0F13);
+  static const kSurfaceColor = Color(0xFF151821);
+  static const kAccentColor = Color(0xFF7C7FFF);
+  static const kTextPrimary = Color(0xFFEDEDED);
+  static const kTextSecondary = Color(0xFF9AA0AA);
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +41,7 @@ class NotificationPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0c202e),
+      backgroundColor: kBgColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -44,15 +51,16 @@ class NotificationPage extends StatelessWidget {
               showBell: false,
               onBack: () => Navigator.pop(context),
             ),
+            const SizedBox(height: 10),
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 20,
+                  horizontal: 20,
+                  vertical: 12,
                 ),
                 itemCount: notifications.length,
                 separatorBuilder: (context, index) =>
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   return notifications[index];
                 },
@@ -83,86 +91,95 @@ class _NotifItem extends StatelessWidget {
   Color _getColor() {
     switch (type) {
       case _NotifType.success:
-        return Colors.green;
+        return const Color(0xFF4ADE80); // Green
       case _NotifType.warning:
-        return Colors.orange;
+        return const Color(0xFFFACC15); // Yellow
       case _NotifType.error:
-        return Colors.red;
+        return const Color(0xFFF87171); // Red
       case _NotifType.info:
-        return const Color(0xff5a64d6);
+        return NotificationPage.kAccentColor; // Purple
+    }
+  }
+
+  IconData _getIcon() {
+    switch (type) {
+      case _NotifType.success:
+        return Icons.check_circle_outline_rounded;
+      case _NotifType.warning:
+        return Icons.warning_amber_rounded;
+      case _NotifType.error:
+        return Icons.error_outline_rounded;
+      case _NotifType.info:
+        return Icons.info_outline_rounded;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final color = _getColor();
+    const surfaceColor = NotificationPage.kSurfaceColor;
+    const textPrimary = NotificationPage.kTextPrimary;
+    const textSecondary = NotificationPage.kTextSecondary;
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // TIMELINE DOT
-        Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 4),
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.4),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
             ),
-            // Line could go here if we want strict timeline,
-            // but for simple list, just dot is enough or standard ListView.
-          ],
-        ),
-        const SizedBox(width: 16),
-
-        // CONTENT
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    time,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                body,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
-                  fontSize: 14,
-                  height: 1.4,
-                ),
-              ),
-            ],
+            child: Icon(_getIcon(), size: 20, color: color),
           ),
-        ),
-      ],
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          color: textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      time,
+                      style: TextStyle(
+                        color: textSecondary.withValues(alpha: 0.7),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  body,
+                  style: const TextStyle(
+                    color: textSecondary,
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

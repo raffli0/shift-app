@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../shared/widgets/app_header.dart';
+import '../../../shared/widgets/app_dialog.dart';
 import '../bloc/attendance_bloc.dart';
 import '../bloc/attendance_event.dart';
 import '../bloc/attendance_state.dart';
@@ -44,6 +45,13 @@ class _AttendanceViewState extends State<AttendanceView> {
   final MapController _mapController = MapController();
   final double zoomLevel = 16.0;
 
+  // Design Constants
+  static const kBgColor = Color(0xFF0E0F13);
+  static const kSurfaceColor = Color(0xFF151821);
+  static const kAccentColor = Color(0xFF7C7FFF);
+  static const kTextPrimary = Color(0xFFEDEDED);
+  static const kTextSecondary = Color(0xFF9AA0AA);
+
   String _formatTime(DateTime time) {
     final hour = time.hour % 12 == 0 ? 12 : time.hour % 12;
     final minute = time.minute.toString().padLeft(2, '0');
@@ -79,13 +87,35 @@ class _AttendanceViewState extends State<AttendanceView> {
             ),
           );
         } else if (state.status == AttendanceStatus.success) {
-          // Return to home with success indicator
-          Navigator.pop(context, true);
+          // For break events, just show a success dialog
+          // Don't pop navigation - user stays on attendance page
+          // We can detect break events by checking if we're still checked in
+          if (state.mainStatus == AttendanceMainStatus.checkin) {
+            // Still checked in - this was likely a break event
+            // Show success dialog without popping
+            if (state.breakStatus == BreakStatus.onBreak) {
+              AppDialog.showSuccess(
+                context: context,
+                title: "Break started",
+                message: "Enjoy your break!",
+              );
+            } else {
+              // Break ended
+              AppDialog.showSuccess(
+                context: context,
+                title: "Break ended",
+                message: "Welcome back!",
+              );
+            }
+          } else {
+            // Check-in or check-out success - pop navigation
+            Navigator.pop(context, true);
+          }
         }
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: const Color(0xFF0c202e),
+          backgroundColor: kBgColor,
           body: SafeArea(
             child: Column(
               children: [
@@ -125,8 +155,9 @@ class _AttendanceViewState extends State<AttendanceView> {
   Widget _buildSegment(BuildContext context, AttendanceState state) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: kSurfaceColor,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       padding: const EdgeInsets.all(4),
       child: Row(
@@ -151,14 +182,14 @@ class _AttendanceViewState extends State<AttendanceView> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? Colors.blue : Colors.transparent,
+            color: selected ? kAccentColor : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
           alignment: Alignment.center,
           child: Text(
             text,
             style: TextStyle(
-              color: selected ? Colors.white : Colors.black87,
+              color: selected ? Colors.white : kTextSecondary,
               fontWeight: FontWeight.w600,
               fontSize: 14,
             ),

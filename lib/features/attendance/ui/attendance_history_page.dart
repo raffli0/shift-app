@@ -32,6 +32,13 @@ class AttendanceHistoryPage extends StatefulWidget {
 class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
   late Future<List<AttendanceModel>> _historyFuture;
 
+  // Design Constants
+  static const kBgColor = Color(0xFF0E0F13);
+  static const kSurfaceColor = Color(0xFF151821);
+  static const kAccentColor = Color(0xFF7C7FFF);
+  static const kTextPrimary = Color(0xFFEDEDED);
+  static const kTextSecondary = Color(0xFF9AA0AA);
+
   @override
   void initState() {
     super.initState();
@@ -84,7 +91,7 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0c202e),
+      backgroundColor: kBgColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -99,14 +106,14 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
                     return Center(
                       child: Text(
                         "Error loading history",
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: kTextPrimary),
                       ),
                     );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(
                       child: Text(
                         "No attendance history",
-                        style: TextStyle(color: Colors.white54),
+                        style: TextStyle(color: kTextSecondary),
                       ),
                     );
                   }
@@ -140,7 +147,7 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
                             child: Text(
                               DateFormat("EEEE, dd MMMM yyyy").format(date),
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.6),
+                                color: kTextSecondary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0.5,
@@ -179,15 +186,9 @@ class _HistoryItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
-        color: const Color(0xfffbfbff),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: _AttendanceHistoryPageState.kSurfaceColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.02)),
       ),
       child: Row(
         children: [
@@ -199,7 +200,7 @@ class _HistoryItem extends StatelessWidget {
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
-                  color: Color(0xff0c202e),
+                  color: _AttendanceHistoryPageState.kTextPrimary,
                 ),
               ),
               const SizedBox(height: 4),
@@ -221,7 +222,7 @@ class _HistoryItem extends StatelessWidget {
           Container(
             height: 40,
             width: 1,
-            color: Colors.grey.withValues(alpha: 0.3),
+            color: Colors.white.withValues(alpha: 0.1),
           ),
           const SizedBox(width: 16),
 
@@ -236,14 +237,17 @@ class _HistoryItem extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
                     color: activity.isLate
-                        ? Colors.orange[800]
-                        : Colors.black87,
+                        ? Colors.orange
+                        : _AttendanceHistoryPageState.kTextPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   activity.location,
-                  style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: _AttendanceHistoryPageState.kTextSecondary,
+                  ),
                 ),
               ],
             ),

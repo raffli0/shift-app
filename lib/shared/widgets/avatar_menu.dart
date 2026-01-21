@@ -79,19 +79,15 @@ void showAvatarMenu(BuildContext context) {
                   },
                 ),
 
-              _menuItem(
-                icon: FIcons.settings,
-                text: "Settings",
-                onTap: () {
-                  Navigator.pop(context);
-                  final user = context.read<AuthBloc>().state.user;
-                  if (user?.role == 'admin') {
-                    Navigator.pushNamed(context, "/admin-settings");
-                  } else {
+              if (context.read<AuthBloc>().state.user?.role != 'admin')
+                _menuItem(
+                  icon: FIcons.settings,
+                  text: "Settings",
+                  onTap: () {
+                    Navigator.pop(context);
                     Navigator.pushNamed(context, "/settings");
-                  }
-                },
-              ),
+                  },
+                ),
 
               const SizedBox(height: 15),
               const Divider(color: Colors.white24, height: 1),
@@ -105,9 +101,6 @@ void showAvatarMenu(BuildContext context) {
                   Navigator.pop(context);
                   // Assuming AuthBloc is provided at the root
                   context.read<AuthBloc>().add(AuthLogoutRequested());
-                  Navigator.of(
-                    context,
-                  ).pushNamedAndRemoveUntil('/login', (route) => false);
                 },
               ),
 

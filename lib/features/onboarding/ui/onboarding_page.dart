@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/services/location_service.dart';
 import '../../auth/ui/login_page.dart';
 
 class OnboardingPage extends StatefulWidget {
@@ -14,7 +15,9 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
+  final LocationService _locationService = LocationService();
   int _currentPage = 0;
+  bool _isRequestingPermission = false;
 
   final List<Map<String, String>> _onboardingData = [
     {
@@ -31,14 +34,41 @@ class _OnboardingPageState extends State<OnboardingPage> {
     },
   ];
 
-  void _onNext() {
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _locationService.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onNext() async {
     if (_currentPage < _onboardingData.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
       );
     } else {
-      _finishOnboarding();
+      // Logic for the last page: Request Permission
+      setState(() => _isRequestingPermission = true);
+
+      try {
+        // Just requesting position triggers the permission dialog
+        await _locationService.getCurrentPosition();
+        if (mounted) _finishOnboarding();
+      } catch (e) {
+        if (!mounted) return;
+        // Show error but allow user to proceed or retry?
+        // Let's show a snackbar and let them try again or maybe proceed anyway if they insist?
+        // For now, let's just show the error.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Location permission required: ${e.toString()}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
+        if (mounted) setState(() => _isRequestingPermission = false);
+      }
     }
   }
 
@@ -66,7 +96,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
     }
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     // Matches Admin Home background
@@ -147,7 +176,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                     // NEXT BUTTON (TEXT ONLY, MINIMAL)
                     GestureDetector(
-                      onTap: _onNext,
+                      onTap: _isRequestingPermission ? null : _onNext,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 24,
@@ -157,16 +186,25 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           color: Colors.white.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Text(
-                          _currentPage == _onboardingData.length - 1
-                              ? "Get Started"
-                              : "Next",
-                          style: const TextStyle(
-                            color: kTextPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child: _isRequestingPermission
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: kTextPrimary,
+                                ),
+                              )
+                            : Text(
+                                _currentPage == _onboardingData.length - 1
+                                    ? "Get Started"
+                                    : "Next",
+                                style: const TextStyle(
+                                  color: kTextPrimary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
                     ),
                   ],

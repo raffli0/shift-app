@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shift/features/leave/ui/leave_detail_page.dart';
 import 'package:shift/features/leave/ui/new_leave_form_page.dart';
 import 'package:shift/shared/widgets/app_header.dart';
-import '../../leave/ui/leave_detail_page.dart';
 import '../../leave/services/leave_service.dart';
 import '../../leave/models/leave_request_model.dart';
 import '../../auth/services/auth_service.dart';
@@ -17,6 +17,13 @@ class RequestsPage extends StatefulWidget {
 class _RequestsPageState extends State<RequestsPage> {
   int filterIndex = 0;
   final filters = ['All', 'Pending', 'Approved', 'Rejected'];
+
+  // Design Constants
+  static const kBgColor = Color(0xFF0E0F13);
+  static const kSurfaceColor = Color(0xFF151821);
+  static const kAccentColor = Color(0xFF7C7FFF);
+  static const kTextPrimary = Color(0xFFEDEDED);
+  static const kTextSecondary = Color(0xFF9AA0AA);
 
   final _leaveService = LeaveService();
   final _authService = AuthService();
@@ -58,7 +65,7 @@ class _RequestsPageState extends State<RequestsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0c202e),
+      backgroundColor: kBgColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -200,8 +207,9 @@ class _RequestsPageState extends State<RequestsPage> {
     return Text(
       text,
       style: const TextStyle(
-        color: Colors.white70,
+        color: kTextSecondary,
         fontWeight: FontWeight.w600,
+        fontSize: 12,
         letterSpacing: 1,
       ),
     );
@@ -227,8 +235,9 @@ class _RequestsPageState extends State<RequestsPage> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        color: kSurfaceColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: List.generate(filters.length, (i) {
@@ -239,7 +248,7 @@ class _RequestsPageState extends State<RequestsPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: selected ? Colors.blue : Colors.transparent,
+                  color: selected ? kAccentColor : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.center,
@@ -247,7 +256,7 @@ class _RequestsPageState extends State<RequestsPage> {
                   filters[i],
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: selected ? Colors.white : Colors.black54,
+                    color: selected ? Colors.white : kTextSecondary,
                   ),
                 ),
               ),
@@ -272,15 +281,8 @@ class _NewRequestButton extends StatelessWidget {
         height: 96,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: Colors.blue,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blue.withValues(alpha: 0.35),
-              blurRadius: 16,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          color: _RequestsPageState.kAccentColor,
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
@@ -331,7 +333,7 @@ void _showCreateRequestSheet(BuildContext context) {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: _RequestsPageState.kSurfaceColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -341,7 +343,6 @@ void _showCreateRequestSheet(BuildContext context) {
               icon: Icons.flight_takeoff,
               title: 'Leave',
               onTap: () {
-                // Navigator.push(context, MaterialPageRoute(builder: (_) => LeavePage()));
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const NewLeaveFormPage()),
@@ -383,10 +384,14 @@ class _RequestActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: Colors.blue, size: 28),
+      leading: Icon(icon, color: _RequestsPageState.kAccentColor, size: 28),
       title: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          color: _RequestsPageState.kTextPrimary,
+        ),
       ),
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
@@ -420,8 +425,9 @@ class _RequestHistoryCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        color: _RequestsPageState.kSurfaceColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.02)),
       ),
       child: Column(
         children: [
@@ -446,13 +452,14 @@ class _RequestHistoryCard extends StatelessWidget {
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
+                        color: _RequestsPageState.kTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        color: Colors.black54,
+                        color: _RequestsPageState.kTextSecondary,
                         fontSize: 13,
                       ),
                     ),
@@ -485,7 +492,12 @@ class _RequestHistoryCard extends StatelessWidget {
             children: [
               Text(
                 submitted,
-                style: const TextStyle(color: Colors.black45, fontSize: 12),
+                style: TextStyle(
+                  color: _RequestsPageState.kTextSecondary.withValues(
+                    alpha: 0.6,
+                  ),
+                  fontSize: 12,
+                ),
               ),
               GestureDetector(
                 onTap: () {

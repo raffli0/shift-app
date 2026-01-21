@@ -19,17 +19,20 @@ class AdminActivity {
   final String time;
   final String subtitle;
   final bool isWarning;
+  final AdminAttendance? attendance; // Optional reference to attendance data
 
   const AdminActivity({
     required this.title,
     required this.time,
     required this.subtitle,
     this.isWarning = false,
+    this.attendance,
   });
 }
 
 class AdminAttendance {
   final String name;
+  final String role;
   final String time;
   final String status;
   final Color statusColor;
@@ -40,6 +43,7 @@ class AdminAttendance {
 
   const AdminAttendance({
     required this.name,
+    required this.role,
     required this.time,
     required this.status,
     required this.statusColor,

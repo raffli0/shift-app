@@ -3,9 +3,9 @@ import 'package:forui/forui.dart';
 import 'package:flutter/services.dart';
 
 import '../../home/ui/home_page.dart';
+import '../../attendance/ui/attendance_page.dart';
 import '../../attendance/ui/attendance_history_page.dart';
-import '../../request/ui/my_requests_list_page.dart';
-import '../../notifications/ui/notifications_page.dart';
+import '../../request/ui/request_page.dart';
 import '../../home/ui/profile_page.dart';
 
 class MainRootPage extends StatefulWidget {
@@ -20,9 +20,9 @@ class _MainRootPageState extends State<MainRootPage> {
 
   final pages = const [
     HomePage(),
+    AttendancePage(),
+    RequestsPage(),
     AttendanceHistoryPage(),
-    MyRequestsListPage(),
-    NotificationPage(),
     ProfilePage(),
   ];
 
@@ -88,8 +88,8 @@ class _MainRootPageState extends State<MainRootPage> {
               label: Text("Request"),
             ),
             FBottomNavigationBarItem(
-              icon: Icon(FIcons.bell),
-              label: Text("Notifs"),
+              icon: Icon(FIcons.clock),
+              label: Text("History"),
             ),
             FBottomNavigationBarItem(
               icon: Icon(FIcons.user),

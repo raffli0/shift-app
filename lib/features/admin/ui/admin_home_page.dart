@@ -9,6 +9,7 @@ import '../../auth/bloc/auth_bloc.dart';
 import '../bloc/admin_bloc.dart';
 import '../bloc/admin_state.dart';
 import '../../../shared/widgets/app_header.dart';
+import 'admin_attendance_detail_page.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -221,6 +222,18 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     subtitle: a.subtitle,
                     time: a.time,
                     isWarning: a.isWarning,
+                    onTap: a.attendance != null
+                        ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AdminAttendanceDetailPage(
+                                  attendance: a.attendance!,
+                                ),
+                              ),
+                            );
+                          }
+                        : null,
                   ),
                 );
               }).toList(),
@@ -351,58 +364,78 @@ class _ActivityTile extends StatelessWidget {
   final String subtitle;
   final String time;
   final bool isWarning;
+  final VoidCallback? onTap;
 
   const _ActivityTile({
     required this.title,
     required this.subtitle,
     required this.time,
     this.isWarning = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: _AdminHomePageState.kSurfaceColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white.withValues(alpha: 0.02)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: _AdminHomePageState.kTextPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: _AdminHomePageState.kTextPrimary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: isWarning
+                              ? const Color(0xFFE06C75)
+                              : _AdminHomePageState.kTextSecondary,
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: isWarning
-                      ? const Color(0xFFE06C75)
-                      : _AdminHomePageState.kTextSecondary,
-                  fontSize: 12,
+                const SizedBox(width: 12),
+                Text(
+                  time,
+                  style: TextStyle(
+                    color: _AdminHomePageState.kTextSecondary.withValues(
+                      alpha: 0.5,
+                    ),
+                    fontSize: 12,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          Text(
-            time,
-            style: TextStyle(
-              color: _AdminHomePageState.kTextSecondary.withValues(alpha: 0.5),
-              fontSize: 12,
-              fontFeatures: const [FontFeature.tabularFigures()],
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

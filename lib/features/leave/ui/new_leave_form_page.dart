@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:forui/forui.dart';
 import 'package:intl/intl.dart';
 import 'package:shift/shared/widgets/app_dialog.dart';
 import 'package:shift/shared/widgets/app_header.dart';
@@ -24,6 +23,13 @@ class _NewLeaveFormPageState extends State<NewLeaveFormPage> {
   DateTime? _endDate;
   String _selectedType = 'Sick Leave';
   bool _isLoading = false;
+
+  // Design Constants
+  static const kBgColor = Color(0xFF0E0F13);
+  static const kSurfaceColor = Color(0xFF151821);
+  static const kAccentColor = Color(0xFF7C7FFF);
+  static const kTextPrimary = Color(0xFFEDEDED);
+  static const kTextSecondary = Color(0xFF9AA0AA);
 
   final _types = ['Sick Leave', 'Annual Leave', 'Unpaid Leave', 'Other'];
 
@@ -111,7 +117,7 @@ class _NewLeaveFormPageState extends State<NewLeaveFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0c202e),
+      backgroundColor: kBgColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -122,15 +128,11 @@ class _NewLeaveFormPageState extends State<NewLeaveFormPage> {
                 child: Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
+                    color: kSurfaceColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.05),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -140,13 +142,13 @@ class _NewLeaveFormPageState extends State<NewLeaveFormPage> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: kTextPrimary,
                         ),
                       ),
                       const SizedBox(height: 8),
                       const Text(
                         "Fill in the details below to submit your leave request.",
-                        style: TextStyle(fontSize: 14, color: Colors.black54),
+                        style: TextStyle(fontSize: 14, color: kTextSecondary),
                       ),
                       const SizedBox(height: 24),
                       Column(
@@ -156,24 +158,37 @@ class _NewLeaveFormPageState extends State<NewLeaveFormPage> {
                             "Leave Type",
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              color: Colors.black87,
+                              color: kTextPrimary,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black12),
+                              color: kSurfaceColor,
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1),
+                              ),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: DropdownButtonHideUnderline(
                               child: DropdownButton<String>(
                                 value: _selectedType,
                                 isExpanded: true,
+                                dropdownColor: kSurfaceColor,
+                                style: const TextStyle(
+                                  color: kTextPrimary,
+                                  fontSize: 16,
+                                ),
                                 items: _types.map((t) {
                                   return DropdownMenuItem(
                                     value: t,
-                                    child: Text(t),
+                                    child: Text(
+                                      t,
+                                      style: const TextStyle(
+                                        color: kTextPrimary,
+                                      ),
+                                    ),
                                   );
                                 }).toList(),
                                 onChanged: (v) {
@@ -227,11 +242,43 @@ class _NewLeaveFormPageState extends State<NewLeaveFormPage> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      FTextFormField(
-                        label: const Text("Reason"),
-                        hint: "Enter reason for leave...",
+                      TextFormField(
                         controller: _reasonController,
                         maxLines: 4,
+                        style: const TextStyle(
+                          color: kTextPrimary,
+                          fontSize: 16,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: "Reason",
+                          labelStyle: const TextStyle(
+                            color: kTextPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          hintText: "Enter reason for leave...",
+                          hintStyle: const TextStyle(color: kTextSecondary),
+                          filled: true,
+                          fillColor: kSurfaceColor,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Colors.white.withValues(alpha: 0.1),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Colors.white.withValues(alpha: 0.1),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: kAccentColor,
+                              width: 2,
+                            ),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 32),
                       GestureDetector(
@@ -239,19 +286,8 @@ class _NewLeaveFormPageState extends State<NewLeaveFormPage> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            color: _isLoading
-                                ? Colors.grey
-                                : const Color(0xff5a64d6),
+                            color: _isLoading ? Colors.grey : kAccentColor,
                             borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(
-                                  0xff5a64d6,
-                                ).withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                           ),
                           alignment: Alignment.center,
                           child: _isLoading
@@ -301,14 +337,21 @@ class _DateInput extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: _NewLeaveFormPageState.kTextPrimary,
+          ),
+        ),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: onTap,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.black12),
+              color: _NewLeaveFormPageState.kSurfaceColor,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -316,7 +359,7 @@ class _DateInput extends StatelessWidget {
                 const Icon(
                   Icons.calendar_today,
                   size: 16,
-                  color: Colors.blueGrey,
+                  color: _NewLeaveFormPageState.kTextSecondary,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -325,7 +368,9 @@ class _DateInput extends StatelessWidget {
                         ? DateFormat("MMM dd, yyyy").format(value!)
                         : "Select Date",
                     style: TextStyle(
-                      color: value != null ? Colors.black87 : Colors.black45,
+                      color: value != null
+                          ? _NewLeaveFormPageState.kTextPrimary
+                          : _NewLeaveFormPageState.kTextSecondary,
                       fontSize: 14,
                     ),
                     overflow: TextOverflow.ellipsis,

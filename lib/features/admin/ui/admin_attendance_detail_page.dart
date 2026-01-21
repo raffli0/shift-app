@@ -1,14 +1,24 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:intl/intl.dart';
 import '../models/admin_models.dart';
-import '../../../shared/widgets/app_header.dart'; // Adjust path if needed
+import '../../../shared/widgets/app_header.dart';
 
 class AdminAttendanceDetailPage extends StatelessWidget {
   final AdminAttendance attendance;
 
   const AdminAttendanceDetailPage({super.key, required this.attendance});
+
+  // Design Constants (Synced with AdminHomePage)
+  static const kBgColor = Color(0xFF0E0F13);
+  static const kSurfaceColor = Color(0xFF151821);
+  static const kAccentColor = Color(0xFF7C7FFF);
+  static const kTextPrimary = Color(0xFFEDEDED);
+  static const kTextSecondary = Color(0xFF9AA0AA);
+  static const kIconPrimary = Color(0xFF8A8F98);
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +28,7 @@ class AdminAttendanceDetailPage extends StatelessWidget {
     final center = LatLng(attendance.latitude, attendance.longitude);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0c202e),
+      backgroundColor: kBgColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -30,7 +40,10 @@ class AdminAttendanceDetailPage extends StatelessWidget {
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 child: Column(
                   children: [
                     // Profile Section
@@ -38,41 +51,48 @@ class AdminAttendanceDetailPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: const Color(0xfffbfbff),
+                        color: kSurfaceColor,
                         borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.05),
+                        ),
                       ),
                       child: Column(
                         children: [
                           FAvatar(
                             fallback: Text(
                               attendance.name.substring(0, 2).toUpperCase(),
+                              style: const TextStyle(color: kTextPrimary),
                             ),
-                            image: NetworkImage(attendance.imageUrl),
+                            image: attendance.imageUrl.isNotEmpty
+                                ? NetworkImage(attendance.imageUrl)
+                                : const NetworkImage(
+                                    'https://i.pravatar.cc/300',
+                                  ), // Fallback placeholder if empty
                             size: 64,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             attendance.name,
                             style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                              color: kTextPrimary,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 6),
                           Text(
-                            "Associate • Operations", // Mock role
-                            style: TextStyle(color: Colors.grey[600]),
+                            attendance.role,
+                            style: const TextStyle(
+                              color: kTextSecondary,
+                              fontSize: 14,
+                              letterSpacing: 0.2,
+                            ),
                           ),
                           const SizedBox(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _StatusBadge(
-                                status: attendance.status,
-                                color: attendance.statusColor,
-                              ),
-                            ],
+                          _StatusBadge(
+                            status: attendance.status,
+                            color: attendance.statusColor,
                           ),
                         ],
                       ),
@@ -84,8 +104,11 @@ class AdminAttendanceDetailPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: const Color(0xfffbfbff),
+                        color: kSurfaceColor,
                         borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.05),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,33 +116,35 @@ class AdminAttendanceDetailPage extends StatelessWidget {
                           const Text(
                             "Check-in Information",
                             style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: kTextPrimary,
                             ),
                           ),
                           const SizedBox(height: 24),
                           _DetailRow(
-                            icon: Icons.access_time,
-                            label: "Time",
+                            icon: Icons.access_time_rounded,
+                            label: "Log Time",
                             value: attendance.time,
                           ),
-                          const SizedBox(height: 16),
-                          const Divider(),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
+                          Divider(color: Colors.white.withValues(alpha: 0.05)),
+                          const SizedBox(height: 20),
                           _DetailRow(
-                            icon: Icons.location_on,
-                            label: "Location",
+                            icon: Icons.location_on_rounded,
+                            label: "Work Location",
                             value: attendance.location,
                           ),
-                          const SizedBox(height: 16),
-                          const Divider(),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
+                          Divider(color: Colors.white.withValues(alpha: 0.05)),
+                          const SizedBox(height: 20),
                           _DetailRow(
-                            icon: Icons.calendar_today,
-                            label: "Date",
-                            value: "Oct 26, 2023",
-                          ), // Mock Date
+                            icon: Icons.calendar_today_rounded,
+                            label: "Entry Date",
+                            value: DateFormat(
+                              'MMMM dd, yyyy',
+                            ).format(DateTime.now()),
+                          ),
                         ],
                       ),
                     ),
@@ -129,41 +154,50 @@ class AdminAttendanceDetailPage extends StatelessWidget {
                     if (hasValidCoordinates) ...[
                       Container(
                         width: double.infinity,
-                        height: 250,
-                        padding: const EdgeInsets.all(4), // small border effect
+                        height: 280,
                         decoration: BoxDecoration(
-                          color: const Color(0xfffbfbff),
+                          color: kSurfaceColor,
                           borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: FlutterMap(
-                            options: MapOptions(
-                              initialCenter: center,
-                              initialZoom: 15.0,
-                            ),
-                            children: [
-                              TileLayer(
-                                urlTemplate:
-                                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                userAgentPackageName: 'com.shift.app',
-                              ),
-                              MarkerLayer(
-                                markers: [
-                                  Marker(
-                                    point: center,
-                                    width: 40,
-                                    height: 40,
-                                    child: const Icon(
-                                      Icons.location_pin,
-                                      color: Colors.red,
-                                      size: 40,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.05),
                           ),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: FlutterMap(
+                          options: MapOptions(
+                            initialCenter: center,
+                            initialZoom: 15.0,
+                          ),
+                          children: [
+                            TileLayer(
+                              urlTemplate:
+                                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              userAgentPackageName: 'com.shift.app',
+                              tileBuilder: (context, widget, tile) {
+                                return ColorFiltered(
+                                  colorFilter: const ColorFilter.mode(
+                                    Colors.grey,
+                                    BlendMode.saturation,
+                                  ),
+                                  child: Opacity(opacity: 0.7, child: widget),
+                                );
+                              },
+                            ),
+                            MarkerLayer(
+                              markers: [
+                                Marker(
+                                  point: center,
+                                  width: 48,
+                                  height: 48,
+                                  child: const Icon(
+                                    Icons.location_pin,
+                                    color: kAccentColor,
+                                    size: 40,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -174,8 +208,11 @@ class AdminAttendanceDetailPage extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: const Color(0xfffbfbff),
+                        color: kSurfaceColor,
                         borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.05),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,42 +220,84 @@ class AdminAttendanceDetailPage extends StatelessWidget {
                           const Text(
                             "Verification Proof",
                             style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: kTextPrimary,
                             ),
                           ),
                           const SizedBox(height: 16),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.network(
-                              "https://i.pravatar.cc/300?img=12", // Mock face scan image
-                              height: 200,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          const Row(
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 16,
+                          if (attendance.imageUrl.isNotEmpty)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Stack(
+                                children: [
+                                  Image.network(
+                                    attendance.imageUrl,
+                                    height: 240,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                        horizontal: 16,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                          colors: [
+                                            Colors.black.withValues(alpha: 0.8),
+                                            Colors.transparent,
+                                          ],
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: const [
+                                          Icon(
+                                            Icons.verified_user_rounded,
+                                            color: Colors.greenAccent,
+                                            size: 16,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            "Biometric Verified",
+                                            style: TextStyle(
+                                              color: Colors.greenAccent,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              SizedBox(width: 8),
-                              Text(
-                                "Face verified successfully",
-                                style: TextStyle(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold,
+                            )
+                          else
+                            Container(
+                              height: 100,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.02),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  "No image proof available",
+                                  style: TextStyle(color: kTextSecondary),
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
                         ],
                       ),
                     ),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
@@ -239,23 +318,31 @@ class _StatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(30),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
-      child: Text(
-        status,
-        style: TextStyle(
-          color: color.withValues(alpha: 1.0) == Colors.greenAccent
-              ? Colors.green[700]
-              : (color == Colors.orangeAccent
-                    ? Colors.orange[800]
-                    : Colors.red[700]),
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            status,
+            style: TextStyle(
+              color: color,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -277,7 +364,21 @@ class _DetailRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: Colors.grey[600], size: 20),
+        Container(
+          margin: const EdgeInsets.only(
+            top: 2,
+          ), // Align icon with the first line of text
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.03),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            icon,
+            color: AdminAttendanceDetailPage.kIconPrimary,
+            size: 18,
+          ),
+        ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
@@ -285,17 +386,22 @@ class _DetailRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 12, color: Colors.black54),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AdminAttendanceDetailPage.kTextSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: AdminAttendanceDetailPage.kTextPrimary,
+                  height: 1.4,
                 ),
-                maxLines: 2,
+                maxLines: 3, // Allow up to 3 lines for long addresses
                 overflow: TextOverflow.ellipsis,
               ),
             ],

@@ -7,12 +7,18 @@ import 'package:intl/intl.dart';
 class LeaveStatusPage extends StatelessWidget {
   final LeaveRequestModel request;
 
+  // Design Constants
+  static const kBgColor = Color(0xFF0E0F13);
+  static const kSurfaceColor = Color(0xFF151821);
+  static const kTextPrimary = Color(0xFFEDEDED);
+  static const kTextSecondary = Color(0xFF9AA0AA);
+
   const LeaveStatusPage({super.key, required this.request});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0c202e),
+      backgroundColor: kBgColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -24,8 +30,11 @@ class LeaveStatusPage extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
+                    color: kSurfaceColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.05),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,13 +67,13 @@ class LeaveStatusPage extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: kTextPrimary,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         "Submitted on ${DateFormat("MMM dd, yyyy").format(request.createdAt)}",
-                        style: const TextStyle(color: Colors.grey),
+                        style: const TextStyle(color: kTextSecondary),
                       ),
                       const SizedBox(height: 32),
 
@@ -94,14 +103,14 @@ class LeaveStatusPage extends StatelessWidget {
                           "Reason",
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: Colors.black54,
+                            color: kTextSecondary,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           request.reason,
                           style: const TextStyle(
-                            color: Colors.black87,
+                            color: kTextPrimary,
                             height: 1.5,
                           ),
                         ),
@@ -114,14 +123,14 @@ class LeaveStatusPage extends StatelessWidget {
                           "Admin Note",
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: Colors.black54,
+                            color: kTextSecondary,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           request.adminNote!,
                           style: const TextStyle(
-                            color: Colors.black87,
+                            color: kTextPrimary,
                             height: 1.5,
                           ),
                         ),
@@ -164,12 +173,12 @@ class _DetailRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: Colors.black54)),
+        Text(label, style: TextStyle(color: LeaveStatusPage.kTextSecondary)),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: LeaveStatusPage.kTextPrimary,
             fontSize: 16,
           ),
         ),

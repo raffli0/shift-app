@@ -169,29 +169,44 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
       // So:
       // final model = a as AttendanceModel;
 
+      // Look up user role from state.users
+      final user = state.users.where((u) => u.id == a.userId).firstOrNull;
+      final role = user?.role ?? "Staff";
+
       return AdminAttendance(
-        name: a.userName,
-        time: DateFormat("hh:mm a").format(a.checkInTime),
-        status: a.status,
+        name: a.userName ?? "Unknown",
+        role: role,
+        time: a.checkInTime != null
+            ? DateFormat("hh:mm a").format(a.checkInTime)
+            : "--:--",
+        status: a.status ?? "Unknown",
         statusColor: a.status == "Late"
             ? Colors.orangeAccent
             : Colors.greenAccent,
-        location: a.checkInLocation,
+        location: a.checkInLocation ?? "Unknown Location",
         latitude: 0.0,
         longitude: 0.0,
-        imageUrl: a.checkInImageUrl,
+        imageUrl: a.checkInImageUrl ?? "",
       );
     }).toList();
 
     // Convert attendance to AdminActivity model
-    final activities = attendance.map((a) {
-      return AdminActivity(
-        title: "${a.userName} checked in",
-        time: DateFormat("hh:mm a").format(a.checkInTime),
-        subtitle: a.checkInLocation,
-        isWarning: a.status == "Late",
+    final activities = <AdminActivity>[];
+    for (int i = 0; i < attendance.length; i++) {
+      final a = attendance[i];
+      final adminAttendance = attendanceList[i];
+      activities.add(
+        AdminActivity(
+          title: "${a.userName ?? 'Unknown'} checked in",
+          time: a.checkInTime != null
+              ? DateFormat("hh:mm a").format(a.checkInTime)
+              : "--:--",
+          subtitle: a.checkInLocation ?? "Unknown Location",
+          isWarning: a.status == "Late",
+          attendance: adminAttendance,
+        ),
       );
-    }).toList();
+    }
 
     // Calculate Metrics
     final presentCount = attendance.length;
