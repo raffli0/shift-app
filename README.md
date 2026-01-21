@@ -43,7 +43,7 @@ Tujuan dari pengembangan aplikasi Shift adalah:
 - UI: Komponen kustom menggunakan forui  
 - Integrasi API: Upload foto ke API kustom (PHP) dengan fallback ke Firebase Storage  
 
-## 📱 Galeri Aplikasi
+## Showcase Aplikasi
 
 | Login & Liveness | Dashboard Karyawan | Check-In Sukses | Panel Admin |
 |:---:|:---:|:---:|:---:|
@@ -52,9 +52,9 @@ Tujuan dari pengembangan aplikasi Shift adalah:
 > *Catatan: Ganti path gambar di atas dengan screenshot aplikasi yang sebenarnya.*
 
 ### Daftar Halaman Aplikasi Shift
-1. Splash Screen
+### 1. Splash Screen
 2. Onboarding Screen
-3. Halaman Login
+### 3. Halaman Login
   - Halaman untuk autentikasi pengguna menggunakan akun yang terdaftar pada sistem. Digunakan sebagai pintu masuk awal ke aplikasi.
 4. Halaman Home (Karyawan)
   - Menampilkan informasi utama karyawan seperti status kehadiran hari ini, jam kerja, dan menu navigasi ke fitur lainnya.
