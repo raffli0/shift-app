@@ -24,17 +24,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final user = await _authService.checkAuthStatus();
       if (user != null) {
-        String? companyName;
+        // Emit authenticated immediately
+        emit(state.copyWith(status: AuthStatus.authenticated, user: user));
+
+        // Fetch company name in background
         if (user.companyId != null) {
-          companyName = await _authService.getCompanyName(user.companyId!);
+          final companyName = await _authService.getCompanyName(
+            user.companyId!,
+          );
+          if (!emit.isDone) {
+            emit(state.copyWith(companyName: companyName));
+          }
         }
-        emit(
-          state.copyWith(
-            status: AuthStatus.authenticated,
-            user: user,
-            companyName: companyName,
-          ),
-        );
       } else {
         emit(state.copyWith(status: AuthStatus.unauthenticated));
       }
@@ -89,17 +90,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         email: event.email,
         password: event.password,
       );
-      String? companyName;
+
+      // Emit authenticated immediately to unblock UI
+      emit(state.copyWith(status: AuthStatus.authenticated, user: user));
+
+      // Fetch company name in background if needed update later
       if (user.companyId != null) {
-        companyName = await _authService.getCompanyName(user.companyId!);
+        final companyName = await _authService.getCompanyName(user.companyId!);
+        if (!emit.isDone) {
+          emit(state.copyWith(companyName: companyName));
+        }
       }
-      emit(
-        state.copyWith(
-          status: AuthStatus.authenticated,
-          user: user,
-          companyName: companyName,
-        ),
-      );
     } catch (e) {
       emit(
         state.copyWith(status: AuthStatus.error, errorMessage: e.toString()),
@@ -118,6 +119,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         email: event.email,
         password: event.password,
         companyName: event.companyName,
+        role: event.role,
       );
       emit(
         state.copyWith(

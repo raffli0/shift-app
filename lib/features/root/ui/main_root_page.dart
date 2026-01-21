@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import '../../home/ui/home_page.dart';
-import '../../attendance/ui/attendance_page.dart';
-import '../../attendance/ui/attendance_history_page.dart';
-import '../../home/ui/profile_page.dart';
-import '../../request/ui/my_requests_list_page.dart';
 import 'package:flutter/services.dart';
+
+import '../../home/ui/home_page.dart';
+import '../../attendance/ui/attendance_history_page.dart';
+import '../../request/ui/my_requests_list_page.dart';
+import '../../notifications/ui/notifications_page.dart';
+import '../../home/ui/profile_page.dart';
 
 class MainRootPage extends StatefulWidget {
   const MainRootPage({super.key});
@@ -19,9 +20,9 @@ class _MainRootPageState extends State<MainRootPage> {
 
   final pages = const [
     HomePage(),
-    AttendancePage(),
-    MyRequestsListPage(),
     AttendanceHistoryPage(),
+    MyRequestsListPage(),
+    NotificationPage(),
     ProfilePage(),
   ];
 
@@ -61,16 +62,11 @@ class _MainRootPageState extends State<MainRootPage> {
   Widget _buildBottomNav() {
     return Container(
       decoration: const BoxDecoration(
-        borderRadius: BorderRadius.only(
-          // topLeft: Radius.circular(24),
-          // topRight: Radius.circular(24),
-          // bottomLeft: Radius.circular(24),
-          // bottomRight: Radius.circular(24),
-        ),
+        // Optional decoration
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
-        color: Colors.white, // bisa disesuaikan agar sama dengan theme ForUI
+        color: Colors.white,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
@@ -85,20 +81,20 @@ class _MainRootPageState extends State<MainRootPage> {
             ),
             FBottomNavigationBarItem(
               icon: Icon(FIcons.calendar),
-              label: Text("Attendance"),
+              label: Text("Attendance"), // Points to History/Calendar now
             ),
             FBottomNavigationBarItem(
               icon: Icon(FIcons.plus),
               label: Text("Request"),
             ),
             FBottomNavigationBarItem(
-              icon: Icon(FIcons.history),
-              label: Text("History"),
+              icon: Icon(FIcons.bell),
+              label: Text("Notifs"),
             ),
-            // FBottomNavigationBarItem(
-            //   icon: Icon(FIcons.user),
-            //   label: Text("Profile"),
-            // ),
+            FBottomNavigationBarItem(
+              icon: Icon(FIcons.user),
+              label: Text("Profile"),
+            ),
           ],
         ),
       ),

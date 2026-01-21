@@ -15,11 +15,11 @@ void showAvatarMenu(BuildContext context) {
     builder: (_) {
       final user = context.read<AuthBloc>().state.user;
       return BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), // BLUR LAYER BAWAH
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-            color: Color(0xFF16212D), // warna asli bottom sheet kamu
+            color: Color(0xFF151821),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
           child: Column(
@@ -33,7 +33,10 @@ void showAvatarMenu(BuildContext context) {
                 ),
                 fallback: Text(
                   (user?.fullName ?? "User").substring(0, 2).toUpperCase(),
-                  style: const TextStyle(fontSize: 28, color: Colors.white),
+                  style: const TextStyle(
+                    fontSize: 28,
+                    color: Color(0xFFEDEDED),
+                  ),
                 ),
               ),
 
@@ -43,7 +46,7 @@ void showAvatarMenu(BuildContext context) {
                 user?.fullName ?? "User",
                 style: const TextStyle(
                   fontSize: 18,
-                  color: Colors.white,
+                  color: Color(0xFFEDEDED),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -52,7 +55,7 @@ void showAvatarMenu(BuildContext context) {
 
               Text(
                 user?.role.toUpperCase() ?? "EMPLOYEE",
-                style: TextStyle(fontSize: 14, color: Colors.white70),
+                style: const TextStyle(fontSize: 14, color: Color(0xFF9AA0AA)),
               ),
 
               const SizedBox(height: 20),

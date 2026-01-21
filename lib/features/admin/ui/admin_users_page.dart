@@ -7,16 +7,23 @@ import '../bloc/admin_event.dart'; // Import AdminEvent
 import '../models/admin_models.dart'; // Import AdminUser
 import '../../../shared/widgets/app_header.dart';
 
-class AdminUsersPage extends StatelessWidget {
+class AdminUsersPage extends StatefulWidget {
   const AdminUsersPage({super.key});
+
+  @override
+  State<AdminUsersPage> createState() => _AdminUsersPageState();
+}
+
+class _AdminUsersPageState extends State<AdminUsersPage> {
+  String _searchQuery = "";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0c202e),
+      backgroundColor: const Color(0xFF0E0F13), // Match new dark theme
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showUserForm(context),
-        backgroundColor: const Color(0xff5a64d6),
+        backgroundColor: const Color(0xff7C7FFF),
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: SafeArea(
@@ -32,29 +39,74 @@ class AdminUsersPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xfff1f1f6),
+                    color: const Color(0xff151821), // Dark surface
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                        child: FTextField(
-                          hint: "Search users...",
-                          onChange: (value) {},
+                        child: TextField(
+                          style: const TextStyle(color: Colors.white),
+                          onChanged: (value) {
+                            setState(() {
+                              _searchQuery = value.toLowerCase();
+                            });
+                          },
+                          decoration: InputDecoration(
+                            hintText: "Search users by name or email...",
+                            hintStyle: const TextStyle(
+                              color: Color(0xFF9AA0AA),
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.search,
+                              color: Color(0xFF9AA0AA),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white.withValues(alpha: 0.05),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                          ),
                         ),
                       ),
                       Expanded(
                         child: BlocBuilder<AdminBloc, AdminState>(
                           builder: (context, state) {
+                            // Filter logic
+                            final filteredUsers = state.users.where((user) {
+                              final name = user.name.toLowerCase();
+                              final email = user.email.toLowerCase();
+                              return name.contains(_searchQuery) ||
+                                  email.contains(_searchQuery);
+                            }).toList();
+
+                            if (filteredUsers.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  _searchQuery.isEmpty
+                                      ? "No users found."
+                                      : "No matches for '$_searchQuery'",
+                                  style: const TextStyle(
+                                    color: Color(0xFF9AA0AA),
+                                  ),
+                                ),
+                              );
+                            }
+
                             return ListView.builder(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 8,
                               ),
-                              itemCount: state.users.length,
+                              itemCount: filteredUsers.length,
                               itemBuilder: (context, index) {
-                                final user = state.users[index];
+                                final user = filteredUsers[index];
                                 return _UserListItem(
                                   user: user,
                                   onEdit: () =>
@@ -146,14 +198,16 @@ class _UserListItem extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xfffbfbff),
+        color: const Color(0xFF0E0F13), // Distinct dark card
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: [
           FAvatar(
             fallback: Text(user.name.substring(0, 2).toUpperCase()),
             image: NetworkImage(user.imageUrl),
+            // style: FAvatarStyle.secondary, // Assuming ForUI has styles or default is fine
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -163,14 +217,17 @@ class _UserListItem extends StatelessWidget {
                 Text(
                   user.name,
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     fontSize: 16,
-                    color: Colors.black87,
+                    color: Color(0xFFEDEDED),
                   ),
                 ),
                 Text(
                   "${user.role} • ${user.email}",
-                  style: const TextStyle(fontSize: 12, color: Colors.black54),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF9AA0AA),
+                  ),
                 ),
               ],
             ),
@@ -179,26 +236,35 @@ class _UserListItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
               color: user.isDestructive
-                  ? Colors.red.withValues(alpha: 0.1)
-                  : Colors.green.withValues(alpha: 0.1),
+                  ? const Color(0xFFE06C75).withValues(alpha: 0.2)
+                  : const Color(0xFF4CAF8C).withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               user.status,
               style: TextStyle(
-                color: user.isDestructive ? Colors.red : Colors.green,
+                color: user.isDestructive
+                    ? const Color(0xFFE06C75)
+                    : const Color(0xFF4CAF8C),
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
           PopupMenuButton(
-            icon: Icon(Icons.more_vert, color: Colors.grey[400]),
+            icon: const Icon(Icons.more_vert, color: Color(0xFF8A8F98)),
+            color: const Color(0xFF151821),
             itemBuilder: (context) => [
-              const PopupMenuItem(value: 'edit', child: Text("Edit")),
+              const PopupMenuItem(
+                value: 'edit',
+                child: Text("Edit", style: TextStyle(color: Color(0xFFEDEDED))),
+              ),
               const PopupMenuItem(
                 value: 'delete',
-                child: Text("Delete", style: TextStyle(color: Colors.red)),
+                child: Text(
+                  "Delete",
+                  style: TextStyle(color: Color(0xFFE06C75)),
+                ),
               ),
             ],
             onSelected: (value) {

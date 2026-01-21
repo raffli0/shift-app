@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0E121B), // dark theme
+      backgroundColor: const Color(0xFF0E0F13), // dark theme matches Admin
       body: Center(
         child: ScaleTransition(
           scale: _scaleAnimation,
@@ -69,10 +69,13 @@ class _SplashScreenState extends State<SplashScreen>
               Container(
                 width: 110,
                 height: 110,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF2E6CE4), Color(0xFF5A9BFF)],
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF7C7FFF), // kAccentColor
+                      Color(0xFF9EA1FF),
+                    ],
                   ),
                 ),
                 alignment: Alignment.center,
@@ -90,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen>
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Color(0xFFEDEDED),
                   letterSpacing: 0.8,
                 ),
               ),
@@ -98,12 +101,9 @@ class _SplashScreenState extends State<SplashScreen>
               const SizedBox(height: 6),
 
               // SUBTEXT
-              Text(
+              const Text(
                 "Smart Presence System",
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.65),
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Color(0xFF9AA0AA), fontSize: 14),
               ),
             ],
           ),

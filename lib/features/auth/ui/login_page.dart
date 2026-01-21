@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:forui/forui.dart';
 import '../../../shared/widgets/app_header.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -96,7 +95,7 @@ class _LoginViewState extends State<LoginView> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF0c202e),
+        backgroundColor: const Color(0xFF0E0F13), // kBgColor
         body: SafeArea(
           child: Column(
             children: [
@@ -119,15 +118,11 @@ class _LoginViewState extends State<LoginView> {
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: const Color(0xFF151821), // kSurfaceColor
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.08),
-                              blurRadius: 20,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.05),
+                          ),
                         ),
                         child: Form(
                           key: _formKey,
@@ -137,7 +132,7 @@ class _LoginViewState extends State<LoginView> {
                               const Icon(
                                 Icons.lock_person_rounded,
                                 size: 64,
-                                color: Color(0xff5a64d6),
+                                color: Color(0xFF7C7FFF), // kAccentColor
                               ),
                               const SizedBox(height: 24),
                               const Text(
@@ -146,7 +141,7 @@ class _LoginViewState extends State<LoginView> {
                                 style: TextStyle(
                                   fontSize: 26,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                                  color: Color(0xFFEDEDED), // kTextPrimary
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -155,14 +150,52 @@ class _LoginViewState extends State<LoginView> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 15,
-                                  color: Colors.black54,
+                                  color: Color(0xFF9AA0AA), // kTextSecondary
                                 ),
                               ),
                               const SizedBox(height: 32),
-                              FTextFormField(
-                                label: const Text('Email'),
-                                hint: 'Enter your email',
+                              TextFormField(
                                 controller: _emailController,
+                                style: const TextStyle(
+                                  color: Color(0xFFEDEDED),
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: 'Email',
+                                  hintText: 'Enter your email',
+                                  labelStyle: const TextStyle(
+                                    color: Color(0xFF9AA0AA),
+                                  ),
+                                  helperStyle: const TextStyle(
+                                    color: Color(0xFF9AA0AA),
+                                  ),
+                                  hintStyle: const TextStyle(
+                                    color: Color(0xFF4B4F58),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFF4B4F58),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFF7C7FFF),
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade400,
+                                    ),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade400,
+                                    ),
+                                  ),
+                                ),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Required';
@@ -174,60 +207,109 @@ class _LoginViewState extends State<LoginView> {
                                 },
                               ),
                               const SizedBox(height: 16),
-                              Stack(
-                                children: [
-                                  FTextFormField(
-                                    label: const Text('Password'),
-                                    hint: 'Enter your password',
-                                    controller: _passwordController,
-                                    obscureText: !_isPasswordVisible,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Required';
-                                      }
-                                      if (value.length < 6) {
-                                        return 'Too short';
-                                      }
-                                      return null;
-                                    },
+                              TextFormField(
+                                controller: _passwordController,
+                                obscureText: !_isPasswordVisible,
+                                style: const TextStyle(
+                                  color: Color(0xFFEDEDED),
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: 'Password',
+                                  hintText: 'Enter your password',
+                                  labelStyle: const TextStyle(
+                                    color: Color(0xFF9AA0AA),
                                   ),
-                                  Positioned(
-                                    right: 0,
-                                    top: 17,
-                                    child: IconButton(
-                                      icon: Icon(
-                                        _isPasswordVisible
-                                            ? Icons.visibility
-                                            : Icons.visibility_off,
-                                        color: Colors.grey,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _isPasswordVisible =
-                                              !_isPasswordVisible;
-                                        });
-                                      },
+                                  hintStyle: const TextStyle(
+                                    color: Color(0xFF4B4F58),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFF4B4F58),
                                     ),
                                   ),
-                                ],
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFF7C7FFF),
+                                    ),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade400,
+                                    ),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: BorderSide(
+                                      color: Colors.red.shade400,
+                                    ),
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      _isPasswordVisible
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                      color: const Color(0xFF9AA0AA),
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _isPasswordVisible =
+                                            !_isPasswordVisible;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Required';
+                                  }
+                                  if (value.length < 6) {
+                                    return 'Too short';
+                                  }
+                                  return null;
+                                },
                               ),
                               const SizedBox(height: 32),
                               BlocBuilder<AuthBloc, AuthState>(
                                 builder: (context, state) {
-                                  return FButton(
-                                    onPress: state.status == AuthStatus.loading
-                                        ? null
-                                        : _onLogin,
-                                    child: state.status == AuthStatus.loading
-                                        ? const SizedBox(
-                                            height: 20,
-                                            width: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white,
+                                  return SizedBox(
+                                    height: 50,
+                                    child: ElevatedButton(
+                                      onPressed:
+                                          state.status == AuthStatus.loading
+                                          ? null
+                                          : _onLogin,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF7C7FFF,
+                                        ),
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: state.status == AuthStatus.loading
+                                          ? const SizedBox(
+                                              height: 20,
+                                              width: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : const Text(
+                                              'Login',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
-                                          )
-                                        : const Text('Login'),
+                                    ),
                                   );
                                 },
                               ),
@@ -237,7 +319,7 @@ class _LoginViewState extends State<LoginView> {
                                 children: [
                                   const Text(
                                     "Don't have an account? ",
-                                    style: TextStyle(color: Colors.black54),
+                                    style: TextStyle(color: Color(0xFF9AA0AA)),
                                   ),
                                   GestureDetector(
                                     onTap: () {
@@ -250,7 +332,7 @@ class _LoginViewState extends State<LoginView> {
                                     child: const Text(
                                       "Register",
                                       style: TextStyle(
-                                        color: Color(0xff5a64d6),
+                                        color: Color(0xFF7C7FFF),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),

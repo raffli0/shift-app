@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/admin_bloc.dart';
+import 'admin_office_location_page.dart';
 import '../../../shared/widgets/app_header.dart';
 
 class AdminSettingsPage extends StatefulWidget {
   const AdminSettingsPage({super.key});
+
+  // Design Constants
+  static const kBgColor = Color(0xFF0E0F13);
+  static const kSurfaceColor = Color(0xFF151821);
+  static const kAccentColor = Color(0xFF7C7FFF);
+  static const kTextPrimary = Color(0xFFEDEDED);
+  static const kTextSecondary = Color(0xFF9AA0AA);
 
   @override
   State<AdminSettingsPage> createState() => _AdminSettingsPageState();
@@ -14,19 +24,21 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0c202e),
+      backgroundColor: AdminSettingsPage.kBgColor,
       body: SafeArea(
         child: Column(
           children: [
-            AppHeader(
+            const AppHeader(
               title: "Settings",
-              showAvatar: false,
-              showBell: false,
-              onBack: () => Navigator.of(context).pop(),
+              showAvatar: true,
+              showBell: true,
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -37,23 +49,55 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
                           SwitchListTile(
                             value: pushNotif,
                             onChanged: (v) => setState(() => pushNotif = v),
-                            title: const Text('Push Notifications'),
+                            title: const Text(
+                              'Push Notifications',
+                              style: TextStyle(
+                                color: AdminSettingsPage.kTextPrimary,
+                              ),
+                            ),
+                            activeThumbColor: AdminSettingsPage.kAccentColor,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
                           ),
                           const _Divider(),
                           _NavTile(
                             icon: Icons.map,
                             title: 'Office Location Setup',
                             onTap: () {
-                              Navigator.pushNamed(
+                              final adminBloc = context.read<AdminBloc>();
+                              Navigator.push(
                                 context,
-                                "/admin-office-location",
+                                MaterialPageRoute(
+                                  builder: (_) => BlocProvider.value(
+                                    value: adminBloc,
+                                    child: const AdminOfficeLocationPage(),
+                                  ),
+                                ),
                               );
+                            },
+                          ),
+                          const _Divider(),
+                          _NavTile(
+                            icon: Icons.access_time,
+                            title: 'Working Hours',
+                            onTap: () {
+                              // TODO: Navigate to Working Hours
+                            },
+                          ),
+                          const _Divider(),
+                          _NavTile(
+                            icon: Icons.rule,
+                            title: 'Attendance Rules',
+                            onTap: () {
+                              // TODO: Navigate to Attendance Rules
                             },
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
                     _section(
                       title: 'APPLICATION',
                       child: Column(
@@ -78,19 +122,23 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white54,
-            fontWeight: FontWeight.w700,
-            fontSize: 12,
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: AdminSettingsPage.kTextSecondary,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              letterSpacing: 1.0,
+            ),
           ),
         ),
-        const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
+            color: AdminSettingsPage.kSurfaceColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
           ),
           child: child,
         ),
@@ -104,7 +152,7 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(height: 1);
+    return Divider(height: 1, color: Colors.white.withValues(alpha: 0.05));
   }
 }
 
@@ -122,9 +170,20 @@ class _NavTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: Colors.blue),
-      title: Text(title),
-      trailing: const Icon(Icons.chevron_right),
+      leading: Icon(icon, color: AdminSettingsPage.kAccentColor, size: 20),
+      title: Text(
+        title,
+        style: const TextStyle(
+          color: AdminSettingsPage.kTextPrimary,
+          fontSize: 15,
+        ),
+      ),
+      trailing: const Icon(
+        Icons.chevron_right,
+        color: AdminSettingsPage.kTextSecondary,
+        size: 20,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       onTap: onTap,
     );
   }
@@ -139,11 +198,22 @@ class _InfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(label),
+      title: Text(
+        label,
+        style: const TextStyle(
+          color: AdminSettingsPage.kTextPrimary,
+          fontSize: 15,
+        ),
+      ),
       trailing: Text(
         value,
-        style: const TextStyle(fontWeight: FontWeight.w600),
+        style: const TextStyle(
+          fontWeight: FontWeight.w500,
+          color: AdminSettingsPage.kTextSecondary,
+          fontSize: 14,
+        ),
       ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
   }
 }

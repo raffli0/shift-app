@@ -63,7 +63,25 @@ class AuthService {
     required String email,
     required String password,
     required String companyName,
+    required String role,
   }) async {
+    // 0. Pre-check for Company (Employee only)
+    String? companyId;
+    if (role == 'employee') {
+      final companyQuery = await _firestore
+          .collection('companies')
+          .where('name', isEqualTo: companyName)
+          .limit(1)
+          .get();
+
+      if (companyQuery.docs.isEmpty) {
+        throw Exception(
+          "Company '$companyName' not found. Please check spelling.",
+        );
+      }
+      companyId = companyQuery.docs.first.id;
+    }
+
     // 1. Create Auth Account
     final UserCredential credential = await _auth
         .createUserWithEmailAndPassword(email: email, password: password);
@@ -74,17 +92,20 @@ class AuthService {
 
     final uid = credential.user!.uid;
 
-    // 2. Run Firestore Transaction to create Company and User profile
+    // 2. Run Firestore Transaction to create Company (if admin) and User profile
     return await _firestore.runTransaction((transaction) async {
-      // Create NEW company
-      final companyRef = _firestore.collection('companies').doc();
-      transaction.set(companyRef, {
-        'name': companyName,
-        'created_at': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
-      });
+      String finalCompanyId = companyId ?? "";
 
-      final companyId = companyRef.id;
+      // Create NEW company if Admin
+      if (role == 'admin') {
+        final companyRef = _firestore.collection('companies').doc();
+        transaction.set(companyRef, {
+          'name': companyName,
+          'created_at': FieldValue.serverTimestamp(),
+          'updated_at': FieldValue.serverTimestamp(),
+        });
+        finalCompanyId = companyRef.id;
+      }
 
       // Update Firebase Auth display name (optional but good)
       await credential.user!.updateDisplayName(fullName);
@@ -93,11 +114,11 @@ class AuthService {
         id: uid,
         fullName: fullName,
         email: email,
-        role: "admin",
-        companyId: companyId,
+        role: role,
+        companyId: finalCompanyId,
       );
 
-      // Create Admin User Profile linked to the new company
+      // Create User Profile linked to the company
       final userRef = _firestore.collection('users').doc(uid);
       transaction.set(userRef, user.toJson());
 

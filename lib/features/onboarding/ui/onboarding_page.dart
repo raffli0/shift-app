@@ -4,7 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../auth/ui/login_page.dart';
 
 class OnboardingPage extends StatefulWidget {
-  const OnboardingPage({super.key});
+  final VoidCallback? onDone;
+
+  const OnboardingPage({super.key, this.onDone});
 
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
@@ -24,8 +26,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
       "subtitle": "Track your attendance simply.\nNo noise, just clarity.",
     },
     {
-      "title": "Stay Connected",
-      "subtitle": "Manage requests and history\nwith a human touch.",
+      "title": "Location Required",
+      "subtitle": "Please activate your GPS.\nWe need it for attendance.",
     },
   ];
 
@@ -45,22 +47,33 @@ class _OnboardingPageState extends State<OnboardingPage> {
     await prefs.setBool('seenOnboarding', true);
 
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const LoginPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 180),
-      ),
-    );
+
+    // Execute callback if provided
+    if (widget.onDone != null) {
+      widget.onDone!();
+    } else {
+      // Fallback behavior (should not be used in main flow)
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const LoginPage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 180),
+        ),
+      );
+    }
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    // Matches Home background
-    const backgroundColor = Color(0xFF0c202e);
+    // Matches Admin Home background
+    const backgroundColor = Color(0xFF0E0F13);
+    const kAccentColor = Color(0xFF7C7FFF);
+    const kTextPrimary = Color(0xFFEDEDED);
+    const kTextSecondary = Color(0xFF9AA0AA);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
@@ -86,7 +99,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           Text(
                             data["title"]!,
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: kTextPrimary,
                               fontSize: 32,
                               fontWeight: FontWeight.w800,
                               height: 1.2,
@@ -96,8 +109,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           const SizedBox(height: 16),
                           Text(
                             data["subtitle"]!,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
+                            style: const TextStyle(
+                              color: kTextSecondary,
                               fontSize: 18,
                               height: 1.5,
                               fontWeight: FontWeight.w400,
@@ -125,7 +138,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                           width: _currentPage == index ? 24 : 6,
                           decoration: BoxDecoration(
                             color: _currentPage == index
-                                ? const Color(0xff5a64d6)
+                                ? kAccentColor
                                 : Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(3),
                           ),
@@ -149,7 +162,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                               ? "Get Started"
                               : "Next",
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: kTextPrimary,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),

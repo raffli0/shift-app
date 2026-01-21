@@ -20,21 +20,31 @@ class AdminHomePage extends StatefulWidget {
 class _AdminHomePageState extends State<AdminHomePage> {
   DateTime selectedDate = DateTime.now();
 
+  // Design Constants
+  static const kBgColor = Color(0xFF0E0F13);
+  static const kSurfaceColor = Color(0xFF151821);
+  static const kAccentColor = Color(0xFF7C7FFF);
+  static const kTextPrimary = Color(0xFFEDEDED);
+  static const kTextSecondary = Color(0xFF9AA0AA);
+  static const kIconPrimary = Color(0xFF8A8F98);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0c202e),
+      backgroundColor: kBgColor,
       body: SafeArea(
         child: Column(
           children: [
             // Sticky HEADER
             const AppHeader(title: "", showAvatar: true, showBell: true),
-            const SizedBox(height: 5),
+            const SizedBox(height: 10),
             Expanded(
               child: BlocBuilder<AdminBloc, AdminState>(
                 builder: (context, state) {
                   if (state.status == AdminStatus.loading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(
+                      child: CircularProgressIndicator(color: kAccentColor),
+                    );
                   }
                   return SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -42,16 +52,26 @@ class _AdminHomePageState extends State<AdminHomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: BlocBuilder<AuthBloc, AuthState>(
                             builder: (context, authState) {
                               return _buildGreeting(authState.user?.fullName);
                             },
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        _buildOverviewCard(state),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
+                        _buildOverviewSection(state),
+                        const SizedBox(height: 32),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Divider(
+                            color: Colors.white.withValues(alpha: 0.05),
+                            height: 1,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        _buildRecentActivity(state),
+                        const SizedBox(height: 40),
                       ],
                     ),
                   );
@@ -64,6 +84,152 @@ class _AdminHomePageState extends State<AdminHomePage> {
     );
   }
 
+  Widget _buildGreeting(String? name) {
+    final firstName = name?.split(' ').first ?? 'Admin';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          DateFormat('MMMM dd, yyyy').format(DateTime.now()).toUpperCase(),
+          style: const TextStyle(
+            color: kTextSecondary,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.0,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Ready for the day, $firstName.",
+          style: const TextStyle(
+            color: kTextPrimary,
+            fontSize: 24,
+            fontWeight: FontWeight.w500, // Medium, calm
+            letterSpacing: -0.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOverviewSection(AdminState state) {
+    // Determine metrics (fallback to 0 if empty)
+    final present = state.metrics.isNotEmpty ? state.metrics[0].value : "0";
+    final late = state.metrics.length > 1 ? state.metrics[1].value : "0";
+    final leave = state.metrics.length > 2 ? state.metrics[2].value : "0";
+    final requests = state.metrics.length > 3 ? state.metrics[3].value : "0";
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Overview",
+                style: TextStyle(
+                  color: kTextPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              _DateSelector(
+                dateText: DateFormat("MMM dd, yyyy").format(selectedDate),
+                onTap: () => _openCalendar(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  label: "Present",
+                  value: present,
+                  icon: CupertinoIcons.person_2,
+                  trend: "On track",
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _StatCard(
+                  label: "Late",
+                  value: late,
+                  icon: CupertinoIcons.clock,
+                  isWarning: true,
+                  trend: "Needs attention",
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  label: "On Leave",
+                  value: leave,
+                  icon: CupertinoIcons.airplane,
+                  trend: "Scheduled",
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _StatCard(
+                  label: "Requests",
+                  value: requests,
+                  icon: CupertinoIcons.doc_text,
+                  trend: "Pending review",
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentActivity(AdminState state) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Recent Activity",
+            style: TextStyle(
+              color: kTextPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (state.activities.isEmpty)
+            const Text(
+              "No activity recorded yet today.",
+              style: TextStyle(color: kTextSecondary, fontSize: 14),
+            )
+          else
+            Column(
+              children: state.activities.map((a) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _ActivityTile(
+                    title: a.title,
+                    subtitle: a.subtitle,
+                    time: a.time,
+                    isWarning: a.isWarning,
+                  ),
+                );
+              }).toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
   void _openCalendar(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -72,42 +238,38 @@ class _AdminHomePageState extends State<AdminHomePage> {
       builder: (context) {
         return Stack(
           children: [
-            // AREA BACKGROUND BLUR (TAP TO CLOSE)
             Positioned.fill(
               child: GestureDetector(
                 onTap: () => Navigator.pop(context),
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                  child: Container(color: Colors.black.withValues(alpha: 0.1)),
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(color: Colors.black.withValues(alpha: 0.5)),
                 ),
               ),
             ),
-
-            // POP-UP CALENDAR DI TENGAH
             Center(
-              child: Align(
-                alignment: Alignment.center,
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.88,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(22),
-                    color: Colors.white,
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: kSurfaceColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.05),
                   ),
-                  child: SafeArea(
-                    top: false,
-                    child: FCalendar(
-                      controller: FCalendarController.date(
-                        initialSelection: selectedDate,
-                      ),
-                      start: DateTime(2000),
-                      end: DateTime(2030),
-                      onPress: (date) {
-                        setState(() => selectedDate = date);
-                        Navigator.pop(context);
-                      },
-                    ),
+                ),
+                child: FCalendar(
+                  controller: FCalendarController.date(
+                    initialSelection: selectedDate,
                   ),
+                  start: DateTime(2020),
+                  end: DateTime(2030),
+                  onPress: (date) {
+                    setState(() => selectedDate = date);
+                    Navigator.pop(context);
+                  },
+                  // Note: FCalendar styling might need adjustment to fit dark mode perfectly
+                  // but standard widget usually adapts or we accept default for now.
                 ),
               ),
             ),
@@ -116,301 +278,66 @@ class _AdminHomePageState extends State<AdminHomePage> {
       },
     );
   }
-
-  // GREETING
-  Widget _buildGreeting(String? name) {
-    final firstName = name?.split(' ').first ?? 'Admin';
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          DateFormat('EEEE, MMM dd').format(DateTime.now()),
-          style: const TextStyle(
-            color: Colors.white60,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Text(
-          "Welcome back, $firstName!",
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 28,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.5,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // OVERVIEW CARD
-  Widget _buildOverviewCard(AdminState state) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xfff1f1f6),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// HEADER
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Overview",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                ),
-                _DateBadge(
-                  dateText: DateFormat("EEE, MMM dd yyyy").format(selectedDate),
-                  onTap: () => _openCalendar(context),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _OverviewBox(
-                        cupertinoIcon: CupertinoIcons.person_2,
-                        label: "Present",
-                        time: state.metrics.isNotEmpty
-                            ? state.metrics[0].value
-                            : "0",
-                        badge: state.metrics.isNotEmpty
-                            ? state.metrics[0].label
-                            : "Staff",
-                        badgeColor: Colors.green,
-                        subtitle: "Staff present",
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: _OverviewBox(
-                        cupertinoIcon: CupertinoIcons.clock,
-                        label: "Late",
-                        time: state.metrics.length > 1
-                            ? state.metrics[1].value
-                            : "0",
-                        badge: state.metrics.length > 1
-                            ? state.metrics[1].label
-                            : "Today",
-                        badgeColor: Colors.orange,
-                        subtitle: "Staff late",
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _OverviewBox(
-                        cupertinoIcon: CupertinoIcons.airplane,
-                        label: "Leave",
-                        time: state.metrics.length > 2
-                            ? state.metrics[2].value
-                            : "0",
-                        badge: state.metrics.length > 2
-                            ? state.metrics[2].label
-                            : "Today",
-                        badgeColor: Colors.purple,
-                        subtitle: "On leave",
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: _OverviewBox(
-                        cupertinoIcon: CupertinoIcons.doc_text,
-                        label: "Requests",
-                        time: state.metrics.length > 3
-                            ? state.metrics[3].value
-                            : "0",
-                        badge: state.metrics.length > 3
-                            ? state.metrics[3].label
-                            : "Pending",
-                        badgeColor: Colors.red,
-                        subtitle: "Pending actions",
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          /// DIVIDER
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Divider(color: Colors.grey.shade300),
-          ),
-
-          const SizedBox(height: 12),
-
-          /// RECENT ACTIVITY
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Recent Activity",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: const Text(
-                        "See All",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xff5a64d6),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Column(
-                  children: state.activities
-                      .map(
-                        (a) => Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: _AdminActivityItem(
-                            title: a.title,
-                            time: a.time,
-                            subtitle: a.subtitle,
-                            isWarning: a.isWarning,
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-class _OverviewBox extends StatelessWidget {
-  final IconData? cupertinoIcon;
+class _StatCard extends StatelessWidget {
   final String label;
-  final String time;
-  final String badge;
-  final Color badgeColor;
-  final String subtitle;
-  const _OverviewBox({
-    this.cupertinoIcon,
+  final String value;
+  final IconData icon;
+  final bool isWarning;
+  final String trend;
+
+  const _StatCard({
     required this.label,
-    required this.time,
-    required this.badge,
-    required this.badgeColor,
-    required this.subtitle,
+    required this.value,
+    required this.icon,
+    this.isWarning = false,
+    required this.trend,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(9),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xfffbfbff),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          // soft iOS shadow
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            spreadRadius: 1,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        color: _AdminHomePageState.kSurfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: Color(0xffeef1ff),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  cupertinoIcon,
-                  size: 18,
-                  color: const Color(0xff5a64d6),
-                ),
-              ),
+              Icon(icon, size: 16, color: _AdminHomePageState.kIconPrimary),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+              Text(
+                label,
+                style: const TextStyle(
+                  color: _AdminHomePageState.kTextSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
-            time,
+            value,
             style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
+              color: _AdminHomePageState.kTextPrimary,
+              fontSize: 28,
+              fontWeight: FontWeight.w400, // Light and clean
             ),
           ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: badgeColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              badge,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 11,
-                color: badgeColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
-            subtitle,
-            style: const TextStyle(
-              fontSize: 11,
-              color: Colors.black45,
-              fontWeight: FontWeight.w500,
+            trend,
+            style: TextStyle(
+              color: isWarning
+                  ? const Color(0xFFE06C75)
+                  : _AdminHomePageState.kTextSecondary.withValues(alpha: 0.6),
+              fontSize: 12,
             ),
           ),
         ],
@@ -419,11 +346,73 @@ class _OverviewBox extends StatelessWidget {
   }
 }
 
-class _DateBadge extends StatelessWidget {
+class _ActivityTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String time;
+  final bool isWarning;
+
+  const _ActivityTile({
+    required this.title,
+    required this.subtitle,
+    required this.time,
+    this.isWarning = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: _AdminHomePageState.kSurfaceColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.02)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: _AdminHomePageState.kTextPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: isWarning
+                      ? const Color(0xFFE06C75)
+                      : _AdminHomePageState.kTextSecondary,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            time,
+            style: TextStyle(
+              color: _AdminHomePageState.kTextSecondary.withValues(alpha: 0.5),
+              fontSize: 12,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DateSelector extends StatelessWidget {
   final String dateText;
   final VoidCallback onTap;
 
-  const _DateBadge({required this.dateText, required this.onTap});
+  const _DateSelector({required this.dateText, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -432,87 +421,28 @@ class _DateBadge extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          color: _AdminHomePageState.kSurfaceColor,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: Row(
           children: [
             const Icon(
-              CupertinoIcons.calendar_today,
-              size: 16,
-              color: Color(0xff5a64d6),
+              CupertinoIcons.calendar,
+              size: 14,
+              color: _AdminHomePageState.kIconPrimary,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             Text(
               dateText,
               style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xff4a4a4a),
+                color: _AdminHomePageState.kTextSecondary,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _AdminActivityItem extends StatelessWidget {
-  final String title;
-  final String time;
-  final String subtitle;
-  final bool isWarning;
-
-  const _AdminActivityItem({
-    required this.title,
-    required this.time,
-    required this.subtitle,
-    this.isWarning = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: isWarning ? Colors.orange[800] : Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Text(time, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        ],
       ),
     );
   }

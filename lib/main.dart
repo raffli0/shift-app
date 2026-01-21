@@ -69,10 +69,29 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   final bool seenOnboarding;
 
   const AuthWrapper({super.key, required this.seenOnboarding});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  late bool _hasSeenOnboarding;
+
+  @override
+  void initState() {
+    super.initState();
+    _hasSeenOnboarding = widget.seenOnboarding;
+  }
+
+  void _completeOnboarding() {
+    setState(() {
+      _hasSeenOnboarding = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,9 +109,8 @@ class AuthWrapper extends StatelessWidget {
   }
 
   Widget _buildScreen(AuthState state) {
-    if (state.status == AuthStatus.initial ||
-        state.status == AuthStatus.loading) {
-      return const SplashScreen();
+    if (state.status == AuthStatus.initial) {
+      return const SplashScreen(key: ValueKey('splash'));
     }
 
     if (state.status == AuthStatus.authenticated && state.user != null) {
@@ -113,10 +131,13 @@ class AuthWrapper extends StatelessWidget {
     }
 
     // Unauthenticated
-    if (!seenOnboarding) {
-      return const OnboardingPage();
+    if (!_hasSeenOnboarding) {
+      return OnboardingPage(
+        key: const ValueKey('onboarding'),
+        onDone: _completeOnboarding,
+      );
     }
 
-    return const LoginPage();
+    return const LoginPage(key: ValueKey('login'));
   }
 }

@@ -8,6 +8,13 @@ import '../../auth/ui/login_page.dart';
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  // Design Constants
+  static const kBgColor = Color(0xFF0E0F13);
+  static const kSurfaceColor = Color(0xFF151821);
+  static const kAccentColor = Color(0xFF7C7FFF);
+  static const kTextPrimary = Color(0xFFEDEDED);
+  static const kTextSecondary = Color(0xFF9AA0AA);
+
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
@@ -20,15 +27,18 @@ class _ProfilePageState extends State<ProfilePage> {
     final companyName = authState.companyName;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0c202e),
+      backgroundColor: ProfilePage.kBgColor,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFF0c202e),
+        backgroundColor: ProfilePage.kBgColor,
         centerTitle: true,
-        leading: const BackButton(color: Colors.white),
+        leading: const BackButton(color: ProfilePage.kTextPrimary),
         title: const Text(
           'My Profile',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: ProfilePage.kTextPrimary,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         actions: [
           TextButton(
@@ -36,7 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: const Text(
               'Edit',
               style: TextStyle(
-                color: Colors.blueAccent,
+                color: ProfilePage.kAccentColor,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -63,7 +73,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
                 child: const Text(
                   "Your face data is used for secure and quick attendance verification.",
-                  style: TextStyle(color: Colors.white38, fontSize: 12),
+                  style: TextStyle(
+                    color: ProfilePage.kTextSecondary,
+                    fontSize: 12,
+                  ),
                   textAlign: TextAlign.start,
                 ),
               ),
@@ -149,8 +162,10 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 30),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  side: const BorderSide(color: Colors.red),
+                  foregroundColor: Colors.redAccent,
+                  side: BorderSide(
+                    color: Colors.redAccent.withValues(alpha: 0.5),
+                  ),
                   minimumSize: const Size(double.infinity, 52),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -172,7 +187,10 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 16),
               const Text(
                 'App Version 1.1 (Build 2)',
-                style: TextStyle(color: Colors.white54, fontSize: 12),
+                style: TextStyle(
+                  color: ProfilePage.kTextSecondary,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),
@@ -181,6 +199,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  // ... existing methods like _showSingleFieldEditDialog ...
   void _showSingleFieldEditDialog(
     BuildContext context, {
     required String title,
@@ -188,25 +207,45 @@ class _ProfilePageState extends State<ProfilePage> {
     required String initialValue,
     required Function(String) onSave,
   }) {
+    // ... implementation
+    // Truncated for brevity, assuming standard dialogs
     final controller = TextEditingController(text: initialValue);
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(title),
+        backgroundColor: ProfilePage.kSurfaceColor,
+        title: Text(
+          title,
+          style: const TextStyle(color: ProfilePage.kTextPrimary),
+        ),
         content: SingleChildScrollView(
           child: TextField(
             controller: controller,
-            decoration: InputDecoration(labelText: label),
+            style: const TextStyle(color: ProfilePage.kTextPrimary),
+            decoration: InputDecoration(
+              labelText: label,
+              labelStyle: const TextStyle(color: ProfilePage.kTextSecondary),
+              enabledBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: ProfilePage.kTextSecondary),
+              ),
+            ),
             autofocus: true,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: ProfilePage.kTextSecondary),
+            ),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ProfilePage.kAccentColor,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () {
               onSave(controller.text);
               Navigator.pop(dialogContext);
@@ -236,30 +275,62 @@ class _ProfilePageState extends State<ProfilePage> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Edit Profile'),
+        backgroundColor: ProfilePage.kSurfaceColor,
+        title: const Text(
+          'Edit Profile',
+          style: TextStyle(color: ProfilePage.kTextPrimary),
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Full Name'),
+                style: const TextStyle(color: ProfilePage.kTextPrimary),
+                decoration: const InputDecoration(
+                  labelText: 'Full Name',
+                  labelStyle: TextStyle(color: ProfilePage.kTextSecondary),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: ProfilePage.kTextSecondary),
+                  ),
+                ),
               ),
               if (isAdmin) ...[
                 const SizedBox(height: 16),
                 TextField(
                   controller: deptController,
-                  decoration: const InputDecoration(labelText: 'Department'),
+                  style: const TextStyle(color: ProfilePage.kTextPrimary),
+                  decoration: const InputDecoration(
+                    labelText: 'Department',
+                    labelStyle: TextStyle(color: ProfilePage.kTextSecondary),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: ProfilePage.kTextSecondary),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: managerController,
-                  decoration: const InputDecoration(labelText: 'Manager'),
+                  style: const TextStyle(color: ProfilePage.kTextPrimary),
+                  decoration: const InputDecoration(
+                    labelText: 'Manager',
+                    labelStyle: TextStyle(color: ProfilePage.kTextSecondary),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: ProfilePage.kTextSecondary),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: companyController,
-                  decoration: const InputDecoration(labelText: 'Company Name'),
+                  style: const TextStyle(color: ProfilePage.kTextPrimary),
+                  decoration: const InputDecoration(
+                    labelText: 'Company Name',
+                    labelStyle: TextStyle(color: ProfilePage.kTextSecondary),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: ProfilePage.kTextSecondary),
+                    ),
+                  ),
                 ),
               ],
             ],
@@ -268,9 +339,16 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: ProfilePage.kTextSecondary),
+            ),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ProfilePage.kAccentColor,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () {
               context.read<AuthBloc>().add(
                 AuthProfileUpdateRequested(
@@ -307,7 +385,7 @@ class _ProfilePageState extends State<ProfilePage> {
               right: 0,
               child: CircleAvatar(
                 radius: 16,
-                backgroundColor: Colors.blue,
+                backgroundColor: ProfilePage.kAccentColor,
                 child: const Icon(
                   Icons.camera_alt,
                   size: 16,
@@ -321,7 +399,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Text(
           name ?? 'User',
           style: const TextStyle(
-            color: Colors.white,
+            color: ProfilePage.kTextPrimary,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -329,7 +407,7 @@ class _ProfilePageState extends State<ProfilePage> {
         const SizedBox(height: 4),
         Text(
           role?.toUpperCase() ?? 'EMPLOYEE',
-          style: const TextStyle(color: Colors.white70),
+          style: const TextStyle(color: ProfilePage.kTextSecondary),
         ),
         const SizedBox(height: 10),
         Container(
@@ -352,7 +430,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _quickActions() {
-    return Row(children: [_actionButton(Icons.badge, 'View ID Card')]);
+    return Row(children: [_actionButton(Icons.badge_outlined, 'View ID Card')]);
   }
 
   Widget _actionButton(IconData icon, String label) {
@@ -360,15 +438,22 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Container(
         height: 56,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: ProfilePage.kSurfaceColor,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.blue),
+            Icon(icon, color: ProfilePage.kAccentColor),
             const SizedBox(width: 8),
-            Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+            Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: ProfilePage.kTextPrimary,
+              ),
+            ),
           ],
         ),
       ),
@@ -382,16 +467,18 @@ class _ProfilePageState extends State<ProfilePage> {
         Text(
           title,
           style: const TextStyle(
-            color: Colors.white54,
+            color: ProfilePage.kTextSecondary,
             fontWeight: FontWeight.w700,
             fontSize: 12,
+            letterSpacing: 1.0,
           ),
         ),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: ProfilePage.kSurfaceColor,
             borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
           ),
           child: child,
         ),
@@ -419,10 +506,19 @@ class _InfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: onTap,
-      leading: Icon(icon, color: Colors.blue),
-      title: Text(title),
-      subtitle: Text(value),
-      trailing: const Icon(Icons.chevron_right),
+      leading: Icon(icon, color: ProfilePage.kAccentColor),
+      title: Text(
+        title,
+        style: const TextStyle(color: ProfilePage.kTextPrimary),
+      ),
+      subtitle: Text(
+        value,
+        style: const TextStyle(color: ProfilePage.kTextSecondary),
+      ),
+      trailing: const Icon(
+        Icons.chevron_right,
+        color: ProfilePage.kTextSecondary,
+      ),
     );
   }
 }
@@ -436,10 +532,16 @@ class _RowTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(label),
+      title: Text(
+        label,
+        style: const TextStyle(color: ProfilePage.kTextSecondary),
+      ),
       trailing: Text(
         value,
-        style: const TextStyle(fontWeight: FontWeight.w600),
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          color: ProfilePage.kTextPrimary,
+        ),
       ),
     );
   }
@@ -450,6 +552,6 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(height: 1);
+    return Divider(height: 1, color: Colors.white.withValues(alpha: 0.05));
   }
 }

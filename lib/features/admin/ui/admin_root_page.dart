@@ -4,10 +4,7 @@ import 'admin_home_page.dart';
 import 'admin_attendance_page.dart';
 import 'admin_leave_page.dart';
 import 'admin_users_page.dart';
-import 'admin_reports_page.dart';
-
-// Placeholder pages for now
-// import '../../attendance/ui/attendance_history_page.dart';
+import 'admin_settings_page.dart';
 
 class AdminRootPage extends StatelessWidget {
   const AdminRootPage({super.key});
@@ -33,44 +30,51 @@ class _AdminRootViewState extends State<_AdminRootView> {
     const AdminAttendancePage(),
     const AdminLeavePage(),
     const AdminUsersPage(),
-    const AdminReportsPage(),
+    const AdminSettingsPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0c202e),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(child: _pages[_currentIndex]),
-            FBottomNavigationBar(
-              index: _currentIndex,
-              onChange: (index) => setState(() => _currentIndex = index),
-              children: [
-                FBottomNavigationBarItem(
-                  icon: const Icon(Icons.home),
-                  label: const Text('Home'),
-                ),
-                FBottomNavigationBarItem(
-                  icon: const Icon(Icons.access_time),
-                  label: const Text('Attend'),
-                ),
-                FBottomNavigationBarItem(
-                  icon: const Icon(Icons.event_note),
-                  label: const Text('Leave'),
-                ),
-                FBottomNavigationBarItem(
-                  icon: const Icon(Icons.people),
-                  label: const Text('Users'),
-                ),
-                FBottomNavigationBarItem(
-                  icon: const Icon(Icons.analytics),
-                  label: const Text('Reports'),
-                ),
-              ],
-            ),
-          ],
+      backgroundColor: const Color(0xFF0E0F13), // Match new dark theme
+      body: _pages[_currentIndex],
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          // Optional decoration
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          color: Colors.white,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          child: FBottomNavigationBar(
+            index: _currentIndex,
+            onChange: (index) => setState(() => _currentIndex = index),
+            children: [
+              FBottomNavigationBarItem(
+                icon: const Icon(FIcons.house),
+                label: const Text('Home'),
+              ),
+              FBottomNavigationBarItem(
+                icon: const Icon(FIcons.eye),
+                label: const Text('Monitor'),
+              ),
+              FBottomNavigationBarItem(
+                icon: const Icon(FIcons.mail),
+                label: const Text('Leaves'),
+              ),
+              FBottomNavigationBarItem(
+                icon: const Icon(FIcons.users),
+                label: const Text('Users'),
+              ),
+              FBottomNavigationBarItem(
+                icon: const Icon(FIcons.settings),
+                label: const Text('Settings'),
+              ),
+            ],
+          ),
         ),
       ),
     );
