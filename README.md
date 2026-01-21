@@ -1,4 +1,4 @@
-# Shift — Aplikasi Absensi Berbasis Mobile
+# Shift Aplikasi Absensi Berbasis Mobile
 
 Shift adalah aplikasi absensi karyawan berbasis Flutter yang dikembangkan untuk mempermudah proses pencatatan kehadiran secara digital. Aplikasi ini memanfaatkan teknologi lokasi (geofencing) dan verifikasi wajah (face liveness detection) untuk meningkatkan keamanan serta keakuratan data absensi.
 
