@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/admin_models.dart';
 import 'admin_event.dart';
@@ -19,6 +20,8 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
   final LeaveService _leaveService;
   final ConfigService _configService;
   final String? companyId;
+  final String? _userId;
+  DateTime? _lastActivitiesClearedTime;
 
   AdminBloc({
     AttendanceService? attendanceService,
@@ -26,10 +29,12 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     LeaveService? leaveService,
     ConfigService? configService,
     this.companyId,
+    String? userId,
   }) : _attendanceService = attendanceService ?? AttendanceService(),
        _authService = authService ?? AuthService(),
        _leaveService = leaveService ?? LeaveService(),
        _configService = configService ?? ConfigService(),
+       _userId = userId,
        super(const AdminState()) {
     on<AdminStarted>(_onStarted);
     on<AdminRefreshRequested>((event, emit) => add(AdminStarted()));
@@ -39,6 +44,25 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     on<AdminUserDeleted>(_onUserDeleted);
     on<AdminLeaveStatusUpdated>(_onLeaveStatusUpdated);
     on<AdminAttendanceStreamUpdated>(_onAttendanceStreamUpdated);
+    on<AdminClearActivities>(_onClearActivities);
+  }
+
+  Future<void> _onClearActivities(
+    AdminClearActivities event,
+    Emitter<AdminState> emit,
+  ) async {
+    final now = DateTime.now();
+    _lastActivitiesClearedTime = now;
+
+    final prefs = await SharedPreferences.getInstance();
+    // Use userId to be specific to the admin user
+    final key = _userId != null
+        ? 'admin_last_cleared_user_$_userId'
+        : 'admin_last_cleared_${companyId ?? 'default'}';
+
+    await prefs.setString(key, now.toIso8601String());
+
+    emit(state.copyWith(activities: []));
   }
 
   Future<void> _onLeaveStatusUpdated(
@@ -64,6 +88,18 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     emit(state.copyWith(status: AdminStatus.loading));
 
     try {
+      // Load persistent clear time
+      final prefs = await SharedPreferences.getInstance();
+      final key = _userId != null
+          ? 'admin_last_cleared_user_$_userId'
+          : 'admin_last_cleared_${companyId ?? 'default'}';
+
+      final savedTime = prefs.getString(key);
+
+      if (savedTime != null) {
+        _lastActivitiesClearedTime = DateTime.tryParse(savedTime);
+      }
+
       // Config Service
       final config = await _configService.getOfficeConfig(companyId ?? '');
       final officeLocation = LatLng(
@@ -194,6 +230,16 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
     final activities = <AdminActivity>[];
     for (int i = 0; i < attendance.length; i++) {
       final a = attendance[i];
+
+      // Filter based on cleared time
+      if (_lastActivitiesClearedTime != null) {
+        final checkInTime = a.checkInTime as DateTime?;
+        if (checkInTime == null ||
+            checkInTime.isBefore(_lastActivitiesClearedTime!)) {
+          continue;
+        }
+      }
+
       final adminAttendance = attendanceList[i];
       activities.add(
         AdminActivity(

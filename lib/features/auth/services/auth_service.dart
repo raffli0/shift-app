@@ -134,12 +134,32 @@ class AuthService {
     await _auth.signOut();
     // Clear ALL secure storage
     await _storage.deleteAll();
-    // Clear SharedPreferences but keep 'seenOnboarding'
+    // Clear SharedPreferences but keep 'seenOnboarding' and 'admin_last_cleared_' keys
     final prefs = await SharedPreferences.getInstance();
     final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
+
+    // Get all admin keys we want to preserve
+    final keys = prefs.getKeys();
+    final adminKeys = keys
+        .where((k) => k.startsWith('admin_last_cleared_'))
+        .toList();
+    final adminValues = <String, String?>{};
+
+    for (var key in adminKeys) {
+      adminValues[key] = prefs.getString(key);
+    }
+
     await prefs.clear();
+
+    // Restore preserved values
     if (seenOnboarding) {
       await prefs.setBool('seenOnboarding', true);
+    }
+
+    for (var key in adminValues.keys) {
+      if (adminValues[key] != null) {
+        await prefs.setString(key, adminValues[key]!);
+      }
     }
   }
 

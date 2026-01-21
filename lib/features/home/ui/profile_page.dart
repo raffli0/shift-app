@@ -4,6 +4,7 @@ import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_state.dart';
 import '../../auth/bloc/auth_event.dart';
 import '../../auth/ui/login_page.dart';
+import '../../attendance/services/attendance_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -160,6 +161,29 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               const SizedBox(height: 30),
+              _section(
+                title: 'DEVELOPER OPTIONS',
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(
+                        Icons.delete_forever,
+                        color: Colors.redAccent,
+                      ),
+                      title: const Text(
+                        'Reset All Attendance',
+                        style: TextStyle(color: ProfilePage.kTextPrimary),
+                      ),
+                      subtitle: const Text(
+                        'Delete all my history',
+                        style: TextStyle(color: ProfilePage.kTextSecondary),
+                      ),
+                      onTap: () => _handleResetAttendance(context, user?.id),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.redAccent,
@@ -200,6 +224,61 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   // ... existing methods like _showSingleFieldEditDialog ...
+  Future<void> _handleResetAttendance(
+    BuildContext context,
+    String? userId,
+  ) async {
+    if (userId == null) return;
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: ProfilePage.kSurfaceColor,
+        title: const Text(
+          'Reset Attendance?',
+          style: TextStyle(color: ProfilePage.kTextPrimary),
+        ),
+        content: const Text(
+          'This will permanently delete ALL your attendance records. This cannot be undone.',
+          style: TextStyle(color: ProfilePage.kTextSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: ProfilePage.kTextSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Reset',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      try {
+        await AttendanceService().deleteAllUserAttendance(userId);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('All attendance records deleted.')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        }
+      }
+    }
+  }
+
   void _showSingleFieldEditDialog(
     BuildContext context, {
     required String title,

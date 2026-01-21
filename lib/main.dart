@@ -123,6 +123,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
               attendanceService: AttendanceService(),
               authService: AuthService(),
               companyId: state.user!.companyId,
+              userId: state.user!.id,
             )..add(AdminStarted()),
           ),
         ],

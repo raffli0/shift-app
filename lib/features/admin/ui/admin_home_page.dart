@@ -7,6 +7,7 @@ import 'package:forui/forui.dart';
 import 'package:shift/features/auth/bloc/auth_state.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../bloc/admin_bloc.dart';
+import '../bloc/admin_event.dart';
 import '../bloc/admin_state.dart';
 import '../../../shared/widgets/app_header.dart';
 import 'admin_attendance_detail_page.dart';
@@ -198,13 +199,32 @@ class _AdminHomePageState extends State<AdminHomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Recent Activity",
-            style: TextStyle(
-              color: kTextPrimary,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Recent Activity",
+                style: TextStyle(
+                  color: kTextPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              if (state.activities.isNotEmpty)
+                GestureDetector(
+                  onTap: () {
+                    context.read<AdminBloc>().add(AdminClearActivities());
+                  },
+                  child: const Text(
+                    "Clear All",
+                    style: TextStyle(
+                      color: kTextSecondary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 16),
           if (state.activities.isEmpty)
@@ -221,7 +241,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     title: a.title,
                     subtitle: a.subtitle,
                     time: a.time,
+                    status: a.isWarning ? "Late" : "On Time", // Basic check
                     isWarning: a.isWarning,
+                    imageUrl: a.attendance?.imageUrl,
                     onTap: a.attendance != null
                         ? () {
                             Navigator.push(
@@ -363,14 +385,18 @@ class _ActivityTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final String time;
+  final String status;
   final bool isWarning;
+  final String? imageUrl;
   final VoidCallback? onTap;
 
   const _ActivityTile({
     required this.title,
     required this.subtitle,
     required this.time,
+    this.status = "Unknown",
     this.isWarning = false,
+    this.imageUrl,
     this.onTap,
   });
 
@@ -396,12 +422,13 @@ class _ActivityTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Using Title (Name) as primary bold text, mimicking HomePage Time style
                       Text(
                         title,
                         style: const TextStyle(
                           color: _AdminHomePageState.kTextPrimary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -409,29 +436,78 @@ class _ActivityTile extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
-                        style: TextStyle(
-                          color: isWarning
-                              ? const Color(0xFFE06C75)
-                              : _AdminHomePageState.kTextSecondary,
+                        style: const TextStyle(
+                          color: _AdminHomePageState.kTextSecondary,
                           fontSize: 12,
                         ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
+                      const SizedBox(height: 4),
+                      // Combined Time + Status
+                      Row(
+                        children: [
+                          Text(
+                            time,
+                            style: TextStyle(
+                              color: _AdminHomePageState.kTextSecondary
+                                  .withValues(alpha: 0.8),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            width: 4,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: _AdminHomePageState.kTextSecondary
+                                  .withValues(alpha: 0.3),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            status,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isWarning
+                                  ? const Color(
+                                      0xFFE06C75,
+                                    ) // Red/Orange for Late
+                                  : const Color(
+                                      0xFF4ADE80,
+                                    ), // Green for On Time
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  time,
-                  style: TextStyle(
-                    color: _AdminHomePageState.kTextSecondary.withValues(
-                      alpha: 0.5,
+                if (imageUrl != null && imageUrl!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        imageUrl!,
+                        width: 50,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 50,
+                          height: 40,
+                          color: Colors.white.withValues(alpha: 0.05),
+                          child: const Icon(
+                            CupertinoIcons.person_solid,
+                            size: 16,
+                            color: _AdminHomePageState.kIconPrimary,
+                          ),
+                        ),
+                      ),
                     ),
-                    fontSize: 12,
-                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
-                ),
               ],
             ),
           ),

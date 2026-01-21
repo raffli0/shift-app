@@ -64,3 +64,5 @@ class AdminAttendanceStreamUpdated extends AdminEvent {
   @override
   List<Object?> get props => [attendance];
 }
+
+class AdminClearActivities extends AdminEvent {}
