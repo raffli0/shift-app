@@ -45,9 +45,13 @@ Tujuan dari pengembangan aplikasi Shift adalah:
 
 ## Showcase Aplikasi
 
-| Splash | Onboarding | Login & Register | Home Karyawan | Attendance | Leaves | Attendance History | Profile |
+| Splash | Onboarding | Login & Register | Home Karyawan | 
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| <img src="docs/splash.jpeg" alt="Splash" width="200"/> | <img src="docs/onboarding.jpeg" alt="Onboarding" width="200"/> | <img src="docs/login.jpeg" alt="Login & Register" width="200"/> | <img src="docs/home_karyawan.jpeg" alt="Home" width="200"/> | <img src="docs/attend_karyawan.jpeg" alt="Attendance" width="200"/> | <img src="docs/request_form.jpeg" alt="Leaves" width="200"/> | <img src="docs/history.jpeg" alt="Attendance History" width="200"/> | <img src="docs/profile.jpeg" alt="Profile" width="200"/> |
+| <img src="docs/splash.jpeg" alt="Splash" width="200"/> | <img src="docs/onboarding.jpeg" alt="Onboarding" width="200"/> | <img src="docs/login.jpeg" alt="Login & Register" width="200"/> | <img src="docs/home_karyawan.jpeg" alt="Home" width="200"/> |
+
+| Attendance | Leaves | Attendance History | Profile |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/attend_karyawan.jpeg" alt="Attendance" width="200"/> | <img src="docs/request_form.jpeg" alt="Leaves" width="200"/> | <img src="docs/history.jpeg" alt="Attendance History" width="200"/> | <img src="docs/profile.jpeg" alt="Profile" width="200"/> |
 
 ### Daftar Halaman Aplikasi Shift
 A. Halaman Umum
