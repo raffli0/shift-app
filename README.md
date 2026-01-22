@@ -51,7 +51,7 @@ Tujuan dari pengembangan aplikasi Shift adalah:
 
 | Attendance | Leaves | Attendance History | Profile |
 |:---:|:---:|:---:|:---:|
-| <img src="docs/attend_karyawan.jpeg" alt="Attendance" width="200"/> | <img src="docs/request_form.jpeg" alt="Leaves" width="200"/> | <img src="docs/history.jpeg" alt="Attendance History" width="200"/> | <img src="docs/profile.jpeg" alt="Profile" width="200"/> |
+| <img src="docs/attend_karyawan.jpeg" alt="Attendance" width="200"/> | <img src="docs/leave_req_karyawan.jpeg" alt="Leaves" width="200"/> | <img src="docs/history.jpeg" alt="Attendance History" width="200"/> | <img src="docs/profile.jpeg" alt="Profile" width="200"/> |
 
 ### Daftar Halaman Aplikasi Shift
 A. Halaman Umum
