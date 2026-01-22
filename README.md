@@ -45,17 +45,13 @@ Tujuan dari pengembangan aplikasi Shift adalah:
 
 ## Showcase Aplikasi
 
-| Login | Register |
-|:---:|:---:|
-| <img src="docs/login.jpeg" alt="Login" width="200"/> | <img src="docs/register.jpeg" alt="Register" width="200"/> |
-
-| Splash | Onboarding | Home Karyawan | 
-|:---:|:---:|:---:|
-| <img src="docs/splash.jpeg" alt="Splash" width="200"/> | <img src="docs/onboarding.jpeg" alt="Onboarding" width="200"/> | <img src="docs/home_karyawan.jpeg" alt="Home" width="200"/> |
-
-| Attendance | Leaves | Attendance History | Profile |
+| Login | Register | Splash | Onboarding |
 |:---:|:---:|:---:|:---:|
-| <img src="docs/attend_karyawan.jpeg" alt="Attendance" width="200"/> | <img src="docs/leave_req_karyawan.jpeg" alt="Leaves" width="200"/> | <img src="docs/history.jpeg" alt="Attendance History" width="200"/> | <img src="docs/profile.jpeg" alt="Profile" width="200"/> |
+| <img src="docs/login.jpeg" alt="Login" width="200"/> | <img src="docs/register.jpeg" alt="Register" width="200"/> | <img src="docs/splash.jpeg" alt="Splash" width="200"/> | <img src="docs/onboarding.jpeg" alt="Onboarding" width="200"/> |
+
+| Home Karyawan | Attendance | Leaves | Attendance History | Profile |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/home_karyawan.jpeg" alt="Home" width="200"/> | <img src="docs/attend_karyawan.jpeg" alt="Attendance" width="200"/> | <img src="docs/leave_req_karyawan.jpeg" alt="Leaves" width="200"/> | <img src="docs/history.jpeg" alt="Attendance History" width="200"/> | <img src="docs/profile.jpeg" alt="Profile" width="200"/> |
 
 
 
