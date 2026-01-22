@@ -55,7 +55,7 @@ Tujuan dari pengembangan aplikasi Shift adalah:
 
 | Home Admin | Monitor | Leaves | Users Management | Settings | Set Office Location | 
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| <img src="docs/admin/home.jpeg" alt="Home" width="200"/> | <img src="docs/admin/monitor.jpeg" alt="Monitor" width="200"/> | <img src="docs/admin/manage_leave.jpeg" alt="Leaves" width="200"/> | <img src="docs/admin/users_management.jpeg" alt="Users Management" width="200"/> | <img src="docs/admin/settings.jpeg" alt="Settings" width="200"/> | <img src="docs/admin/set_office_loc.jpeg" alt="Set Office Location" width="200"/> |
+| <img src="docs/admin/home.jpeg" alt="Home" width="200"/> | <img src="docs/admin/attend_history.jpeg" alt="Monitor" width="200"/> | <img src="docs/admin/manage_leave.jpeg" alt="Leaves" width="200"/> | <img src="docs/admin/users_management.jpeg" alt="Users Management" width="200"/> | <img src="docs/admin/settings.jpeg" alt="Settings" width="200"/> | <img src="docs/admin/set_office_loc.jpeg" alt="Set Office Location" width="200"/> |
 
 
 
