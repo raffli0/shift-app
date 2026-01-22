@@ -45,8 +45,8 @@ Tujuan dari pengembangan aplikasi Shift adalah:
 
 ## Showcase Aplikasi
 
-| Login & Liveness | Dashboard Karyawan | Check-In Sukses | Panel Admin |
-|:---:|:---:|:---:|:---:|
+| Splash | Login & Liveness | Dashboard Karyawan | Check-In Sukses | Panel Admin |
+|:---:|:---:|:---:|:---:|:---:|
 | <img src="docs/screenshots/login.png" alt="Login" width="200"/> | <img src="docs/screenshots/home.png" alt="Dashboard" width="200"/> | <img src="docs/screenshots/checkin.png" alt="Check In" width="200"/> | <img src="docs/screenshots/admin.png" alt="Admin Panel" width="200"/> |
 
 > *Catatan: Ganti path gambar di atas dengan screenshot aplikasi yang sebenarnya.*
